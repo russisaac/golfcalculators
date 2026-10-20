@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf Skins Calculator | golfcalculators.com</title>
+<meta name="description" content="Free golf skins calculator with carryovers. Enter scores and see exactly who pays whom.">
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 1rem; line-height: 1.5; }
+  h1 { font-size: 1.5rem; }
+  label { display: block; margin: 0.5rem 0 0.2rem; font-weight: 500; }
+  input, select, button { padding: 0.4rem; font-size: 1rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ccc; padding: 0.3rem; text-align: center; }
+  .result { background: #f0f7f0; padding: 1rem; margin-top: 1rem; border-radius: 4px; }
+  button { background: #1a5f2a; color: white; border: none; cursor: pointer; }
+  button:hover { background: #144920; }
+</style>
+</head>
+<body>
+<h1>Golf Skins Calculator</h1>
+<p>Enter scores. See who wins each skin (with carryovers) and the cleanest settlement.</p>
+
+<label>Number of players</label>
+<select id="numPlayers" onchange="updatePlayers()">
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4" selected>4</option>
+  <option value="5">5</option>
+  <option value="6">6</option>
+</select>
+
+<div id="playerInputs"></div>
+
+<label>Stake per skin ($)</label>
+<input type="number" id="stake" value="5" min="1">
+
+<label><input type="checkbox" id="carryovers" checked> Carryovers on ties</label>
+
+<h2>Scores (lowest wins the skin)</h2>
+<div id="scoreTable"></div>
+
+<button onclick="calculate()">Calculate Settlement</button>
+
+<div id="results" class="result" style="display:none"></div>
+
+<p><a href="/">← Back to golfcalculators.com</a></p>
+
+<script>
+function updatePlayers() {
+  const n = +document.getElementById('numPlayers').value;
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    html += `<label>Player ${i} name</label><input type="text" id="p${i}" value="Player ${i}">`;
+  }
+  document.getElementById('playerInputs').innerHTML = html;
+  buildScoreTable(n);
+}
+
+function buildScoreTable(n) {
+  let html = '<table><tr><th>Hole</th>';
+  for (let i = 1; i <= n; i++) html += `<th>P${i}</th>`;
+  html += '</tr>';
+  for (let h = 1; h <= 18; h++) {
+    html += `<tr><td>${h}</td>`;
+    for (let i = 1; i <= n; i++) {
+      html += `<td><input type="number" id="h${h}p${i}" min="1" max="15" style="width:50px"></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</table>';
+  document.getElementById('scoreTable').innerHTML = html;
+}
+
+function calculate() {
+  const n = +document.getElementById('numPlayers').value;
+  const stake = +document.getElementById('stake').value || 5;
+  const carry = document.getElementById('carryovers').checked;
+  const names = [];
+  for (let i = 1; i <= n; i++) names.push(document.getElementById('p'+i).value || `Player ${i}`);
+
+  let skins = Array(n).fill(0);
+  let carryValue = 0;
+  let log = [];
+
+  for (let h = 1; h <= 18; h++) {
+    let scores = [];
+    for (let i = 0; i < n; i++) {
+      const val = document.getElementById(`h${h}p${i+1}`).value;
+      scores.push(val ? +val : 99);
+    }
+    const min = Math.min(...scores);
+    const winners = scores.map((s,i) => s === min ? i : -1).filter(i => i >= 0);
+
+    if (winners.length === 1) {
+      const w = winners[0];
+      const value = 1 + carryValue;
+      skins[w] += value;
+      log.push(`Hole ${h}: ${names[w]} wins ${value} skin${value>1?'s':''}`);
+      carryValue = 0;
+    } else if (carry) {
+      carryValue += 1;
+      log.push(`Hole ${h}: Tie — carryover`);
+    } else {
+      log.push(`Hole ${h}: Tie — no skin`);
+    }
+  }
+
+  // Settlement: each skin paid by every other player
+  const totalSkins = skins.reduce((a,b) => a+b, 0);
+  let balances = skins.map(s => stake * (n * s - totalSkins));
+
+  let settlement = '<h3>Settlement</h3><ul>';
+  for (let i = 0; i < n; i++) {
+    const b = balances[i];
+    if (b > 0) settlement += `<li>${names[i]} collects $${b.toFixed(2)}</li>`;
+    else if (b < 0) settlement += `<li>${names[i]} pays $${(-b).toFixed(2)}</li>`;
+  }
+  settlement += '</ul>';
+
+  let html = `<h3>Skins won</h3><ul>`;
+  for (let i = 0; i < n; i++) html += `<li>${names[i]}: ${skins[i]}</li>`;
+  html += `</ul>${settlement}<h3>Hole log</h3><ul>` + log.map(l => `<li>${l}</li>`).join('') + '</ul>';
+
+  document.getElementById('results').innerHTML = html;
+  document.getElementById('results').style.display = 'block';
+}
+
+updatePlayers();
+</script>
+</body>
+</html>
