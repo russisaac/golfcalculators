@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Golf Skins Calculator — Who Pays Whom | golfcalculators.com</title>
-<meta name="description" content="Free golf skins calculator with carryovers. Enter scores and get the cleanest who-pays-whom settlement.">
+<meta name="description" content="Free golf skins calculator with carryovers, running totals, and proper net scoring via stroke index.">
 <style>
   :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
   body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
   header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
   header a { text-decoration: none; color: var(--green); font-weight: 600; }
-  main { max-width: 780px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
+  main { max-width: 860px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
   h1 { font-size: 1.75rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
   .lede { color: #475569; margin: 0 0 1.5rem; }
   .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
@@ -19,7 +19,6 @@
   input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; }
   button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
   button.secondary { background: #f1f5f9; color: #0f172a; }
-  button:hover { filter: brightness(0.95); }
   .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
   .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
   table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
@@ -27,16 +26,18 @@
   th { background: #f8fafc; font-weight: 600; }
   input[type=number] { width: 52px; text-align: center; }
   .result { background: #f0fdf4; border-color: #86efac; }
+  .running { background: #fffbeb; border-color: #fcd34d; }
   .payments { margin: 0.5rem 0; padding-left: 1.2rem; }
   .payments li { margin: 0.35rem 0; }
   .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
+  .si-note { font-size: 0.8rem; color: #64748b; }
 </style>
 </head>
 <body>
 <header><a href="/">← Golf Calculators</a></header>
 <main>
 <h1>Skins Calculator</h1>
-<p class="lede">Round’s over. Enter the scores and see exactly who pays whom. Carryovers, gross or net, minimal payments.</p>
+<p class="lede">Enter scores as you go. See the running carryover and who has won what. Settle cleanly at the end.</p>
 
 <div class="section">
   <h2>1. The game</h2>
@@ -52,61 +53,82 @@
       <input type="number" id="stake" value="5" min="1" style="width:90px">
     </div>
     <div style="padding-bottom:0.4rem">
-      <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="carryovers" checked> Carryovers on ties</label>
+      <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="carryovers" checked> Carryovers</label>
     </div>
-    <div style="padding-bottom:0.4rem">
-      <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="netMode"> Net (handicaps)</label>
+    <div>
+      <label>Score entry</label>
+      <select id="scoreMode" onchange="updatePlayers()">
+        <option value="gross">Gross + Stroke Index</option>
+        <option value="net">Direct net scores</option>
+        <option value="grossonly">Gross only (no handicap)</option>
+      </select>
     </div>
   </div>
   <div id="playerInputs" class="players"></div>
   <div style="margin-top:1rem">
-    <button type="button" class="secondary" onclick="loadExample()">Load example round</button>
+    <button type="button" class="secondary" onclick="loadExample()">Load example</button>
   </div>
-  <p class="trust">Lowest unique score wins the skin. Ties carry when enabled. Every other player pays the winner the stake for each skin.</p>
+  <p class="trust" id="modeNote">Enter gross scores. Tool applies strokes using the Stroke Index row (1 = hardest).</p>
 </div>
 
 <div class="section">
   <h2>2. The scores</h2>
   <div id="scoreTable"></div>
-  <button onclick="calculate()" style="margin-top:1.1rem">Calculate settlement</button>
+  <button onclick="calculate(true)" style="margin-top:1.1rem">Update running totals</button>
 </div>
 
+<div id="running" class="section running" style="display:none"></div>
 <div id="results" class="section result" style="display:none"></div>
 </main>
 <script>
+let strokeIndexes = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18]; // common default
+
 function updatePlayers() {
   const n = +document.getElementById('numPlayers').value;
-  const net = document.getElementById('netMode').checked;
+  const mode = document.getElementById('scoreMode').value;
+  const note = document.getElementById('modeNote');
+  if (mode === 'gross') note.textContent = 'Enter gross scores. Tool applies strokes using the Stroke Index row (1 = hardest). Option to play off the low.';
+  else if (mode === 'net') note.textContent = 'Enter net scores directly (group has already applied handicaps).';
+  else note.textContent = 'Gross scores only. No handicap adjustment.';
+
   let html = '';
   for (let i = 1; i <= n; i++) {
     html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}">`;
-    if (net) html += `<label>Playing handicap</label><input type="number" id="hcp${i}" value="0" min="0" style="width:80px">`;
+    if (mode === 'gross') html += `<label>Course HCP</label><input type="number" id="hcp${i}" value="0" min="0" style="width:80px">`;
     html += `</div>`;
   }
   document.getElementById('playerInputs').innerHTML = html;
-  buildScoreTable(n);
+  buildScoreTable(n, mode);
 }
 
-document.getElementById('netMode').addEventListener('change', updatePlayers);
+document.getElementById('scoreMode').addEventListener('change', updatePlayers);
 
-function buildScoreTable(n) {
+function buildScoreTable(n, mode) {
   let html = '<div style="overflow-x:auto"><table><tr><th>Hole</th>';
+  if (mode === 'gross') html += '<th>SI</th>';
   for (let i = 1; i <= n; i++) html += `<th>P${i}</th>`;
   html += '</tr>';
   for (let h = 1; h <= 18; h++) {
     html += `<tr><td>${h}</td>`;
+    if (mode === 'gross') html += `<td><input type="number" id="si${h}" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px"></td>`;
     for (let i = 1; i <= n; i++) html += `<td><input type="number" id="h${h}p${i}" min="1" max="15"></td>`;
     html += '</tr>';
   }
   html += '</table></div>';
+  if (mode === 'gross') html += '<p class="si-note">Stroke Index (SI): 1 = hardest hole. Strokes fall on holes where SI ≤ strokes received.</p>';
   document.getElementById('scoreTable').innerHTML = html;
 }
 
 function loadExample() {
   document.getElementById('numPlayers').value = 4;
+  document.getElementById('scoreMode').value = 'gross';
   updatePlayers();
   const names = ['Alex', 'Blake', 'Casey', 'Drew'];
-  names.forEach((name, i) => document.getElementById('p'+(i+1)).value = name);
+  const hcps = [0, 4, 8, 12];
+  names.forEach((name, i) => {
+    document.getElementById('p'+(i+1)).value = name;
+    document.getElementById('hcp'+(i+1)).value = hcps[i];
+  });
   const sample = [
     [4,5,4,5],[5,4,5,4],[3,4,4,5],[5,5,4,4],[4,4,5,3],
     [6,5,5,4],[4,5,4,5],[5,4,4,5],[4,5,5,4],[3,4,5,4],
@@ -118,30 +140,57 @@ function loadExample() {
   document.getElementById('carryovers').checked = true;
 }
 
-function calculate() {
+function getStrokeIndexes() {
+  const sis = [];
+  for (let h = 1; h <= 18; h++) {
+    const el = document.getElementById('si'+h);
+    sis.push(el ? (+el.value || h) : h);
+  }
+  return sis;
+}
+
+function calculate(showRunningOnly) {
   const n = +document.getElementById('numPlayers').value;
   const stake = +document.getElementById('stake').value || 5;
   const carry = document.getElementById('carryovers').checked;
-  const net = document.getElementById('netMode').checked;
+  const mode = document.getElementById('scoreMode').value;
   const names = [], hcps = [];
   for (let i = 1; i <= n; i++) {
     names.push(document.getElementById('p'+i).value || `Player ${i}`);
-    hcps.push(net ? (+document.getElementById('hcp'+i)?.value || 0) : 0);
+    hcps.push(mode === 'gross' ? (+document.getElementById('hcp'+i)?.value || 0) : 0);
   }
   const minHcp = Math.min(...hcps);
+  const sis = mode === 'gross' ? getStrokeIndexes() : [];
 
   let skins = Array(n).fill(0);
   let carryValue = 0;
   let log = [];
+  let holesEntered = 0;
 
   for (let h = 1; h <= 18; h++) {
-    let scores = [];
+    let raw = [];
+    let allFilled = true;
     for (let i = 0; i < n; i++) {
-      const gross = +document.getElementById(`h${h}p${i+1}`).value || 99;
-      const strokesOnHole = net ? Math.floor((hcps[i] - minHcp) / 18) + ((h <= ((hcps[i]-minHcp) % 18)) ? 1 : 0) : 0;
-      scores.push(gross - strokesOnHole);
+      const val = document.getElementById(`h${h}p${i+1}`).value;
+      if (!val) { allFilled = false; raw.push(null); }
+      else raw.push(+val);
     }
-    const min = Math.min(...scores);
+    if (!allFilled) continue;
+    holesEntered++;
+
+    let scores = raw.slice();
+    if (mode === 'gross') {
+      scores = raw.map((gross, i) => {
+        const strokesReceived = hcps[i] - minHcp; // off the low
+        const si = sis[h-1];
+        const getsStroke = si <= strokesReceived || (strokesReceived > 18 && si <= (strokesReceived - 18));
+        return gross - (getsStroke ? 1 : 0);
+      });
+    }
+
+    const valid = scores.filter(s => s !== null);
+    if (!valid.length) continue;
+    const min = Math.min(...valid);
     const winners = scores.map((s,i) => s === min ? i : -1).filter(i => i >= 0);
 
     if (winners.length === 1) {
@@ -152,12 +201,22 @@ function calculate() {
       carryValue = 0;
     } else if (carry) {
       carryValue += 1;
-      log.push(`Hole ${h}: Tie — carryover`);
+      log.push(`Hole ${h}: Tie — carryover (now ${carryValue})`);
     } else {
       log.push(`Hole ${h}: Tie — no skin`);
     }
   }
 
+  // Running totals
+  let runHtml = `<h2 style="margin-top:0">Running totals (${holesEntered} holes)</h2>`;
+  runHtml += `<p><strong>Current carryover:</strong> ${carryValue} skin${carryValue!==1?'s':''}</p>`;
+  runHtml += `<p><strong>Skins so far:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
+  document.getElementById('running').innerHTML = runHtml;
+  document.getElementById('running').style.display = holesEntered ? 'block' : 'none';
+
+  if (showRunningOnly) return;
+
+  // Full settlement
   const totalSkins = skins.reduce((a,b)=>a+b,0);
   const balances = skins.map(s => stake * (n * s - totalSkins));
 
@@ -176,7 +235,7 @@ function calculate() {
     if (d.amt < 0.01) debtors.shift();
   }
 
-  let html = `<h2 style="margin-top:0">3. Settlement</h2>`;
+  let html = `<h2 style="margin-top:0">Final settlement</h2>`;
   html += `<p><strong>Skins won:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
   if (payments.length) {
     html += `<h3 style="font-size:1rem;margin:1rem 0 0.4rem">Who pays whom</h3><ul class="payments">${payments.map(p=>`<li>${p}</li>`).join('')}</ul>`;
@@ -191,8 +250,13 @@ function calculate() {
 
 function copySummary() {
   const text = window._lastSummary || 'No result';
-  navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard'));
+  navigator.clipboard.writeText(text).then(() => alert('Copied'));
 }
+
+// Auto-update running totals on input
+document.addEventListener('input', (e) => {
+  if (e.target.id && e.target.id.startsWith('h')) calculate(true);
+});
 
 updatePlayers();
 </script>
