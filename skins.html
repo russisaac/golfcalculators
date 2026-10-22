@@ -115,6 +115,7 @@
   <div id="incompleteWarn" class="error" style="display:none"></div>
   <div id="siWarn" class="error" style="display:none"></div>
   <button onclick="settleUp()" style="margin-top:1.1rem" id="settleBtn">Settle up</button>
+  <div id="settleError" class="error" style="display:none"></div>
 </div>
 
 <div id="running" class="section running" style="display:none"></div>
@@ -599,11 +600,12 @@ function calculate(runningOnly = true) {
 function settleUp() {
   const endRule = document.getElementById('endRule').value;
   if (endRule === 'playoff' && !document.getElementById('playoffWinner').value) {
-    const err = document.getElementById('stakeError');
+    const err = document.getElementById('settleError');
     err.textContent = 'Pick a playoff winner before settling';
     err.style.display = 'block';
     document.getElementById('results').style.display = 'none';
     window._shareText = '';
+    document.getElementById('playoffWinner').scrollIntoView({block:'center'});
     return;
   }
   const res = calculate(false);
