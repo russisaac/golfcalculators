@@ -449,7 +449,7 @@ function calculate(runningOnly = true) {
     names.push(document.getElementById('p'+i)?.value || `Player ${i}`);
     const raw = mode === 'gross' ? parseHcp(document.getElementById('hcp'+i)?.value) : 0;
     rawHcps.push(raw);
-    let p = Math.round(raw * allowance);
+    let p = Math.round(raw * allowance); // .5 away from zero handled by Math.round
     if (totalHoles === 9) p = Math.round(p / 2);
     playing.push(p);
   }
@@ -590,9 +590,11 @@ function settleUp() {
   document.getElementById('results').innerHTML = html;
   document.getElementById('results').style.display = 'block';
 
-  const method = strokesMode === 'offlow' ? 'off the low' : 'full handicaps';
+  const modeName = document.getElementById('scoreMode').value;
+  const method = modeName === 'gross' ? (strokesMode === 'offlow' ? 'off the low' : 'full handicaps') : modeName;
   const allowNote = allowance !== 100 ? ` ${allowance}%` : '';
-  const rules = `Skins: $${stake}/skin, net (${method}${allowNote}), carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
+  const holesNote = document.getElementById('holesMode').value !== '18' ? ` (${document.getElementById('holesMode').value})` : '';
+  const rules = `Skins: $${stake}/skin, ${method}${allowNote}${holesNote}, carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
   const balLines = names.map((nm,i) => `${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ');
   const payLines = payments ? payments.join('\n') : 'All square';
   const skinsLine = `Skins: ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(', ')}${leftoverNote ? ` (${leftoverNote})` : ''}`;
