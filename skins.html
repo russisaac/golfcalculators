@@ -218,8 +218,8 @@ function loadState() {
       const el = document.getElementById('si'+h);
       if (el) el.value = si;
     });
-    if (state.playoffWinner) document.getElementById('playoffWinner').value = state.playoffWinner;
     updatePlayoffSelect();
+    if (state.playoffWinner) document.getElementById('playoffWinner').value = state.playoffWinner;
     calculate(true);
     return true;
   } catch(e) { return false; }
