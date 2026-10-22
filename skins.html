@@ -617,6 +617,7 @@ function settleUp() {
   html += `<p><strong>Skins won:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
   if (balances) {
     html += `<p><strong>Net $:</strong> ${names.map((nm,i)=>`${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ')}</p>`;
+  html += `<p class="trust">Amounts rounded to nearest cent.</p>`;
   }
   if (leftoverNote) html += `<p>${leftoverNote}</p>`;
   if (payments && payments.length) {
@@ -632,7 +633,8 @@ function settleUp() {
   const modeName = document.getElementById('scoreMode').value;
   const method = modeName === 'gross' ? (strokesMode === 'offlow' ? 'off the low' : 'full handicaps') : modeName;
   const allowNote = allowance !== 100 ? ` ${allowance}%` : '';
-  const holesNote = document.getElementById('holesMode').value !== '18' ? ` (${document.getElementById('holesMode').value})` : '';
+  const holesVal = document.getElementById('holesMode').value;
+  const holesNote = holesVal === 'front' ? ' (Front 9)' : holesVal === 'back' ? ' (Back 9)' : '';
   const rules = `Skins: $${stake}/skin, ${method}${allowNote}${holesNote}, carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
   const balLines = names.map((nm,i) => `${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ');
   const payLines = payments ? payments.join('\n') : 'All square';
