@@ -273,12 +273,16 @@ function updatePlayers(doSave = true) {
 
 function snapshotCurrent() {
   const n = +document.getElementById('numPlayers').value;
-  pageCache = {};
+  pageCache = { names: [], hcps: [], scores: {}, sis: {} };
   const range = getHoleRange();
   const snap = { names: [], hcps: [], scores: {}, sis: {} };
   for (let i = 1; i <= n; i++) {
-    snap.names.push(document.getElementById('p'+i)?.value || '');
-    snap.hcps.push(document.getElementById('hcp'+i)?.value || '');
+    const nm = document.getElementById('p'+i)?.value || '';
+    const h = document.getElementById('hcp'+i)?.value || '';
+    snap.names.push(nm);
+    snap.hcps.push(h);
+    pageCache.names.push(nm);
+    pageCache.hcps.push(h);
   }
   for (let h = range.start; h <= range.end; h++) {
     snap.scores[h] = [];
