@@ -591,6 +591,13 @@ function calculate(runningOnly = true) {
 }
 
 function settleUp() {
+  const endRule = document.getElementById('endRule').value;
+  if (endRule === 'playoff' && !document.getElementById('playoffWinner').value) {
+    const err = document.getElementById('stakeError');
+    err.textContent = 'Pick a playoff winner before settling';
+    err.style.display = 'block';
+    return;
+  }
   const res = calculate(false);
   if (!res) return;
 
