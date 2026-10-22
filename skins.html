@@ -21,7 +21,8 @@
   button.secondary { background: #f1f5f9; color: #0f172a; }
   .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
   .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; min-width: 320px; }
+  @media (max-width: 480px) { table { font-size: 0.75rem; } input[type=number] { width: 44px; } }
   th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
   th { background: #f8fafc; font-weight: 600; }
   input[type=number] { width: 56px; text-align: center; min-height: 44px; }
@@ -34,7 +35,7 @@
   .payments li { margin: 0.35rem 0; }
   .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
   .copied { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
-  .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 3.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
+  .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
   .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
 </style>
 </head>
@@ -246,7 +247,7 @@ function updatePlayers(doSave = true, fresh = false) {
 
   let html = '';
   for (let i = 1; i <= n; i++) {
-    html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState()">`;
+    html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState();refreshHeaders()">`;
     if (showNet) html += `<label>Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
     html += `</div>`;
   }
@@ -267,6 +268,15 @@ function snapshotCurrent() {
 function restoreFromCache() {
   for (const k in CACHE_RE) for (const id in pageCache[k]) {
     const el = document.getElementById(id); if (el) el.value = pageCache[k][id];
+  }
+}
+function refreshHeaders() {
+  const n = +document.getElementById('numPlayers').value;
+  const ths = document.querySelectorAll('#scoreTable th');
+  for (let i = 1; i <= n; i++) {
+    const nm = document.getElementById('p'+i)?.value || `P${i}`;
+    const th = ths[i + (document.getElementById('scoreMode').value === 'gross' ? 1 : 0)];
+    if (th) { th.textContent = nm.slice(0,8); th.title = nm; }
   }
 }
 function onPlayersChange() { updatePlayers(); }
