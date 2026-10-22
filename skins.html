@@ -129,7 +129,7 @@
 
 <script>
 const STORAGE_KEY = 'golfcalculators_skins_v2';
-let pageCache = {};
+let pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
 let strokeIndexes = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
 
 function getHoleRange() {
@@ -153,6 +153,7 @@ function formatHcp(h) {
 }
 
 function saveState() {
+  snapshotCurrent();
   const n = +document.getElementById('numPlayers').value;
   const state = {
     numPlayers: n,
@@ -167,7 +168,8 @@ function saveState() {
     names: [],
     hcps: [],
     scores: [],
-    sis: []
+    sis: [],
+    cache: pageCache
   };
   for (let i = 1; i <= n; i++) {
     state.names.push(document.getElementById('p'+i)?.value || '');
@@ -191,6 +193,7 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const state = JSON.parse(raw);
+    if (state.cache && state.cache.scores) pageCache = state.cache;
     document.getElementById('numPlayers').value = state.numPlayers || 4;
     document.getElementById('holesMode').value = state.holesMode || '18';
     document.getElementById('stake').value = state.stake || 5;
@@ -227,8 +230,9 @@ function loadState() {
   } catch(e) { return false; }
 }
 
-function updatePlayers(doSave = true) {
-  const snap = snapshotCurrent();
+function updatePlayers(doSave = true, fresh = false) {
+  if (fresh) pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
+  else snapshotCurrent();
   const n = +document.getElementById('numPlayers').value;
   const mode = document.getElementById('scoreMode').value;
   const note = document.getElementById('modeNote');
@@ -248,52 +252,22 @@ function updatePlayers(doSave = true) {
   }
   document.getElementById('playerInputs').innerHTML = html;
   buildScoreTable(n, mode);
-  // Restore from snapshot where possible
-  snap.names.forEach((nm, i) => {
-    const el = document.getElementById('p'+(i+1));
-    if (el && nm) el.value = nm;
-  });
-  snap.hcps.forEach((h, i) => {
-    const el = document.getElementById('hcp'+(i+1));
-    if (el && h) el.value = h;
-  });
-  Object.keys(snap.scores).forEach(h => {
-    snap.scores[h].forEach((s, p) => {
-      const el = document.getElementById(`h${h}p${p+1}`);
-      if (el && s) el.value = s;
-    });
-  });
-  Object.keys(snap.sis).forEach(h => {
-    const el = document.getElementById('si'+h);
-    if (el && snap.sis[h]) el.value = snap.sis[h];
-  });
+  restoreFromCache();
   updatePlayoffSelect();
   if (doSave) saveState();
   calculate(true);
 }
 
+const CACHE_RE = { names: /^p\d+$/, hcps: /^hcp\d+$/, scores: /^h\d+p\d+$/, sis: /^si\d+$/ };
 function snapshotCurrent() {
-  const n = +document.getElementById('numPlayers').value;
-  pageCache = { names: [], hcps: [], scores: {}, sis: {} };
-  const range = getHoleRange();
-  const snap = { names: [], hcps: [], scores: {}, sis: {} };
-  for (let i = 1; i <= n; i++) {
-    const nm = document.getElementById('p'+i)?.value || '';
-    const h = document.getElementById('hcp'+i)?.value || '';
-    snap.names.push(nm);
-    snap.hcps.push(h);
-    pageCache.names.push(nm);
-    pageCache.hcps.push(h);
+  document.querySelectorAll('#playerInputs input[id], #scoreTable input[id]').forEach(el => {
+    for (const k in CACHE_RE) if (CACHE_RE[k].test(el.id)) { pageCache[k][el.id] = el.value; break; }
+  });
+}
+function restoreFromCache() {
+  for (const k in CACHE_RE) for (const id in pageCache[k]) {
+    const el = document.getElementById(id); if (el) el.value = pageCache[k][id];
   }
-  for (let h = range.start; h <= range.end; h++) {
-    snap.scores[h] = [];
-    for (let i = 1; i <= n; i++) {
-      snap.scores[h].push(document.getElementById(`h${h}p${i}`)?.value || '');
-    }
-    const si = document.getElementById('si'+h);
-    if (si) snap.sis[h] = si.value;
-  }
-  return snap;
 }
 function onPlayersChange() { updatePlayers(); }
 function onModeChange() { updatePlayers(); }
@@ -381,6 +355,7 @@ function newRound() {
     const res = document.getElementById('res'+h);
     if (res) res.textContent = '—';
   }
+  pageCache.scores = {};
   saveState();
   calculate(true);
 }
@@ -396,7 +371,7 @@ function clearAll() {
   document.getElementById('scoreMode').value = 'gross';
   document.getElementById('strokesMode').value = 'full';
   document.getElementById('allowance').value = 100;
-  updatePlayers();
+  updatePlayers(true, true);
 }
 
 function loadExample() {
@@ -608,6 +583,7 @@ function settleUp() {
     document.getElementById('playoffWinner').scrollIntoView({block:'center'});
     return;
   }
+  document.getElementById('settleError').style.display='none';
   const res = calculate(false);
   if (!res) return;
 
@@ -675,7 +651,6 @@ document.addEventListener('input', (e) => {
 });
 
 document.getElementById('numPlayers').addEventListener('change', onPlayersChange);
-document.getElementById('scoreMode').addEventListener('change', onModeChange);
 
 if (!loadState()) updatePlayers();
 </script>
