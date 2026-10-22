@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Golf Skins Calculator — Who Pays Whom | golfcalculators.com</title>
-<meta name="description" content="Free golf skins calculator with carryovers. Settle cleanly and share who pays whom. Your round is saved on this device.">
+<meta name="description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
 <style>
   :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
   body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
@@ -29,6 +29,7 @@
   .running { background: #fffbeb; border-color: #fcd34d; }
   .error { color: #b91c1c; font-size: 0.85rem; margin-top: 0.4rem; }
   .invalid { border-color: #ef4444 !important; background: #fef2f2; }
+  .stroke-dot { color: #166534; font-size: 0.7rem; margin-left: 2px; }
   .payments { margin: 0.5rem 0; padding-left: 1.2rem; }
   .payments li { margin: 0.35rem 0; }
   .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
@@ -41,7 +42,7 @@
 <header><a href="/">← Golf Calculators</a></header>
 <main>
 <h1>Skins Calculator</h1>
-<p class="lede">Enter scores as you go. See the running carryover and who has won what. Settle cleanly at the end and share the result. Your round is saved on this device.</p>
+<p class="lede">Enter scores as you go. Correct net scoring with full handicaps or off the low. Settle cleanly and share who pays whom. Your round is saved on this device.</p>
 
 <div class="section">
   <h2>1. The game</h2>
@@ -49,7 +50,15 @@
     <div>
       <label>Players</label>
       <select id="numPlayers" onchange="onPlayersChange()">
-        <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
+        <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+      </select>
+    </div>
+    <div>
+      <label>Holes</label>
+      <select id="holesMode" onchange="onHolesChange()">
+        <option value="18">18</option>
+        <option value="front">Front 9</option>
+        <option value="back">Back 9</option>
       </select>
     </div>
     <div>
@@ -79,6 +88,17 @@
         <option value="grossonly">Gross only</option>
       </select>
     </div>
+    <div id="strokesSettings" style="display:none">
+      <label>Strokes</label>
+      <select id="strokesMode">
+        <option value="full">Full handicaps</option>
+        <option value="offlow">Off the lowest</option>
+      </select>
+    </div>
+    <div id="allowanceWrap" style="display:none">
+      <label>Allowance %</label>
+      <input type="number" id="allowance" value="100" min="50" max="100" step="5" style="width:70px">
+    </div>
   </div>
   <div id="playerInputs" class="players"></div>
   <div class="actions">
@@ -86,7 +106,7 @@
     <button type="button" class="secondary" onclick="newRound()">New round</button>
     <button type="button" class="secondary" onclick="clearAll()">Clear all</button>
   </div>
-  <p class="trust" id="modeNote">Enter gross scores. Tool applies strokes using the Stroke Index row (1 = hardest). Currently off the low.</p>
+  <p class="trust" id="modeNote">Enter gross scores. Strokes applied using Stroke Index (1 = hardest).</p>
 </div>
 
 <div class="section">
@@ -107,18 +127,40 @@
 </div>
 
 <script>
-const STORAGE_KEY = 'golfcalculators_skins_v1';
+const STORAGE_KEY = 'golfcalculators_skins_v2';
 let strokeIndexes = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
+
+function getHoleRange() {
+  const mode = document.getElementById('holesMode').value;
+  if (mode === 'front') return {start:1, end:9, label:'after 9'};
+  if (mode === 'back') return {start:10, end:18, label:'after 9'};
+  return {start:1, end:18, label:'after 18'};
+}
+
+function parseHcp(val) {
+  if (!val) return 0;
+  const s = String(val).trim();
+  if (s.startsWith('+')) return -parseFloat(s.slice(1)) || 0;
+  if (s.startsWith('-')) return -parseFloat(s.slice(1)) || 0;
+  return parseFloat(s) || 0;
+}
+
+function formatHcp(h) {
+  if (h < 0) return '+' + Math.abs(h);
+  return String(h);
+}
 
 function saveState() {
   const n = +document.getElementById('numPlayers').value;
-  const mode = document.getElementById('scoreMode').value;
   const state = {
     numPlayers: n,
+    holesMode: document.getElementById('holesMode').value,
     stake: document.getElementById('stake').value,
     carryovers: document.getElementById('carryovers').checked,
     endRule: document.getElementById('endRule').value,
-    scoreMode: mode,
+    scoreMode: document.getElementById('scoreMode').value,
+    strokesMode: document.getElementById('strokesMode').value,
+    allowance: document.getElementById('allowance').value,
     names: [],
     hcps: [],
     scores: [],
@@ -128,7 +170,8 @@ function saveState() {
     state.names.push(document.getElementById('p'+i)?.value || '');
     state.hcps.push(document.getElementById('hcp'+i)?.value || '');
   }
-  for (let h = 1; h <= 18; h++) {
+  const range = getHoleRange();
+  for (let h = range.start; h <= range.end; h++) {
     const row = [];
     for (let i = 1; i <= n; i++) {
       row.push(document.getElementById(`h${h}p${i}`)?.value || '');
@@ -146,10 +189,13 @@ function loadState() {
     if (!raw) return false;
     const state = JSON.parse(raw);
     document.getElementById('numPlayers').value = state.numPlayers || 4;
+    document.getElementById('holesMode').value = state.holesMode || '18';
     document.getElementById('stake').value = state.stake || 5;
     document.getElementById('carryovers').checked = !!state.carryovers;
     document.getElementById('endRule').value = state.endRule || 'nobody';
     document.getElementById('scoreMode').value = state.scoreMode || 'gross';
+    document.getElementById('strokesMode').value = state.strokesMode || 'full';
+    document.getElementById('allowance').value = state.allowance || 100;
     updatePlayers(false);
     state.names?.forEach((nm, i) => {
       const el = document.getElementById('p'+(i+1));
@@ -158,16 +204,6 @@ function loadState() {
     state.hcps?.forEach((h, i) => {
       const el = document.getElementById('hcp'+(i+1));
       if (el) el.value = h;
-    });
-    state.scores?.forEach((row, h) => {
-      row.forEach((s, p) => {
-        const el = document.getElementById(`h${h+1}p${p+1}`);
-        if (el) el.value = s;
-      });
-    });
-    state.sis?.forEach((si, h) => {
-      const el = document.getElementById('si'+(h+1));
-      if (el) el.value = si;
     });
     updatePlayoffSelect();
     calculate(true);
@@ -179,14 +215,18 @@ function updatePlayers(doSave = true) {
   const n = +document.getElementById('numPlayers').value;
   const mode = document.getElementById('scoreMode').value;
   const note = document.getElementById('modeNote');
-  if (mode === 'gross') note.textContent = 'Enter gross scores. Tool applies strokes using the Stroke Index row (1 = hardest). Currently off the low.';
+  const showNet = mode === 'gross';
+  document.getElementById('strokesSettings').style.display = showNet ? 'block' : 'none';
+  document.getElementById('allowanceWrap').style.display = showNet ? 'block' : 'none';
+
+  if (mode === 'gross') note.textContent = 'Enter gross scores. Strokes applied using Stroke Index (1 = hardest). Daily / Playing Handicap.';
   else if (mode === 'net') note.textContent = 'Enter net scores directly.';
   else note.textContent = 'Gross scores only. No handicap adjustment.';
 
   let html = '';
   for (let i = 1; i <= n; i++) {
     html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState()">`;
-    if (mode === 'gross') html += `<label>Course HCP</label><input type="number" id="hcp${i}" value="0" min="0" style="width:80px" oninput="saveState()">`;
+    if (showNet) html += `<label>Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
     html += `</div>`;
   }
   document.getElementById('playerInputs').innerHTML = html;
@@ -198,6 +238,7 @@ function updatePlayers(doSave = true) {
 
 function onPlayersChange() { updatePlayers(); }
 function onModeChange() { updatePlayers(); }
+function onHolesChange() { updatePlayers(); }
 
 function updatePlayoffSelect() {
   const n = +document.getElementById('numPlayers').value;
@@ -215,8 +256,11 @@ function updatePlayoffSelect() {
 
 document.getElementById('endRule').addEventListener('change', () => { updatePlayoffSelect(); saveState(); });
 document.getElementById('scoreMode').addEventListener('change', onModeChange);
+document.getElementById('strokesMode').addEventListener('change', () => { saveState(); calculate(true); });
+document.getElementById('allowance').addEventListener('input', () => { saveState(); calculate(true); });
 
 function buildScoreTable(n, mode) {
+  const range = getHoleRange();
   let html = '<div style="overflow-x:auto"><table><tr><th>Hole</th>';
   if (mode === 'gross') html += '<th>SI</th>';
   for (let i = 1; i <= n; i++) {
@@ -224,16 +268,16 @@ function buildScoreTable(n, mode) {
     html += `<th title="${nm}">${nm.slice(0,8)}</th>`;
   }
   html += '<th>Result</th></tr>';
-  for (let h = 1; h <= 18; h++) {
+  for (let h = range.start; h <= range.end; h++) {
     html += `<tr><td>${h}</td>`;
     if (mode === 'gross') html += `<td><input type="number" id="si${h}" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px" oninput="saveState();validateSI()"></td>`;
     for (let i = 1; i <= n; i++) {
-      html += `<td><input type="number" id="h${h}p${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"></td>`;
+      html += `<td><input type="number" id="h${h}p${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"><span class="stroke-dot" id="dot${h}p${i}"></span></td>`;
     }
     html += `<td id="res${h}">—</td></tr>`;
   }
   html += '</table></div>';
-  if (mode === 'gross') html += '<p class="trust">Stroke Index (SI): 1 = hardest hole. Strokes fall on holes where SI ≤ strokes received.</p>';
+  if (mode === 'gross') html += '<p class="trust">Stroke Index (SI): 1 = hardest hole. Dots show strokes received.</p>';
   document.getElementById('scoreTable').innerHTML = html;
 }
 
@@ -250,15 +294,16 @@ function onScoreInput(el, hole, player) {
 }
 
 function validateSI() {
+  const range = getHoleRange();
   const sis = [];
-  for (let h = 1; h <= 18; h++) {
+  for (let h = range.start; h <= range.end; h++) {
     const el = document.getElementById('si'+h);
     if (el) sis.push(+el.value);
   }
   const unique = new Set(sis);
   const warn = document.getElementById('siWarn');
-  if (sis.length === 18 && unique.size !== 18) {
-    warn.textContent = 'Stroke Indexes should be unique (1–18).';
+  if (sis.length === (range.end - range.start + 1) && unique.size !== sis.length) {
+    warn.textContent = 'Stroke Indexes should be unique.';
     warn.style.display = 'block';
   } else {
     warn.style.display = 'none';
@@ -267,8 +312,9 @@ function validateSI() {
 
 function newRound() {
   if (!confirm('Clear scores for a new round? Players and handicaps will be kept.')) return;
+  const range = getHoleRange();
   const n = +document.getElementById('numPlayers').value;
-  for (let h = 1; h <= 18; h++) {
+  for (let h = range.start; h <= range.end; h++) {
     for (let i = 1; i <= n; i++) {
       const el = document.getElementById(`h${h}p${i}`);
       if (el) el.value = '';
@@ -284,19 +330,24 @@ function clearAll() {
   if (!confirm('Clear everything including players and handicaps?')) return;
   localStorage.removeItem(STORAGE_KEY);
   document.getElementById('numPlayers').value = 4;
+  document.getElementById('holesMode').value = '18';
   document.getElementById('stake').value = 5;
   document.getElementById('carryovers').checked = true;
   document.getElementById('endRule').value = 'nobody';
   document.getElementById('scoreMode').value = 'gross';
+  document.getElementById('strokesMode').value = 'full';
+  document.getElementById('allowance').value = 100;
   updatePlayers();
 }
 
 function loadExample() {
   document.getElementById('numPlayers').value = 4;
   document.getElementById('scoreMode').value = 'gross';
+  document.getElementById('strokesMode').value = 'full';
+  document.getElementById('allowance').value = 100;
   updatePlayers(false);
   const names = ['Alex', 'Blake', 'Casey', 'Drew'];
-  const hcps = [0, 4, 8, 12];
+  const hcps = ['0', '4', '8', '12'];
   names.forEach((name, i) => {
     document.getElementById('p'+(i+1)).value = name;
     document.getElementById('hcp'+(i+1)).value = hcps[i];
@@ -307,7 +358,10 @@ function loadExample() {
     [5,4,4,5],[4,5,5,4],[5,4,4,5],[4,5,4,5],[5,4,5,4],
     [4,5,4,4],[5,4,5,4],[4,5,4,5]
   ];
-  sample.forEach((row, h) => row.forEach((s, p) => document.getElementById(`h${h+1}p${p+1}`).value = s));
+  sample.forEach((row, h) => row.forEach((s, p) => {
+    const el = document.getElementById(`h${h+1}p${p+1}`);
+    if (el) el.value = s;
+  }));
   document.getElementById('stake').value = 5;
   document.getElementById('carryovers').checked = true;
   document.getElementById('endRule').value = 'nobody';
@@ -323,6 +377,15 @@ function getStrokeIndexes() {
     sis.push(el ? (+el.value || h) : h);
   }
   return sis;
+}
+
+function strokesOnHole(r, si, totalHoles) {
+  if (r >= 0) {
+    return Math.floor(r / totalHoles) + (si <= (r % totalHoles) ? 1 : 0);
+  } else {
+    const give = Math.abs(r);
+    return si > (totalHoles - give) ? -1 : 0;
+  }
 }
 
 function calculate(runningOnly = true) {
@@ -341,21 +404,28 @@ function calculate(runningOnly = true) {
   const carry = document.getElementById('carryovers').checked;
   const mode = document.getElementById('scoreMode').value;
   const endRule = document.getElementById('endRule').value;
-  const names = [], hcps = [];
+  const strokesMode = document.getElementById('strokesMode').value;
+  const allowance = (+document.getElementById('allowance').value || 100) / 100;
+  const range = getHoleRange();
+  const totalHoles = range.end - range.start + 1;
+  const names = [], rawHcps = [], playing = [];
   for (let i = 1; i <= n; i++) {
     names.push(document.getElementById('p'+i)?.value || `Player ${i}`);
-    hcps.push(mode === 'gross' ? (+document.getElementById('hcp'+i)?.value || 0) : 0);
+    const raw = mode === 'gross' ? parseHcp(document.getElementById('hcp'+i)?.value) : 0;
+    rawHcps.push(raw);
+    let p = Math.round(raw * allowance);
+    if (totalHoles === 9) p = Math.round(p / 2);
+    playing.push(p);
   }
-  const minHcp = Math.min(...hcps);
+  const minPlaying = Math.min(...playing);
   const sis = mode === 'gross' ? getStrokeIndexes() : [];
 
   let skins = Array(n).fill(0);
   let carryValue = 0;
-  let log = [];
   let holesEntered = 0;
   let incomplete = [];
 
-  for (let h = 1; h <= 18; h++) {
+  for (let h = range.start; h <= range.end; h++) {
     let raw = [];
     let allFilled = true;
     for (let i = 0; i < n; i++) {
@@ -375,10 +445,12 @@ function calculate(runningOnly = true) {
     let scores = raw.slice();
     if (mode === 'gross') {
       scores = raw.map((gross, i) => {
-        const strokesReceived = hcps[i] - minHcp;
+        let r = strokesMode === 'offlow' ? playing[i] - minPlaying : playing[i];
         const si = sis[h-1];
-        const getsStroke = si <= strokesReceived || (strokesReceived > 18 && si <= (strokesReceived - 18));
-        return gross - (getsStroke ? 1 : 0);
+        const strokes = strokesOnHole(r, si, totalHoles);
+        const dot = document.getElementById(`dot${h}p${i+1}`);
+        if (dot) dot.textContent = strokes > 0 ? '●'.repeat(strokes) : (strokes < 0 ? '○' : '');
+        return gross - strokes;
       });
     }
 
@@ -391,15 +463,12 @@ function calculate(runningOnly = true) {
       const w = winners[0];
       const value = 1 + carryValue;
       skins[w] += value;
-      log.push(`Hole ${h}: ${names[w]} wins ${value} skin${value>1?'s':''}`);
       if (resEl) resEl.textContent = names[w].slice(0,1).toUpperCase();
       carryValue = 0;
     } else if (carry) {
       carryValue += 1;
-      log.push(`Hole ${h}: Tie — carryover (now ${carryValue})`);
       if (resEl) resEl.textContent = 'C';
     } else {
-      log.push(`Hole ${h}: Tie — no skin`);
       if (resEl) resEl.textContent = '—';
     }
   }
@@ -407,7 +476,7 @@ function calculate(runningOnly = true) {
   let leftoverNote = '';
   if (carryValue > 0) {
     if (endRule === 'nobody') {
-      leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} still carried after 18: nobody wins them`;
+      leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} still carried ${range.label}: nobody wins them`;
     } else if (endRule === 'playoff') {
       const winnerVal = document.getElementById('playoffWinner').value;
       const winnerIdx = winnerVal === '' ? NaN : +winnerVal;
@@ -460,14 +529,14 @@ function calculate(runningOnly = true) {
     if (d.amt < 0.01) debtors.shift();
   }
 
-  return { skins, names, stake, leftoverNote, incomplete, balances, payments, totalSkins };
+  return { skins, names, stake, leftoverNote, incomplete, balances, payments, totalSkins, strokesMode, allowance: allowance*100 };
 }
 
 function settleUp() {
   const res = calculate(false);
   if (!res) return;
 
-  const { skins, names, stake, leftoverNote, balances, payments } = res;
+  const { skins, names, stake, leftoverNote, balances, payments, strokesMode, allowance } = res;
 
   let html = `<h2 style="margin-top:0">Settlement</h2>`;
   html += `<p><strong>Skins won:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
@@ -481,12 +550,13 @@ function settleUp() {
     html += `<p>All square.</p>`;
   }
   html += `<button class="secondary" onclick="shareResult()">Share</button> <span id="copyConfirm" class="copied"></span>`;
-  html += `<details style="margin-top:1rem"><summary style="cursor:pointer;color:#475569">Hole-by-hole</summary><ul style="margin-top:0.5rem" id="holeLog"></ul></details>`;
 
   document.getElementById('results').innerHTML = html;
   document.getElementById('results').style.display = 'block';
 
-  const rules = `Skins: $${stake}/skin, ${document.getElementById('scoreMode').value}, carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
+  const method = strokesMode === 'offlow' ? 'off the low' : 'full handicaps';
+  const allowNote = allowance !== 100 ? ` ${allowance}%` : '';
+  const rules = `Skins: $${stake}/skin, net (${method}${allowNote}), carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
   const balLines = names.map((nm,i) => `${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ');
   const payLines = payments ? payments.join('\n') : 'All square';
   const skinsLine = `Skins: ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(', ')}${leftoverNote ? ` (${leftoverNote})` : ''}`;
