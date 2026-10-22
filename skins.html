@@ -82,7 +82,7 @@
     </div>
     <div>
       <label>Score entry</label>
-      <select id="scoreMode" onchange="onModeChange()">
+      <select id="scoreMode">
         <option value="gross">Gross + Stroke Index</option>
         <option value="net">Direct net scores</option>
         <option value="grossonly">Gross only</option>
@@ -667,6 +667,7 @@ document.addEventListener('input', (e) => {
 });
 
 document.getElementById('numPlayers').addEventListener('change', onPlayersChange);
+document.getElementById('scoreMode').addEventListener('change', onModeChange);
 
 if (!loadState()) updatePlayers();
 </script>
