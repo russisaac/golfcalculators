@@ -226,6 +226,7 @@ function loadState() {
 }
 
 function updatePlayers(doSave = true) {
+  const snap = snapshotCurrent();
   const n = +document.getElementById('numPlayers').value;
   const mode = document.getElementById('scoreMode').value;
   const note = document.getElementById('modeNote');
@@ -245,6 +246,25 @@ function updatePlayers(doSave = true) {
   }
   document.getElementById('playerInputs').innerHTML = html;
   buildScoreTable(n, mode);
+  // Restore from snapshot where possible
+  snap.names.forEach((nm, i) => {
+    const el = document.getElementById('p'+(i+1));
+    if (el && nm) el.value = nm;
+  });
+  snap.hcps.forEach((h, i) => {
+    const el = document.getElementById('hcp'+(i+1));
+    if (el && h) el.value = h;
+  });
+  Object.keys(snap.scores).forEach(h => {
+    snap.scores[h].forEach((s, p) => {
+      const el = document.getElementById(`h${h}p${p+1}`);
+      if (el && s) el.value = s;
+    });
+  });
+  Object.keys(snap.sis).forEach(h => {
+    const el = document.getElementById('si'+h);
+    if (el && snap.sis[h]) el.value = snap.sis[h];
+  });
   updatePlayoffSelect();
   if (doSave) saveState();
   calculate(true);
