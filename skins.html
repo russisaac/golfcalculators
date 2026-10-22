@@ -161,6 +161,7 @@ function saveState() {
     scoreMode: document.getElementById('scoreMode').value,
     strokesMode: document.getElementById('strokesMode').value,
     allowance: document.getElementById('allowance').value,
+    playoffWinner: document.getElementById('playoffWinner')?.value || '',
     names: [],
     hcps: [],
     scores: [],
@@ -205,6 +206,19 @@ function loadState() {
       const el = document.getElementById('hcp'+(i+1));
       if (el) el.value = h;
     });
+    state.scores?.forEach((row, idx) => {
+      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
+      row.forEach((s, p) => {
+        const el = document.getElementById(`h${h}p${p+1}`);
+        if (el) el.value = s;
+      });
+    });
+    state.sis?.forEach((si, idx) => {
+      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
+      const el = document.getElementById('si'+h);
+      if (el) el.value = si;
+    });
+    if (state.playoffWinner) document.getElementById('playoffWinner').value = state.playoffWinner;
     updatePlayoffSelect();
     calculate(true);
     return true;
@@ -386,6 +400,10 @@ function strokesOnHole(r, si, totalHoles) {
     const give = Math.abs(r);
     return si > (totalHoles - give) ? -1 : 0;
   }
+}
+function rankSI(si, allSis) {
+  const sorted = [...allSis].sort((a,b)=>a-b);
+  return sorted.indexOf(si) + 1;
 }
 
 function calculate(runningOnly = true) {
