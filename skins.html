@@ -598,6 +598,8 @@ function settleUp() {
     const err = document.getElementById('stakeError');
     err.textContent = 'Pick a playoff winner before settling';
     err.style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    window._shareText = '';
     return;
   }
   const res = calculate(false);
