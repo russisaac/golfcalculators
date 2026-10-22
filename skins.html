@@ -250,6 +250,24 @@ function updatePlayers(doSave = true) {
   calculate(true);
 }
 
+function snapshotCurrent() {
+  const n = +document.getElementById('numPlayers').value;
+  const range = getHoleRange();
+  const snap = { names: [], hcps: [], scores: {}, sis: {} };
+  for (let i = 1; i <= n; i++) {
+    snap.names.push(document.getElementById('p'+i)?.value || '');
+    snap.hcps.push(document.getElementById('hcp'+i)?.value || '');
+  }
+  for (let h = range.start; h <= range.end; h++) {
+    snap.scores[h] = [];
+    for (let i = 1; i <= n; i++) {
+      snap.scores[h].push(document.getElementById(`h${h}p${i}`)?.value || '');
+    }
+    const si = document.getElementById('si'+h);
+    if (si) snap.sis[h] = si.value;
+  }
+  return snap;
+}
 function onPlayersChange() { updatePlayers(); }
 function onModeChange() { updatePlayers(); }
 function onHolesChange() { updatePlayers(); }
