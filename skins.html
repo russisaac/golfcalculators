@@ -482,7 +482,9 @@ function calculate(runningOnly = true) {
     if (mode === 'gross') {
       scores = raw.map((gross, i) => {
         let r = strokesMode === 'offlow' ? playing[i] - minPlaying : playing[i];
-        const si = sis[h-1];
+        const holeSis = [];
+        for (let hh = range.start; hh <= range.end; hh++) holeSis.push(sis[hh-1]);
+        const si = totalHoles === 9 ? rankSI(sis[h-1], holeSis) : sis[h-1];
         const strokes = strokesOnHole(r, si, totalHoles);
         const dot = document.getElementById(`dot${h}p${i+1}`);
         if (dot) dot.textContent = strokes > 0 ? '●'.repeat(strokes) : (strokes < 0 ? '○' : '');
