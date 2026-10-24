@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf Australia Daily Handicap Calculator (2026 formula) | golfcalculators.com</title>
+<meta name="description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<link rel="canonical" href="https://golfcalculators.com/daily-handicap">
+<meta property="og:title" content="Golf Australia Daily Handicap Calculator (2026 formula)">
+<meta property="og:description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<meta property="og:url" content="https://golfcalculators.com/daily-handicap">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golf Australia Daily Handicap Calculator (2026 formula)">
+<meta name="twitter:description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<style>
+  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
+  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
+  header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
+  header a { text-decoration: none; color: var(--green); font-weight: 600; }
+  main { max-width: 720px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
+  h1 { font-size: 1.75rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .lede { color: #475569; margin: 0 0 1.5rem; }
+  .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+  .section h2 { margin: 0 0 0.8rem; font-size: 1.05rem; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 500; font-size: 0.875rem; color: #334155; }
+  input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 44px; }
+  button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
+  button.secondary { background: #f1f5f9; color: #0f172a; }
+  .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
+  .result-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 1.5rem; text-align: center; margin: 1rem 0; }
+  .big { font-size: 3rem; font-weight: 700; color: #166534; margin: 0; }
+  .how { font-size: 0.85rem; color: #475569; margin: 0.4rem 0 0; }
+  .error { color: #b91c1c; font-size: 0.8rem; margin-top: 0.2rem; }
+  .faq dt { font-weight: 600; margin-top: 0.8rem; }
+  .faq dd { margin: 0.2rem 0 0 0; color: #475569; }
+  .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
+  a { color: var(--green); }
+  @media (max-width: 480px) { .big { font-size: 2.4rem; } }
+</style>
+</head>
+<body>
+<header><a href="/">← Golf Calculators</a></header>
+<main>
+<h1>Golf Australia Daily Handicap</h1>
+<p class="lede">Calculate your Daily Handicap using the current Golf Australia formula (effective 2 Oct 2025). Works for 18 or 9 holes.</p>
+
+<div class="section">
+  <h2>Your details</h2>
+  <div class="row">
+    <div>
+      <label for="gender">Gender</label>
+      <select id="gender" onchange="calculate()">
+        <option value="men">Men / Boys</option>
+        <option value="women">Women / Girls</option>
+      </select>
+    </div>
+    <div>
+      <label for="holes">Holes</label>
+      <select id="holes" onchange="updateLabels();calculate()">
+        <option value="18">18 holes</option>
+        <option value="9">9 holes</option>
+      </select>
+    </div>
+  </div>
+  <div class="row" style="margin-top:0.8rem">
+    <div>
+      <label for="ga">GA Handicap</label>
+      <div style="display:flex;align-items:center;gap:0.4rem">
+        <button type="button" id="plusToggle" class="secondary" style="padding:0.45rem 0.6rem;min-height:44px;min-width:44px" onclick="togglePlus()" aria-label="Plus handicap" aria-pressed="false">+</button>
+        <input type="text" id="ga" placeholder="14.2 or +1.6" style="width:110px" oninput="calculate()" inputmode="decimal">
+      </div>
+      <div id="gaErr" class="error" style="display:none"></div>
+    </div>
+    <div>
+      <label id="slopeLabel" for="slope">Slope</label>
+      <input type="text" id="slope" inputmode="numeric" style="width:90px" oninput="calculate()">
+      <div id="slopeErr" class="error" style="display:none"></div>
+    </div>
+    <div>
+      <label id="scratchLabel" for="scratch">Scratch Rating</label>
+      <input type="text" id="scratch" inputmode="decimal" style="width:100px" oninput="calculate()">
+      <div id="scratchErr" class="error" style="display:none"></div>
+    </div>
+    <div>
+      <label id="parLabel" for="par">Par</label>
+      <input type="text" id="par" inputmode="numeric" style="width:80px" oninput="calculate()">
+      <div id="parErr" class="error" style="display:none"></div>
+    </div>
+  </div>
+  <p class="trust">Formula: ((GA Handicap × Slope ÷ 113) + (Scratch − Par)) × 0.93 × Consistency Factor. <a href="https://www.golf.org.au/your-handicap-has-changed/" target="_blank" rel="noopener">Golf Australia guide</a></p>
+</div>
+
+<div id="result" class="result-box" style="display:none">
+  <p class="how" style="margin:0 0 .25rem">Your Daily Handicap</p>
+  <p class="big" id="dailyOut">—</p>
+  <p class="how" id="howOut"></p>
+</div>
+
+<div class="section">
+  <h2>FAQs</h2>
+  <dl class="faq">
+    <dt>What is the 0.93?</dt>
+    <dd>0.93 is Golf Australia's standard Daily Handicap multiplier, applied to every player's Playing Handicap calculation since the 2 October 2025 changes.</dd>
+    <dt>What is the Consistency Factor?</dt>
+    <dd>0.9986 for Men/Boys and 1.0483 for Women/Girls. It was introduced on 2 October 2025.</dd>
+    <dt>How does the 9-hole version work?</dt>
+    <dd>The GA Handicap is halved inside the formula and the 9-hole Slope, Scratch Rating and Par are used.</dd>
+    <dt>How is this different from a GA Handicap?</dt>
+    <dd>Your GA Handicap is the index. The Daily Handicap is the number of strokes you receive for a specific course and set of tees on the day.</dd>
+  </dl>
+  <p class="trust"><a href="/skins">Playing skins today? Settle up here</a></p>
+</div>
+</main>
+
+<script>
+const CF = { men: 0.9986, women: 1.0483 };
+const STORAGE = 'golfcalculators_daily_hcp';
+const GA_RE = /^[+\-]?\d{1,2}(\.\d)?$/;
+
+function updateLabels() {
+  const is9 = document.getElementById('holes').value === '9';
+  document.getElementById('slopeLabel').textContent = is9 ? '9-hole Slope' : 'Slope';
+  document.getElementById('scratchLabel').textContent = is9 ? '9-hole Scratch Rating' : 'Scratch Rating';
+  document.getElementById('parLabel').textContent = is9 ? '9-hole Par' : 'Par';
+}
+
+function togglePlus() {
+  const el = document.getElementById('ga');
+  const btn = document.getElementById('plusToggle');
+  const v = el.value.trim();
+  if (v.startsWith('+')) {
+    el.value = v.slice(1);
+    btn.setAttribute('aria-pressed', 'false');
+  } else if (v && !v.startsWith('+') && !v.startsWith('-')) {
+    el.value = '+' + v;
+    btn.setAttribute('aria-pressed', 'true');
+  } else if (!v) {
+    el.value = '+';
+    btn.setAttribute('aria-pressed', 'true');
+  }
+  calculate();
+}
+
+function parseGa(val) {
+  if (!val || !GA_RE.test(val.trim())) return NaN;
+  const s = val.trim();
+  if (s.startsWith('+')) return -parseFloat(s.slice(1));
+  if (s.startsWith('-')) return -parseFloat(s.slice(1));
+  return parseFloat(s);
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function calculate() {
+  showErr('gaErr',''); showErr('slopeErr',''); showErr('scratchErr',''); showErr('parErr','');
+  const gaRaw = document.getElementById('ga').value.trim();
+  const slopeRaw = document.getElementById('slope').value.trim();
+  const scratchRaw = document.getElementById('scratch').value.trim();
+  const parRaw = document.getElementById('par').value.trim();
+  const gender = document.getElementById('gender').value;
+  const is9 = document.getElementById('holes').value === '9';
+
+  let ok = true;
+  let ga = NaN, slope = NaN, scratch = NaN, par = NaN;
+
+  if (gaRaw) {
+    if (!GA_RE.test(gaRaw)) { showErr('gaErr','Enter a valid GA Handicap (e.g. 14.2 or +1.6)'); ok = false; }
+    else {
+      ga = parseGa(gaRaw);
+      if (ga < -10 || ga > 54) { showErr('gaErr','Enter a GA Handicap between +10 and 54'); ok = false; }
+    }
+  }
+  if (slopeRaw) {
+    slope = parseFloat(slopeRaw);
+    if (isNaN(slope) || slope < 55 || slope > 155) { showErr('slopeErr','Slope must be 55–155'); ok = false; }
+  }
+  if (scratchRaw) {
+    scratch = parseFloat(scratchRaw);
+    if (isNaN(scratch)) { showErr('scratchErr','Enter Scratch Rating'); ok = false; }
+  }
+  if (parRaw) {
+    par = parseFloat(parRaw);
+    if (isNaN(par)) { showErr('parErr','Enter Par'); ok = false; }
+    else {
+      const minP = is9 ? 27 : 54, maxP = is9 ? 40 : 80;
+      if (par < minP || par > maxP) { showErr('parErr',`Par must be ${minP}–${maxP} for ${is9?'9':'18'} holes`); ok = false; }
+    }
+  }
+
+  if (scratchRaw && parRaw && !isNaN(scratch) && !isNaN(par) && Math.abs(scratch - par) > 10) {
+    showErr('scratchErr','Looks like 18-hole ratings. Use the 9-hole Slope, Scratch and Par from the scorecard.');
+    ok = false;
+  }
+
+  if (!gaRaw || !slopeRaw || !scratchRaw || !parRaw || !ok || isNaN(ga) || isNaN(slope) || isNaN(scratch) || isNaN(par)) {
+    document.getElementById('result').style.display = 'none';
+    return;
+  }
+
+  const gaUse = is9 ? ga / 2 : ga;
+  const cf = CF[gender];
+  const raw = ((gaUse * slope / 113) + (scratch - par)) * 0.93 * cf;
+  let daily = Math.round(raw);
+  if (raw > -0.5 && raw < 0) daily = 0;
+
+  const display = daily < 0 ? '+' + Math.abs(daily) : String(daily);
+  const formula = `(${gaUse} × ${slope} ÷ 113 + (${scratch} − ${par})) × 0.93 × ${cf} = ${raw.toFixed(3)} → ${display}`;
+  document.getElementById('dailyOut').textContent = display;
+  document.getElementById('howOut').textContent = formula;
+  document.getElementById('result').style.display = 'block';
+
+  try {
+    localStorage.setItem(STORAGE, JSON.stringify({
+      gender, holes: document.getElementById('holes').value,
+      ga: gaRaw, slope: slopeRaw, scratch: scratchRaw, par: parRaw
+    }));
+  } catch(e) {}
+}
+
+function loadSaved() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE) || '{}');
+    if (s.gender) document.getElementById('gender').value = s.gender;
+    if (s.holes) document.getElementById('holes').value = s.holes;
+    if (s.ga) document.getElementById('ga').value = s.ga;
+    if (s.slope) document.getElementById('slope').value = s.slope;
+    if (s.scratch) document.getElementById('scratch').value = s.scratch;
+    if (s.par) document.getElementById('par').value = s.par;
+    updateLabels();
+    if (s.ga && s.slope && s.scratch && s.par) calculate();
+  } catch(e) {}
+}
+
+loadSaved();
+</script>
+</body>
+</html>
