@@ -1,1 +1,690 @@
-PLACEHOLDER
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Golf Skins Calculator — Who Pays Whom | golfcalculators.com</title>
+<meta name="description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<link rel="canonical" href="https://golfcalculators.com/skins">
+<meta property="og:title" content="Golf Skins Calculator — Who Pays Whom">
+<meta property="og:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<meta property="og:url" content="https://golfcalculators.com/skins">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Golf Skins Calculator — Who Pays Whom">
+<meta name="twitter:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<style>
+  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
+  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
+  header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
+  header a { text-decoration: none; color: var(--green); font-weight: 600; }
+  main { max-width: 860px; margin: 0 auto; padding: 1.75rem 1.25rem 6rem; }
+  h1 { font-size: 1.75rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
+  .lede { color: #475569; margin: 0 0 1.5rem; }
+  .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+  .section h2 { margin: 0 0 0.8rem; font-size: 1.05rem; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 500; font-size: 0.875rem; color: #334155; }
+  input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; }
+  button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
+  button.secondary { background: #f1f5f9; color: #0f172a; }
+  .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
+  .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; min-width: 320px; }
+  @media (max-width: 480px) { table { font-size: 0.75rem; } input[type=number] { width: 44px; } }
+  th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
+  th { background: #f8fafc; font-weight: 600; }
+  input[type=number] { width: 56px; text-align: center; min-height: 44px; }
+  .result { background: #f0fdf4; border-color: #86efac; }
+  .running { background: #fffbeb; border-color: #fcd34d; }
+  .error { color: #b91c1c; font-size: 0.85rem; margin-top: 0.4rem; }
+  .invalid { border-color: #ef4444 !important; background: #fef2f2; }
+  .stroke-dot { color: #166534; font-size: 0.7rem; margin-left: 2px; }
+  .payments { margin: 0.5rem 0; padding-left: 1.2rem; }
+  .payments li { margin: 0.35rem 0; }
+  .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
+  .copied { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
+  .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
+  .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+</style>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DH32H3GWKE');
+</script>
+
+</head>
+<body>
+<header><a href="/">← Golf Calculators</a></header>
+<main>
+<h1>Skins Calculator</h1>
+<p class="lede">Enter scores as you go. Correct net scoring with full handicaps or off the low. Settle cleanly and share who pays whom. Your round is saved on this device.</p>
+
+<div class="section">
+  <h2>1. The game</h2>
+  <div class="row">
+    <div>
+      <label>Players</label>
+      <select id="numPlayers">
+        <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+      </select>
+    </div>
+    <div>
+      <label>Holes</label>
+      <select id="holesMode" onchange="onHolesChange()">
+        <option value="18">18</option>
+        <option value="front">Front 9</option>
+        <option value="back">Back 9</option>
+      </select>
+    </div>
+    <div>
+      <label>Stake per skin ($)</label>
+      <input type="number" id="stake" value="5" min="0.01" step="0.01" style="width:90px">
+      <div id="stakeError" class="error" style="display:none"></div>
+    </div>
+    <div style="padding-bottom:0.4rem">
+      <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="carryovers" checked> Carryovers</label>
+    </div>
+    <div>
+      <label>End-of-round carryover</label>
+      <select id="endRule">
+        <option value="nobody">Nobody wins them</option>
+        <option value="playoff">Playoff winner</option>
+      </select>
+    </div>
+    <div id="playoffWrap" style="display:none">
+      <label>Playoff winner</label>
+      <select id="playoffWinner"></select>
+      <div id="settleError" class="error" style="display:none"></div>
+    </div>
+    <div>
+      <label>Score entry</label>
+      <select id="scoreMode">
+        <option value="gross">Gross + Stroke Index</option>
+        <option value="net">Direct net scores</option>
+        <option value="grossonly">Gross only</option>
+      </select>
+    </div>
+    <div id="strokesSettings" style="display:none">
+      <label>Strokes</label>
+      <select id="strokesMode">
+        <option value="full">Full handicaps</option>
+        <option value="offlow">Off the lowest</option>
+      </select>
+    </div>
+    <div id="allowanceWrap" style="display:none">
+      <label>Allowance %</label>
+      <input type="number" id="allowance" value="100" min="50" max="100" step="5" style="width:70px">
+    </div>
+  </div>
+  <div id="playerInputs" class="players"></div>
+  <div class="actions">
+    <button type="button" class="secondary" onclick="loadExample()">Load example</button>
+    <button type="button" class="secondary" onclick="newRound()">New round</button>
+    <button type="button" class="secondary" onclick="clearAll()">Clear all</button>
+  </div>
+  <p class="trust" id="modeNote">Enter gross scores. Strokes applied using Stroke Index (1 = hardest).</p>
+</div>
+
+<div class="section">
+  <h2>2. The scores</h2>
+  <div id="scoreTable"></div>
+  <div id="incompleteWarn" class="error" style="display:none"></div>
+  <div id="siWarn" class="error" style="display:none"></div>
+  <button onclick="settleUp()" style="margin-top:1.1rem" id="settleBtn">Settle up</button>
+</div>
+
+<div id="running" class="section running" style="display:none"></div>
+<div id="results" class="section result" style="display:none"></div>
+</main>
+
+<div class="sticky-bar" id="stickyBar" style="display:none">
+  <div id="stickyText">Thru 0 · Carry: 0</div>
+  <button onclick="settleUp()">Settle up</button>
+</div>
+
+<script>
+const STORAGE_KEY = 'golfcalculators_skins_v2';
+let pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
+let strokeIndexes = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
+
+function getHoleRange() {
+  const mode = document.getElementById('holesMode').value;
+  if (mode === 'front') return {start:1, end:9, label:'after 9'};
+  if (mode === 'back') return {start:10, end:18, label:'after 9'};
+  return {start:1, end:18, label:'after 18'};
+}
+
+function parseHcp(val) {
+  if (!val) return 0;
+  const s = String(val).trim();
+  if (s.startsWith('+')) return -parseFloat(s.slice(1)) || 0;
+  if (s.startsWith('-')) return -parseFloat(s.slice(1)) || 0;
+  return parseFloat(s) || 0;
+}
+
+function formatHcp(h) {
+  if (h < 0) return '+' + Math.abs(h);
+  return String(h);
+}
+
+function saveState() {
+  snapshotCurrent();
+  const n = +document.getElementById('numPlayers').value;
+  const state = {
+    numPlayers: n,
+    holesMode: document.getElementById('holesMode').value,
+    stake: document.getElementById('stake').value,
+    carryovers: document.getElementById('carryovers').checked,
+    endRule: document.getElementById('endRule').value,
+    scoreMode: document.getElementById('scoreMode').value,
+    strokesMode: document.getElementById('strokesMode').value,
+    allowance: document.getElementById('allowance').value,
+    playoffWinner: document.getElementById('playoffWinner')?.value || '',
+    names: [],
+    hcps: [],
+    scores: [],
+    sis: [],
+    cache: pageCache
+  };
+  for (let i = 1; i <= n; i++) {
+    state.names.push(document.getElementById('p'+i)?.value || '');
+    state.hcps.push(document.getElementById('hcp'+i)?.value || '');
+  }
+  const range = getHoleRange();
+  for (let h = range.start; h <= range.end; h++) {
+    const row = [];
+    for (let i = 1; i <= n; i++) {
+      row.push(document.getElementById(`h${h}p${i}`)?.value || '');
+    }
+    state.scores.push(row);
+    const siEl = document.getElementById('si'+h);
+    if (siEl) state.sis.push(siEl.value);
+  }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (state.cache && state.cache.scores) pageCache = state.cache;
+    document.getElementById('numPlayers').value = state.numPlayers || 4;
+    document.getElementById('holesMode').value = state.holesMode || '18';
+    document.getElementById('stake').value = state.stake || 5;
+    document.getElementById('carryovers').checked = !!state.carryovers;
+    document.getElementById('endRule').value = state.endRule || 'nobody';
+    document.getElementById('scoreMode').value = state.scoreMode || 'gross';
+    document.getElementById('strokesMode').value = state.strokesMode || 'full';
+    document.getElementById('allowance').value = state.allowance || 100;
+    updatePlayers(false);
+    state.names?.forEach((nm, i) => {
+      const el = document.getElementById('p'+(i+1));
+      if (el) el.value = nm;
+    });
+    state.hcps?.forEach((h, i) => {
+      const el = document.getElementById('hcp'+(i+1));
+      if (el) el.value = h;
+    });
+    state.scores?.forEach((row, idx) => {
+      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
+      row.forEach((s, p) => {
+        const el = document.getElementById(`h${h}p${p+1}`);
+        if (el) el.value = s;
+      });
+    });
+    state.sis?.forEach((si, idx) => {
+      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
+      const el = document.getElementById('si'+h);
+      if (el) el.value = si;
+    });
+    updatePlayoffSelect();
+    if (state.playoffWinner) document.getElementById('playoffWinner').value = state.playoffWinner;
+    calculate(true);
+    return true;
+  } catch(e) { return false; }
+}
+
+function updatePlayers(doSave = true, fresh = false) {
+  if (fresh) pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
+  else snapshotCurrent();
+  const n = +document.getElementById('numPlayers').value;
+  const mode = document.getElementById('scoreMode').value;
+  const note = document.getElementById('modeNote');
+  const showNet = mode === 'gross';
+  document.getElementById('strokesSettings').style.display = showNet ? 'block' : 'none';
+  document.getElementById('allowanceWrap').style.display = showNet ? 'block' : 'none';
+
+  if (mode === 'gross') note.textContent = 'Enter gross scores. Strokes applied using Stroke Index (1 = hardest). Daily / Playing Handicap.';
+  else if (mode === 'net') note.textContent = 'Enter net scores directly.';
+  else note.textContent = 'Gross scores only. No handicap adjustment.';
+
+  let html = '';
+  for (let i = 1; i <= n; i++) {
+    html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState();refreshHeaders()">`;
+    if (showNet) html += `<label>Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
+    html += `</div>`;
+  }
+  document.getElementById('playerInputs').innerHTML = html;
+  buildScoreTable(n, mode);
+  restoreFromCache();
+  updatePlayoffSelect();
+  if (doSave) saveState();
+  calculate(true);
+}
+
+const CACHE_RE = { names: /^p\d+$/, hcps: /^hcp\d+$/, scores: /^h\d+p\d+$/, sis: /^si\d+$/ };
+function snapshotCurrent() {
+  document.querySelectorAll('#playerInputs input[id], #scoreTable input[id]').forEach(el => {
+    for (const k in CACHE_RE) if (CACHE_RE[k].test(el.id)) { pageCache[k][el.id] = el.value; break; }
+  });
+}
+function restoreFromCache() {
+  for (const k in CACHE_RE) for (const id in pageCache[k]) {
+    const el = document.getElementById(id); if (el) el.value = pageCache[k][id];
+  }
+}
+function refreshHeaders() {
+  const n = +document.getElementById('numPlayers').value;
+  const ths = document.querySelectorAll('#scoreTable th');
+  for (let i = 1; i <= n; i++) {
+    const nm = document.getElementById('p'+i)?.value || `P${i}`;
+    const th = ths[i + (document.getElementById('scoreMode').value === 'gross' ? 1 : 0)];
+    if (th) { th.textContent = nm.slice(0,8); th.title = nm; }
+  }
+}
+function onPlayersChange() { updatePlayers(); }
+function onModeChange() { updatePlayers(); }
+function onHolesChange() { updatePlayers(); }
+
+function updatePlayoffSelect() {
+  const n = +document.getElementById('numPlayers').value;
+  const sel = document.getElementById('playoffWinner');
+  sel.innerHTML = '<option value="">Pick winner…</option>';
+  for (let i = 1; i <= n; i++) {
+    const name = document.getElementById('p'+i)?.value || `Player ${i}`;
+    const opt = document.createElement('option');
+    opt.value = i-1;
+    opt.textContent = name;
+    sel.appendChild(opt);
+  }
+  document.getElementById('playoffWrap').style.display = document.getElementById('endRule').value === 'playoff' ? 'block' : 'none';
+}
+
+document.getElementById('endRule').addEventListener('change', () => { updatePlayoffSelect(); saveState(); });
+document.getElementById('scoreMode').addEventListener('change', onModeChange);
+document.getElementById('strokesMode').addEventListener('change', () => { saveState(); calculate(true); });
+document.getElementById('allowance').addEventListener('input', () => { saveState(); calculate(true); });
+
+function buildScoreTable(n, mode) {
+  const range = getHoleRange();
+  let html = '<div style="overflow-x:auto"><table><tr><th>Hole</th>';
+  if (mode === 'gross') html += '<th>SI</th>';
+  for (let i = 1; i <= n; i++) {
+    const nm = document.getElementById('p'+i)?.value || `P${i}`;
+    html += `<th title="${nm}">${nm.slice(0,8)}</th>`;
+  }
+  html += '<th>Result</th></tr>';
+  for (let h = range.start; h <= range.end; h++) {
+    html += `<tr><td>${h}</td>`;
+    if (mode === 'gross') html += `<td><input type="number" id="si${h}" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px" oninput="saveState();validateSI()"></td>`;
+    for (let i = 1; i <= n; i++) {
+      html += `<td><input type="number" id="h${h}p${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"><span class="stroke-dot" id="dot${h}p${i}"></span></td>`;
+    }
+    html += `<td id="res${h}">—</td></tr>`;
+  }
+  html += '</table></div>';
+  if (mode === 'gross') html += '<p class="trust">Stroke Index (SI): 1 = hardest hole. Dots show strokes received.</p>';
+  document.getElementById('scoreTable').innerHTML = html;
+}
+
+function onScoreInput(el, hole, player) {
+  const val = el.value;
+  if (val && (+val < 1 || +val > 15)) el.classList.add('invalid');
+  else el.classList.remove('invalid');
+  saveState();
+  calculate(true);
+  if (val && val !== '1' && +val >= 2 && +val <= 9) {
+    const next = document.getElementById(`h${hole}p${player+1}`) || document.getElementById(`h${hole+1}p1`);
+    if (next) next.focus();
+  }
+}
+
+function validateSI() {
+  const range = getHoleRange();
+  const sis = [];
+  for (let h = range.start; h <= range.end; h++) {
+    const el = document.getElementById('si'+h);
+    if (el) sis.push(+el.value);
+  }
+  const unique = new Set(sis);
+  const warn = document.getElementById('siWarn');
+  if (sis.length === (range.end - range.start + 1) && unique.size !== sis.length) {
+    warn.textContent = 'Stroke Indexes should be unique.';
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+function newRound() {
+  if (!confirm('Clear scores for a new round? Players and handicaps will be kept.')) return;
+  const range = getHoleRange();
+  const n = +document.getElementById('numPlayers').value;
+  for (let h = range.start; h <= range.end; h++) {
+    for (let i = 1; i <= n; i++) {
+      const el = document.getElementById(`h${h}p${i}`);
+      if (el) el.value = '';
+    }
+    const res = document.getElementById('res'+h);
+    if (res) res.textContent = '—';
+  }
+  pageCache.scores = {};
+  saveState();
+  calculate(true);
+}
+
+function clearAll() {
+  if (!confirm('Clear everything including players and handicaps?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('numPlayers').value = 4;
+  document.getElementById('holesMode').value = '18';
+  document.getElementById('stake').value = 5;
+  document.getElementById('carryovers').checked = true;
+  document.getElementById('endRule').value = 'nobody';
+  document.getElementById('scoreMode').value = 'gross';
+  document.getElementById('strokesMode').value = 'full';
+  document.getElementById('allowance').value = 100;
+  updatePlayers(true, true);
+}
+
+function loadExample() {
+  document.getElementById('numPlayers').value = 4;
+  document.getElementById('scoreMode').value = 'gross';
+  document.getElementById('strokesMode').value = 'full';
+  document.getElementById('allowance').value = 100;
+  updatePlayers(false); refreshHeaders();
+  const names = ['Alex', 'Blake', 'Casey', 'Drew'];
+  const hcps = ['0', '4', '8', '12'];
+  names.forEach((name, i) => {
+    document.getElementById('p'+(i+1)).value = name;
+    document.getElementById('hcp'+(i+1)).value = hcps[i];
+  });
+  const sample = [
+    [4,5,4,5],[5,4,5,4],[3,4,4,5],[5,5,4,4],[4,4,5,3],
+    [6,5,5,4],[4,5,4,5],[5,4,4,5],[4,5,5,4],[3,4,5,4],
+    [5,4,4,5],[4,5,5,4],[5,4,4,5],[4,5,4,5],[5,4,5,4],
+    [4,5,4,4],[5,4,5,4],[4,5,4,5]
+  ];
+  sample.forEach((row, h) => row.forEach((s, p) => {
+    const el = document.getElementById(`h${h+1}p${p+1}`);
+    if (el) el.value = s;
+  }));
+  document.getElementById('stake').value = 5;
+  document.getElementById('carryovers').checked = true;
+  document.getElementById('endRule').value = 'nobody';
+  updatePlayoffSelect();
+  saveState();
+  calculate(true);
+}
+
+function getStrokeIndexes() {
+  const sis = [];
+  for (let h = 1; h <= 18; h++) {
+    const el = document.getElementById('si'+h);
+    sis.push(el ? (+el.value || h) : h);
+  }
+  return sis;
+}
+
+function strokesOnHole(r, si, totalHoles) {
+  if (r >= 0) {
+    return Math.floor(r / totalHoles) + (si <= (r % totalHoles) ? 1 : 0);
+  } else {
+    const give = Math.abs(r);
+    return si > (totalHoles - give) ? -1 : 0;
+  }
+}
+function rankSI(si, allSis) {
+  const sorted = [...allSis].sort((a,b)=>a-b);
+  return sorted.indexOf(si) + 1;
+}
+
+function calculate(runningOnly = true) {
+  const n = +document.getElementById('numPlayers').value;
+  const stakeRaw = document.getElementById('stake').value;
+  const stake = parseFloat(stakeRaw);
+  const stakeError = document.getElementById('stakeError');
+  if (!stake || stake <= 0) {
+    stakeError.textContent = 'Stake must be greater than 0';
+    stakeError.style.display = 'block';
+    return null;
+  } else {
+    stakeError.style.display = 'none';
+  }
+
+  const carry = document.getElementById('carryovers').checked;
+  const mode = document.getElementById('scoreMode').value;
+  const endRule = document.getElementById('endRule').value;
+  const strokesMode = document.getElementById('strokesMode').value;
+  const allowancePct = +document.getElementById('allowance').value || 100;
+  const allowance = Math.min(100, Math.max(50, allowancePct)) / 100;
+  const range = getHoleRange();
+  const totalHoles = range.end - range.start + 1;
+  const names = [], rawHcps = [], playing = [];
+  for (let i = 1; i <= n; i++) {
+    names.push(document.getElementById('p'+i)?.value || `Player ${i}`);
+    const raw = mode === 'gross' ? parseHcp(document.getElementById('hcp'+i)?.value) : 0;
+    rawHcps.push(raw);
+    const rh = x => Math.sign(x) * Math.round(Math.abs(x) + 1e-9);
+    const base = totalHoles === 9 ? rh(raw / 2) : raw;
+    const p = rh(base * allowance);
+    playing.push(p);
+  }
+  const minPlaying = Math.min(...playing);
+  const sis = mode === 'gross' ? getStrokeIndexes() : [];
+
+  let skins = Array(n).fill(0);
+  let carryValue = 0;
+  let holesEntered = 0;
+  let incomplete = [];
+
+  for (let h = range.start; h <= range.end; h++) {
+    let raw = [];
+    let allFilled = true;
+    for (let i = 0; i < n; i++) {
+      const el = document.getElementById(`h${h}p${i+1}`);
+      const val = el?.value;
+      if (!val) { allFilled = false; raw.push(null); }
+      else raw.push(+val);
+    }
+    const resEl = document.getElementById('res'+h);
+    if (!allFilled) {
+      incomplete.push(h);
+      if (resEl) resEl.textContent = '—';
+      continue;
+    }
+    holesEntered++;
+
+    let scores = raw.slice();
+    if (mode === 'gross') {
+      scores = raw.map((gross, i) => {
+        let r = strokesMode === 'offlow' ? playing[i] - minPlaying : playing[i];
+        const holeSis = [];
+        for (let hh = range.start; hh <= range.end; hh++) holeSis.push(sis[hh-1]);
+        const si = totalHoles === 9 ? rankSI(sis[h-1], holeSis) : sis[h-1];
+        const strokes = strokesOnHole(r, si, totalHoles);
+        const dot = document.getElementById(`dot${h}p${i+1}`);
+        if (dot) dot.textContent = strokes > 0 ? '●'.repeat(strokes) : (strokes < 0 ? '○' : '');
+        return gross - strokes;
+      });
+    }
+
+    const valid = scores.filter(s => s !== null);
+    if (!valid.length) continue;
+    const min = Math.min(...valid);
+    const winners = scores.map((s,i) => s === min ? i : -1).filter(i => i >= 0);
+
+    if (winners.length === 1) {
+      const w = winners[0];
+      const value = 1 + carryValue;
+      skins[w] += value;
+      if (resEl) resEl.textContent = names[w].slice(0,1).toUpperCase();
+      carryValue = 0;
+    } else if (carry) {
+      carryValue += 1;
+      if (resEl) resEl.textContent = 'C';
+    } else {
+      if (resEl) resEl.textContent = '—';
+    }
+  }
+
+  let leftoverNote = '';
+  if (carryValue > 0) {
+    if (endRule === 'nobody') {
+      leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} still carried ${range.label}: nobody wins them`;
+    } else if (endRule === 'playoff') {
+      const winnerVal = document.getElementById('playoffWinner').value;
+      const winnerIdx = winnerVal === '' ? NaN : +winnerVal;
+      if (isNaN(winnerIdx) || winnerVal === '') {
+        leftoverNote = 'Playoff winner required';
+      } else {
+        skins[winnerIdx] += carryValue;
+        leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} awarded to ${names[winnerIdx]} (playoff)`;
+        carryValue = 0;
+      }
+    }
+  }
+
+  const incompleteWarn = document.getElementById('incompleteWarn');
+  if (incomplete.length) {
+    incompleteWarn.textContent = `Holes ${incomplete.join(', ')} incomplete: not counted`;
+    incompleteWarn.style.display = 'block';
+  } else {
+    incompleteWarn.style.display = 'none';
+  }
+
+  let runHtml = `<h2 style="margin-top:0">Running totals (${holesEntered} holes)</h2>`;
+  runHtml += `<p><strong>Current carryover:</strong> ${carryValue} skin${carryValue!==1?'s':''}</p>`;
+  runHtml += `<p><strong>Skins so far:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
+  if (leftoverNote) runHtml += `<p>${leftoverNote}</p>`;
+  document.getElementById('running').innerHTML = runHtml;
+  document.getElementById('running').style.display = holesEntered ? 'block' : 'none';
+
+  const sticky = document.getElementById('stickyBar');
+  document.getElementById('stickyText').textContent = `Thru ${holesEntered} · Carry: ${carryValue} skin${carryValue!==1?'s':''}`;
+  sticky.style.display = holesEntered ? 'flex' : 'none';
+
+  if (runningOnly) return { skins, names, stake, leftoverNote, incomplete, balances: null, payments: null };
+
+  const totalSkins = skins.reduce((a,b)=>a+b,0);
+  const balances = skins.map(s => stake * (n * s - totalSkins));
+
+  let creditors = [], debtors = [];
+  balances.forEach((b,i) => {
+    if (b > 0.01) creditors.push({i, amt: b});
+    if (b < -0.01) debtors.push({i, amt: -b});
+  });
+  let payments = [];
+  while (creditors.length && debtors.length) {
+    const c = creditors[0], d = debtors[0];
+    const pay = Math.min(c.amt, d.amt);
+    payments.push(`${names[d.i]} pays ${names[c.i]} $${pay.toFixed(2)}`);
+    c.amt -= pay; d.amt -= pay;
+    if (c.amt < 0.01) creditors.shift();
+    if (d.amt < 0.01) debtors.shift();
+  }
+
+  return { skins, names, stake, leftoverNote, incomplete, balances, payments, totalSkins, strokesMode, allowance: allowance*100 };
+}
+
+function settleUp() {
+  const endRule = document.getElementById('endRule').value;
+  if (endRule === 'playoff' && !document.getElementById('playoffWinner').value) {
+    const err = document.getElementById('settleError');
+    err.textContent = 'Pick a playoff winner before settling';
+    err.style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    window._shareText = '';
+    document.getElementById('playoffWinner').scrollIntoView({block:'center'});
+    return;
+  }
+  document.getElementById('settleError').style.display='none';
+  const res = calculate(false);
+  if (!res) return;
+
+  const { skins, names, stake, leftoverNote, balances, payments, strokesMode, allowance } = res;
+
+  let html = `<h2 style="margin-top:0">Settlement</h2>`;
+  html += `<p><strong>Skins won:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
+  if (balances) {
+    html += `<p><strong>Net $:</strong> ${names.map((nm,i)=>`${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ')}</p>`;
+  html += `<p class="trust">Amounts rounded to nearest cent.</p>`;
+  }
+  if (leftoverNote) html += `<p>${leftoverNote}</p>`;
+  if (payments && payments.length) {
+    html += `<h3 style="font-size:1rem;margin:1rem 0 0.4rem">Who pays whom</h3><ul class="payments">${payments.map(p=>`<li>${p}</li>`).join('')}</ul>`;
+  } else if (balances) {
+    html += `<p>All square.</p>`;
+  }
+  html += `<button class="secondary" onclick="shareResult()">Share</button> <span id="copyConfirm" class="copied"></span>`;
+
+  document.getElementById('results').innerHTML = html;
+  document.getElementById('results').style.display = 'block';
+
+  const modeName = document.getElementById('scoreMode').value;
+  const offLow = strokesMode === 'offlow';
+  const modeLabel = { gross: offLow ? 'net, off the lowest' : 'net, full handicaps',
+                      net: 'direct net', grossonly: 'gross only' }[modeName];
+  const allowNote = modeName === 'gross' && allowance !== 100 ? ` ${Math.round(allowance)}%` : '';
+  const holesVal = document.getElementById('holesMode').value;
+  const holesNote = holesVal === 'front' ? ' (Front 9)' : holesVal === 'back' ? ' (Back 9)' : '';
+  const rules = `Skins: $${stake}/skin, ${modeLabel}${allowNote}${holesNote}, carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
+  const fmt = b => (b < 0 ? '−' : '+') + '$' + Math.abs(b).toFixed(2);
+  const balLines = names.map((nm,i) => `${nm} ${fmt(balances[i])}`).join(' · ');
+  const payLines = payments ? payments.join('\n') : 'All square';
+  const skinsLine = `Skins: ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(', ')}${leftoverNote ? ` (${leftoverNote})` : ''}`;
+  window._shareText = `${rules}\n${balLines}\n${payLines}\n${skinsLine}\nSettled at golfcalculators.com/skins`;
+}
+
+async function shareResult() {
+  const text = window._shareText || 'No result';
+  const confirmEl = document.getElementById('copyConfirm');
+  if (navigator.share) {
+    try {
+      await navigator.share({ text, url: 'https://golfcalculators.com/skins' });
+      return;
+    } catch (e) {}
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    confirmEl.textContent = 'Copied ✓';
+    setTimeout(() => confirmEl.textContent = '', 2000);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    confirmEl.textContent = 'Copied ✓';
+    setTimeout(() => confirmEl.textContent = '', 2000);
+  }
+}
+
+document.addEventListener('input', (e) => {
+  if (e.target.id && (e.target.id.startsWith('h') || e.target.id.startsWith('si') || e.target.id === 'stake' || e.target.id === 'carryovers' || e.target.id.startsWith('p') || e.target.id.startsWith('hcp'))) {
+    saveState();
+    calculate(true);
+  }
+});
+
+document.getElementById('numPlayers').addEventListener('change', onPlayersChange);
+
+if (!loadState()) updatePlayers();
+</script>
+</body>
+</html>
