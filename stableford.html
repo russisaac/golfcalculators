@@ -32,6 +32,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
   input[type=number] { width: 60px; text-align: center; }
+  header a { display: inline-block; min-height: 44px; line-height: 44px; }
 </style>
 </head>
 <body>
@@ -40,9 +41,9 @@
 <h1>Stableford Calculator</h1>
 <p class="lede">Enter gross scores and Stroke Index. Points are calculated automatically (2 points for par, +1 per stroke under, −1 per stroke over, minimum 0).</p>
 <div class="section">
-  <label>Daily / Playing Handicap</label>
+  <label for="hcp">Daily / Playing Handicap</label>
   <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2">
-  <label>Holes</label>
+  <label for="holes">Holes</label>
   <select id="holes"><option value="18">18</option><option value="9">9</option></select>
 </div>
 <div class="section">
@@ -58,7 +59,7 @@ function build() {
   const n = +document.getElementById('holes').value;
   let h = '<table><tr><th>Hole</th><th>Par</th><th>SI</th><th>Score</th><th>Pts</th></tr>';
   for (let i = 1; i <= n; i++) {
-    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
+    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" aria-label="Hole ${i} score" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
   }
   h += '</table>';
   document.getElementById('table').innerHTML = h;
