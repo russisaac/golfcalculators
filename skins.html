@@ -48,6 +48,7 @@
   .copied { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
   .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
   #carryovers { width: 24px; height: 24px; margin: 0; }
+  button { min-height: 44px; }
   header a { display: inline-block; min-height: 44px; line-height: 44px; }
   .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
   .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
@@ -148,7 +149,7 @@
 </main>
 <footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 
-<div class="sticky-bar" id="stickyBar" style="display:none">
+<div class="sticky-bar" id="stickyBar" role="region" aria-label="Round status" style="display:none">
   <div id="stickyText">Thru 0 · Carry: 0</div>
   <button onclick="settleUp()">Settle up</button>
 </div>
