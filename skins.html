@@ -16,44 +16,8 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golf Skins Calculator — Who Pays Whom">
 <meta name="twitter:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
-<style>
-  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
-  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
-  header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
-  header a { text-decoration: none; color: var(--green); font-weight: 600; }
-  main { max-width: 860px; margin: 0 auto; padding: 1.75rem 1.25rem 6rem; }
-  h1 { font-size: 1.75rem; margin: 0 0 0.4rem; letter-spacing: -0.02em; }
-  .lede { color: #475569; margin: 0 0 1.5rem; }
-  .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
-  .section h2 { margin: 0 0 0.8rem; font-size: 1.05rem; }
-  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 500; font-size: 0.875rem; color: #334155; }
-  input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; }
-  button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
-  button.secondary { background: #f1f5f9; color: #0f172a; }
-  .row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; }
-  .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.85rem; min-width: 320px; }
-  @media (max-width: 480px) { table { font-size: 0.75rem; } input[type=number] { width: 44px; } }
-  th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
-  th { background: #f8fafc; font-weight: 600; }
-  input[type=number] { width: 56px; text-align: center; min-height: 44px; }
-  .result { background: #f0fdf4; border-color: #86efac; }
-  .running { background: #fffbeb; border-color: #fcd34d; }
-  .error { color: #b91c1c; font-size: 0.85rem; margin-top: 0.4rem; }
-  .invalid { border-color: #ef4444 !important; background: #fef2f2; }
-  .stroke-dot { color: #166534; font-size: 0.7rem; margin-left: 2px; }
-  .payments { margin: 0.5rem 0; padding-left: 1.2rem; }
-  .payments li { margin: 0.35rem 0; }
-  .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
-  .copied { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
-  .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
-  #carryovers { width: 24px; height: 24px; margin: 0; }
-  button { min-height: 44px; }
-  header a { display: inline-block; min-height: 44px; line-height: 44px; }
-  .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
-  .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
-  .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
-</style>
+<meta name="theme-color" content="#166534">
+<link rel="stylesheet" href="/gc.css">
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
 <script>
@@ -62,638 +26,530 @@
   gtag('js', new Date());
   gtag('config', 'G-DH32H3GWKE');
 </script>
-
+<style>
+  .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .sk-screen[hidden]{display:none}
+  .sk-player{display:grid;grid-template-columns:1fr 44px;gap:var(--s2);align-items:center}
+  .sk-player+.sk-player{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+  .sk-hcp{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sk-x{width:44px;height:44px;border:1px solid #cbd5e1;border-radius:var(--r-sm);background:var(--card);color:var(--muted);font-size:var(--fs-lg);line-height:1;cursor:pointer}
+  .sk-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+  .sk-money{display:flex;align-items:center;gap:var(--s1);font-weight:700}
+  .sk-money input{width:96px;text-align:right}
+  details.sk-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer}
+  .sk-switch{display:flex;align-items:center;gap:var(--s3);min-height:44px;cursor:pointer}
+  .sk-switch input{flex:none;width:24px;height:24px;margin:0;accent-color:var(--accent)}
+  .sk-actions{position:sticky;bottom:0;background:linear-gradient(rgba(246,248,247,0),var(--bg) 24%);padding:var(--s4) 0 var(--s3);margin-top:var(--s3);display:grid;gap:var(--s2);z-index:5}
+  .sk-actions-2{grid-template-columns:1fr 1fr}
+  .sk-holehead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sk-holeno{font-size:var(--fs-xl);font-weight:800;line-height:1.1}
+  .sk-course{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:end;margin-top:var(--s3)}
+  .sk-course .gc-seg{min-width:0}
+  .sk-strip{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s3) var(--s4)}
+  .sk-strip strong{display:block;font-size:var(--fs-md)}
+  .sk-strip span{font-size:var(--fs-sm);color:var(--ink-2)}
+  .sk-score{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s2) 0}
+  .sk-score+.sk-score{border-top:1px solid var(--line)}
+  .sk-who{flex:1;min-width:0}
+  .sk-who b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sk-who small{font-size:var(--fs-sm);color:var(--muted)}
+  .sk-score.is-win .sk-who b{color:var(--accent)}
+  .sk-progress{display:flex;gap:2px;margin-top:var(--s3)}
+  .sk-progress i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .sk-progress i.done{background:var(--accent-line)}
+  .sk-progress i.cur{background:var(--accent)}
+  .sk-totals{display:grid;grid-template-columns:1fr auto auto;gap:var(--s1) var(--s3);font-size:var(--fs-md);margin-top:var(--s3)}
+  .sk-totals .neg{color:var(--danger);font-weight:700;text-align:right}
+  .sk-totals .pos{color:var(--accent);font-weight:700;text-align:right}
+  .sk-totals .zero{text-align:right;font-weight:700}
+  .sk-totals .sk-sk{color:var(--muted);text-align:right}
+  .sk-pay{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);font-size:var(--fs-lg);font-weight:800;line-height:1.25;margin-top:var(--s2)}
+  .sk-pay span:first-child{min-width:0;overflow-wrap:anywhere}
+  .sk-pay span:last-child{flex:none}
+  .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
+  .sk-ledger{list-style:none;margin:0;padding:0}
+  .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
+  .sk-ledger li+li{border-top:1px solid var(--line)}
+  .sk-ledger .h{font-weight:700;color:var(--muted)}
+  .sk-ledger .win{font-weight:600}
+  .sk-note{background:var(--warn-soft);color:var(--warn);border-radius:var(--r-sm);padding:var(--s2) var(--s3);font-size:var(--fs-sm)}
+  .sk-playoff{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:var(--s2);margin-top:var(--s2)}
+</style>
 </head>
-<body>
-<header><a href="/">← Golf Calculators</a></header>
-<main>
-<h1>Skins Calculator</h1>
-<p class="lede">Enter scores as you go. Correct net scoring with full handicaps or off the low. Settle cleanly and share who pays whom. Your round is saved on this device.</p>
+<body data-gc="skins-v2">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins" aria-current="page">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
 
-<div class="section">
-  <h2>1. The game</h2>
-  <div class="row">
-    <div>
-      <label for="numPlayers">Players</label>
-      <select id="numPlayers">
-        <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-      </select>
+<main class="gc-main">
+
+<!-- SETUP -->
+<section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
+  <div class="sk-title"><h1 id="setup-h" tabindex="-1">Skins calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
+  <p class="gc-muted" style="margin-bottom:var(--s4)">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
+  <div class="gc-stack">
+    <div class="gc-card">
+      <h2 style="margin-bottom:var(--s3)">Players</h2>
+      <div id="players"></div>
+      <button type="button" class="gc-btn gc-btn-secondary gc-btn-block" id="btn-add" style="margin-top:var(--s3)">+ Add player</button>
     </div>
-    <div>
-      <label for="holesMode">Holes</label>
-      <select id="holesMode" onchange="onHolesChange()">
-        <option value="18">18</option>
-        <option value="front">Front 9</option>
-        <option value="back">Back 9</option>
-      </select>
-    </div>
-    <div>
-      <label for="stake">Stake per skin ($)</label>
-      <input type="number" id="stake" value="5" min="0.01" step="0.01" style="width:90px">
-      <div id="stakeError" class="error" style="display:none"></div>
-    </div>
-    <div style="padding-bottom:0.4rem">
-      <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="carryovers" checked> Carryovers</label>
-    </div>
-    <div>
-      <label for="endRule">End-of-round carryover</label>
-      <select id="endRule">
-        <option value="nobody">Nobody wins them</option>
-        <option value="playoff">Playoff winner</option>
-      </select>
-    </div>
-    <div id="playoffWrap" style="display:none">
-      <label for="playoffWinner">Playoff winner</label>
-      <select id="playoffWinner"></select>
-      <div id="settleError" class="error" style="display:none"></div>
-    </div>
-    <div>
-      <label for="scoreMode">Score entry</label>
-      <select id="scoreMode">
-        <option value="gross">Gross + Stroke Index</option>
-        <option value="net">Direct net scores</option>
-        <option value="grossonly">Gross only</option>
-      </select>
-    </div>
-    <div id="strokesSettings" style="display:none">
-      <label for="strokesMode">Strokes</label>
-      <select id="strokesMode">
-        <option value="full">Full handicaps</option>
-        <option value="offlow">Off the lowest</option>
-      </select>
-    </div>
-    <div id="allowanceWrap" style="display:none">
-      <label for="allowance">Allowance %</label>
-      <input type="number" id="allowance" value="100" min="50" max="100" step="5" style="width:70px">
+    <div class="gc-card gc-stack">
+      <h2>Game</h2>
+      <div class="sk-row"><label class="gc-label" for="stake" style="margin:0">Stake per skin</label>
+        <span class="sk-money">$<input class="gc-input" id="stake" type="text" inputmode="decimal" autocomplete="off" value="5"></span></div>
+      <p id="stake-err" class="gc-muted" style="color:var(--danger)" hidden>Enter a stake above $0, e.g. 5</p>
+      <div><span class="gc-label" id="holes-l">Holes</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="holes-l">
+          <label><input type="radio" name="holes" value="18"><span>18</span></label>
+          <label><input type="radio" name="holes" value="front"><span>Front 9</span></label>
+          <label><input type="radio" name="holes" value="back"><span>Back 9</span></label>
+        </div></div>
+      <div><span class="gc-label" id="scoring-l">Scoring</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="scoring-l">
+          <label><input type="radio" name="scoring" value="full"><span>Net</span></label>
+          <label><input type="radio" name="scoring" value="offlow"><span>Net off low</span></label>
+          <label><input type="radio" name="scoring" value="gross"><span>Gross</span></label>
+        </div>
+        <p class="gc-muted" id="scoring-help" style="margin-top:var(--s1)"></p></div>
+      <details class="sk-more"><summary>More options</summary>
+        <div class="gc-stack" style="margin-top:var(--s2)">
+          <div class="sk-row" id="allow-row"><span class="gc-label" id="allow-l" style="margin:0">Handicap allowance</span>
+            <span class="gc-stepper" role="group" aria-labelledby="allow-l"><button type="button" data-allow="-5" aria-label="Lower allowance">−</button><input id="allowance" type="text" inputmode="numeric" aria-label="Allowance percent" value="100%" readonly><button type="button" data-allow="5" aria-label="Raise allowance">+</button></span></div>
+          <label class="sk-switch"><input type="checkbox" id="carry"> Carryovers (a halved hole adds its skin to the next)</label>
+          <div><span class="gc-label" id="end-l">Skins still carried after the last hole</span>
+            <div class="gc-seg" role="radiogroup" aria-labelledby="end-l">
+              <label><input type="radio" name="endRule" value="nobody"><span>Nobody wins</span></label>
+              <label><input type="radio" name="endRule" value="playoff"><span>Playoff winner</span></label>
+            </div></div>
+        </div>
+      </details>
     </div>
   </div>
-  <div id="playerInputs" class="players"></div>
-  <div class="actions">
-    <button type="button" class="secondary" onclick="loadExample()">Load example</button>
-    <button type="button" class="secondary" onclick="newRound()">New round</button>
-    <button type="button" class="secondary" onclick="clearAll()">Clear all</button>
+  <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+</section>
+
+<!-- HOLE -->
+<section class="sk-screen" id="scr-hole" aria-labelledby="hole-h" hidden>
+  <div class="gc-card">
+    <div class="sk-holehead">
+      <h1 id="hole-h" tabindex="-1" class="sk-holeno">Hole 1</h1>
+      <span class="gc-muted" id="hole-of"></span>
+    </div>
+    <div class="sk-course">
+      <div><span class="gc-label" id="par-l">Par</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="par-l" id="par-seg">
+          <label><input type="radio" name="par" value="3"><span>3</span></label>
+          <label><input type="radio" name="par" value="4"><span>4</span></label>
+          <label><input type="radio" name="par" value="5"><span>5</span></label>
+        </div></div>
+      <div id="si-wrap"><span class="gc-label" id="si-l">Stroke index</span>
+        <span class="gc-stepper" role="group" aria-labelledby="si-l"><button type="button" data-si="-1" aria-label="Lower stroke index">−</button><input id="si" type="text" inputmode="numeric" aria-label="Stroke index" autocomplete="off"><button type="button" data-si="1" aria-label="Raise stroke index">+</button></span></div>
+    </div>
+    <div class="sk-progress" id="progress" aria-hidden="true"></div>
   </div>
-  <p class="trust" id="modeNote">Enter gross scores. Strokes applied using Stroke Index (1 = hardest).</p>
-</div>
+  <div class="sk-strip" id="strip" role="status" aria-live="polite" style="margin-top:var(--s3)"></div>
+  <div class="gc-card" style="margin-top:var(--s3)" id="scores"></div>
+  <div class="sk-actions sk-actions-2">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-prev">← Back</button>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-next">Next hole →</button>
+  </div>
+  <div class="sk-actions-2" style="display:grid;gap:var(--s2)">
+    <button type="button" class="gc-btn gc-btn-ghost" id="btn-setup">Players &amp; game</button>
+    <button type="button" class="gc-btn gc-btn-ghost" id="btn-settle">Settle now</button>
+  </div>
+</section>
 
-<div class="section">
-  <h2>2. The scores</h2>
-  <div id="scoreTable"></div>
-  <div id="incompleteWarn" class="error" style="display:none"></div>
-  <div id="siWarn" class="error" style="display:none"></div>
-  <button onclick="settleUp()" style="margin-top:1.1rem" id="settleBtn">Settle up</button>
-</div>
+<!-- RESULT -->
+<section class="sk-screen" id="scr-result" aria-labelledby="result-h" hidden>
+  <h1 id="result-h" class="sr-only" tabindex="-1">Skins result</h1>
+  <div class="gc-hero" id="hero"></div>
+  <div id="playoff" class="gc-card" style="margin-top:var(--s3)" hidden></div>
+  <div class="sk-actions" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
+  <div class="gc-card" style="margin-top:var(--s3)">
+    <h2>Totals</h2>
+    <div class="sk-totals" id="totals"></div>
+  </div>
+  <div class="gc-card" style="margin-top:var(--s3)">
+    <h2>Hole by hole</h2>
+    <ol class="sk-ledger" id="ledger"></ol>
+  </div>
+  <div class="sk-actions sk-actions-2" style="position:static;background:none">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
+  </div>
+  <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0. Your players and scores are saved on this device only.</p>
+  <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
+  <div class="gc-next">
+    <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Work out everyone's strokes for today's course.</span></a>
+    <a href="/stableford"><strong>Stableford calculator →</strong><span>Points for the same round.</span></a>
+  </div>
+</section>
 
-<div id="running" class="section running" style="display:none"></div>
-<div id="results" class="section result" style="display:none"></div>
+<div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
+  <a href="/daily-handicap"><strong>Need handicaps? Daily Handicap →</strong><span>Golf Australia formula, 18 or 9 holes.</span></a>
+</div>
 </main>
-<footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
-
-<div class="sticky-bar" id="stickyBar" role="region" aria-label="Round status" style="display:none">
-  <div id="stickyText">Thru 0 · Carry: 0</div>
-  <button onclick="settleUp()">Settle up</button>
-</div>
-
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <script>
-const STORAGE_KEY = 'golfcalculators_skins_v2';
-let pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
-let strokeIndexes = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
-
-function getHoleRange() {
-  const mode = document.getElementById('holesMode').value;
-  if (mode === 'front') return {start:1, end:9, label:'after 9'};
-  if (mode === 'back') return {start:10, end:18, label:'after 9'};
-  return {start:1, end:18, label:'after 18'};
+(function () {
+'use strict';
+/* ---------- Engine (pure; same rules as the previous live page) ---------- */
+var DEF_PAR = [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
+var DEF_SI  = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
+var MAX_PLAYERS = 8, MIN_PLAYERS = 2;
+function holeRange(holes) { return holes === 'front' ? [1, 9] : holes === 'back' ? [10, 18] : [1, 18]; }
+function rh(x) { return Math.sign(x) * Math.round(Math.abs(x) + 1e-9); }
+function strokesOnHole(r, si, total) {
+  if (r >= 0) return Math.floor(r / total) + (si <= (r % total) ? 1 : 0);
+  return si > (total - Math.abs(r)) ? -1 : 0;
 }
-
-function parseHcp(val) {
-  if (!val) return 0;
-  const s = String(val).trim();
-  if (s.startsWith('+')) return -parseFloat(s.slice(1)) || 0;
-  if (s.startsWith('-')) return -parseFloat(s.slice(1)) || 0;
-  return parseFloat(s) || 0;
+function rankSI(si, all) { return all.slice().sort(function (a, b) { return a - b; }).indexOf(si) + 1; }
+function cents(x) { return Math.sign(x) * Math.round(Math.abs(x) * 100 + 1e-7) / 100; }
+function parseHcp(v) {
+  var s = String(v == null ? '' : v).trim();
+  if (!s) return 0;
+  var n = parseFloat(s.replace(/^[+\-−]/, ''));
+  if (isNaN(n)) return 0;
+  return /^[+\-−]/.test(s) ? -n : n;
 }
+function fmtHcp(h) { return h < 0 ? '+' + Math.abs(h) : String(h); }
+function money(x) { return '$' + Math.abs(x).toFixed(2); }
+function signed(x) { var c = cents(x); return (c < 0 ? '−' : c > 0 ? '+' : '') + money(c); }
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function nameOf(p, i) { return (p && String(p.name || '').trim()) || ('Player ' + (i + 1)); }
 
-function formatHcp(h) {
-  if (h < 0) return '+' + Math.abs(h);
-  return String(h);
-}
-
-function saveState() {
-  snapshotCurrent();
-  const n = +document.getElementById('numPlayers').value;
-  const state = {
-    numPlayers: n,
-    holesMode: document.getElementById('holesMode').value,
-    stake: document.getElementById('stake').value,
-    carryovers: document.getElementById('carryovers').checked,
-    endRule: document.getElementById('endRule').value,
-    scoreMode: document.getElementById('scoreMode').value,
-    strokesMode: document.getElementById('strokesMode').value,
-    allowance: document.getElementById('allowance').value,
-    playoffWinner: document.getElementById('playoffWinner')?.value || '',
-    names: [],
-    hcps: [],
-    scores: [],
-    sis: [],
-    cache: pageCache
-  };
-  for (let i = 1; i <= n; i++) {
-    state.names.push(document.getElementById('p'+i)?.value || '');
-    state.hcps.push(document.getElementById('hcp'+i)?.value || '');
+function compute(st) {
+  var n = st.players.length, names = st.players.map(nameOf);
+  var stake = parseFloat(String(st.stake).replace(/[^0-9.]/g, ''));
+  var rg = holeRange(st.holes), a = rg[0], b = rg[1], total = b - a + 1;
+  var allow = Math.min(100, Math.max(50, +st.allowance || 100)) / 100;
+  var net = st.scoring !== 'gross', offlow = st.scoring === 'offlow';
+  var playing = st.players.map(function (p) { if (!net) return 0; var raw = parseHcp(p.hcp); return rh((total === 9 ? rh(raw / 2) : raw) * allow); });
+  var minP = Math.min.apply(null, playing);
+  var holeSis = []; for (var x = a; x <= b; x++) holeSis.push(+st.si[x - 1]);
+  var skins = names.map(function () { return 0; }), carry = 0, played = 0, ledger = [];
+  for (var h = a; h <= b; h++) {
+    var sc = st.scores[h], si = +st.si[h - 1];
+    var strokes = playing.map(function (p) { return net ? strokesOnHole(offlow ? p - minP : p, total === 9 ? rankSI(si, holeSis) : si, total) : 0; });
+    var e = { hole: h, par: +st.par[h - 1], si: si, strokes: strokes, played: false };
+    if (!sc || sc.length !== n || sc.some(function (v) { return !(v >= 1); })) { ledger.push(e); continue; }
+    played++; e.played = true; e.gross = sc.slice();
+    e.net = sc.map(function (g, i) { return g - strokes[i]; });
+    var low = Math.min.apply(null, e.net);
+    var win = []; e.net.forEach(function (v, i) { if (v === low) win.push(i); });
+    e.low = low; e.carryIn = carry;
+    if (win.length === 1) { e.winner = win[0]; e.value = 1 + carry; skins[win[0]] += e.value; carry = 0; }
+    else { e.tied = win; if (st.carry) carry += 1; e.carryOut = st.carry ? carry : 0; }
+    ledger.push(e);
   }
-  const range = getHoleRange();
-  for (let h = range.start; h <= range.end; h++) {
-    const row = [];
-    for (let i = 1; i <= n; i++) {
-      row.push(document.getElementById(`h${h}p${i}`)?.value || '');
-    }
-    state.scores.push(row);
-    const siEl = document.getElementById('si'+h);
-    if (siEl) state.sis.push(siEl.value);
+  var leftover = carry, playoffWinner = null, needsPlayoff = false;
+  if (carry > 0 && st.endRule === 'playoff' && played === total) {
+    if (st.playoff != null && st.playoff >= 0 && st.playoff < n) { playoffWinner = +st.playoff; skins[playoffWinner] += carry; carry = 0; }
+    else needsPlayoff = true;
   }
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+  var totalSkins = skins.reduce(function (s, v) { return s + v; }, 0);
+  var ok = stake > 0;
+  var balances = skins.map(function (s) { return ok ? cents(stake * (n * s - totalSkins)) : 0; });
+  // fewest transfers (greedy: largest debtor pays largest creditor)
+  var cr = [], dr = [];
+  balances.forEach(function (v, i) { if (v > 0.005) cr.push({ i: i, a: v }); if (v < -0.005) dr.push({ i: i, a: -v }); });
+  var byAmt = function (p, q) { return q.a - p.a; };
+  cr.sort(byAmt); dr.sort(byAmt);
+  var payments = [];
+  while (cr.length && dr.length) {
+    var c = cr[0], d = dr[0], pay = cents(Math.min(c.a, d.a));
+    payments.push({ from: d.i, to: c.i, amount: pay });
+    c.a = cents(c.a - pay); d.a = cents(d.a - pay);
+    if (c.a < 0.005) cr.shift(); if (d.a < 0.005) dr.shift();
+    cr.sort(byAmt); dr.sort(byAmt);
+  }
+  return { names: names, stake: stake, stakeOk: ok, skins: skins, balances: balances, payments: payments, ledger: ledger,
+    carry: carry, leftover: leftover, playoffWinner: playoffWinner, needsPlayoff: needsPlayoff, played: played, total: total,
+    range: rg, playing: playing, totalSkins: totalSkins };
 }
 
-function loadState() {
+function defaultState() {
+  return { v: 1, players: [{ name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }],
+    stake: '5', holes: '18', scoring: 'full', allowance: 100, carry: true, endRule: 'nobody', playoff: null,
+    par: DEF_PAR.slice(), si: DEF_SI.slice(), scores: {}, hole: 1, screen: 'setup' };
+}
+var EXAMPLE = [[4,5,4,5],[5,4,5,4],[3,4,4,5],[5,5,4,4],[4,4,5,3],[6,5,5,4],[4,5,4,5],[5,4,4,5],[4,5,5,4],
+               [3,4,5,4],[5,4,4,5],[4,5,5,4],[5,4,4,5],[4,5,4,5],[5,4,5,4],[4,5,4,4],[5,4,5,4],[4,5,4,5]];
+function exampleState() {
+  var s = defaultState();
+  s.players = [{ name: 'Alex', hcp: 0 }, { name: 'Blake', hcp: 4 }, { name: 'Casey', hcp: 8 }, { name: 'Drew', hcp: 12 }];
+  EXAMPLE.forEach(function (row, i) { s.scores[i + 1] = row.slice(); });
+  s.hole = 18; s.screen = 'result';
+  return s;
+}
+function shareText(st, r) {
+  var mode = st.scoring === 'gross' ? 'gross' : (st.scoring === 'offlow' ? 'net off the low' : 'net full handicaps') + (+st.allowance !== 100 ? ' ' + st.allowance + '%' : '');
+  var holes = st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '';
+  var lines = ['Skins: ' + money(r.stake) + '/skin, ' + mode + holes + ', carryovers ' + (st.carry ? 'on' : 'off') + (r.played < r.total ? ' (thru ' + r.played + ' of ' + r.total + ')' : '')];
+  if (r.payments.length) r.payments.forEach(function (p) { lines.push(r.names[p.from] + ' pays ' + r.names[p.to] + ' ' + money(p.amount)); });
+  else lines.push('All square');
+  lines.push(r.names.map(function (nm, i) { return nm + ' ' + signed(r.balances[i]) + ' (' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + ')'; }).join(' · '));
+  if (r.playoffWinner != null) lines.push(r.names[r.playoffWinner] + ' won the playoff for ' + r.leftover + ' carried skin' + (r.leftover === 1 ? '' : 's'));
+  else if (r.leftover && r.played === r.total) lines.push(r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried after the last hole: nobody wins ' + (r.leftover === 1 ? 'it' : 'them'));
+  return lines.join('\n');
+}
+window.GCSkins = { compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
+  parseHcp: parseHcp, fmtHcp: fmtHcp, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_skins_v2', LEGACY = 'golfcalculators_skins_v2', URL = 'https://golfcalculators.com/skins';
+var $ = function (id) { return document.getElementById(id); };
+var S = load();
+
+function load() {
+  var s = defaultState();
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const state = JSON.parse(raw);
-    if (state.cache && state.cache.scores) pageCache = state.cache;
-    document.getElementById('numPlayers').value = state.numPlayers || 4;
-    document.getElementById('holesMode').value = state.holesMode || '18';
-    document.getElementById('stake').value = state.stake || 5;
-    document.getElementById('carryovers').checked = !!state.carryovers;
-    document.getElementById('endRule').value = state.endRule || 'nobody';
-    document.getElementById('scoreMode').value = state.scoreMode || 'gross';
-    document.getElementById('strokesMode').value = state.strokesMode || 'full';
-    document.getElementById('allowance').value = state.allowance || 100;
-    updatePlayers(false);
-    state.names?.forEach((nm, i) => {
-      const el = document.getElementById('p'+(i+1));
-      if (el) el.value = nm;
-    });
-    state.hcps?.forEach((h, i) => {
-      const el = document.getElementById('hcp'+(i+1));
-      if (el) el.value = h;
-    });
-    state.scores?.forEach((row, idx) => {
-      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
-      row.forEach((s, p) => {
-        const el = document.getElementById(`h${h}p${p+1}`);
-        if (el) el.value = s;
-      });
-    });
-    state.sis?.forEach((si, idx) => {
-      const h = (state.holesMode === 'back' ? 10 : 1) + idx;
-      const el = document.getElementById('si'+h);
-      if (el) el.value = si;
-    });
-    updatePlayoffSelect();
-    if (state.playoffWinner) document.getElementById('playoffWinner').value = state.playoffWinner;
-    calculate(true);
-    return true;
-  } catch(e) { return false; }
-}
-
-function updatePlayers(doSave = true, fresh = false) {
-  if (fresh) pageCache = { names: {}, hcps: {}, scores: {}, sis: {} };
-  else snapshotCurrent();
-  const n = +document.getElementById('numPlayers').value;
-  const mode = document.getElementById('scoreMode').value;
-  const note = document.getElementById('modeNote');
-  const showNet = mode === 'gross';
-  document.getElementById('strokesSettings').style.display = showNet ? 'block' : 'none';
-  document.getElementById('allowanceWrap').style.display = showNet ? 'block' : 'none';
-
-  if (mode === 'gross') note.textContent = 'Enter gross scores. Strokes applied using Stroke Index (1 = hardest). Daily / Playing Handicap.';
-  else if (mode === 'net') note.textContent = 'Enter net scores directly.';
-  else note.textContent = 'Gross scores only. No handicap adjustment.';
-
-  let html = '';
-  for (let i = 1; i <= n; i++) {
-    html += `<div><label for="p${i}">Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState();refreshHeaders()">`;
-    if (showNet) html += `<label for="hcp${i}">Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
-    html += `</div>`;
-  }
-  document.getElementById('playerInputs').innerHTML = html;
-  buildScoreTable(n, mode);
-  restoreFromCache();
-  updatePlayoffSelect();
-  if (doSave) saveState();
-  calculate(true);
-}
-
-const CACHE_RE = { names: /^p\d+$/, hcps: /^hcp\d+$/, scores: /^h\d+p\d+$/, sis: /^si\d+$/ };
-function snapshotCurrent() {
-  document.querySelectorAll('#playerInputs input[id], #scoreTable input[id]').forEach(el => {
-    for (const k in CACHE_RE) if (CACHE_RE[k].test(el.id)) { pageCache[k][el.id] = el.value; break; }
-  });
-}
-function restoreFromCache() {
-  for (const k in CACHE_RE) for (const id in pageCache[k]) {
-    const el = document.getElementById(id); if (el) el.value = pageCache[k][id];
-  }
-}
-function refreshHeaders() {
-  const n = +document.getElementById('numPlayers').value;
-  const ths = document.querySelectorAll('#scoreTable th');
-  for (let i = 1; i <= n; i++) {
-    const nm = document.getElementById('p'+i)?.value || `P${i}`;
-    const th = ths[i + (document.getElementById('scoreMode').value === 'gross' ? 1 : 0)];
-    if (th) { th.textContent = nm.slice(0,8); th.title = nm; }
-  }
-}
-function onPlayersChange() { updatePlayers(); }
-function onModeChange() { updatePlayers(); }
-function onHolesChange() { updatePlayers(); }
-
-function updatePlayoffSelect() {
-  const n = +document.getElementById('numPlayers').value;
-  const sel = document.getElementById('playoffWinner');
-  sel.innerHTML = '<option value="">Pick winner…</option>';
-  for (let i = 1; i <= n; i++) {
-    const name = document.getElementById('p'+i)?.value || `Player ${i}`;
-    const opt = document.createElement('option');
-    opt.value = i-1;
-    opt.textContent = name;
-    sel.appendChild(opt);
-  }
-  document.getElementById('playoffWrap').style.display = document.getElementById('endRule').value === 'playoff' ? 'block' : 'none';
-}
-
-document.getElementById('endRule').addEventListener('change', () => { updatePlayoffSelect(); saveState(); });
-document.getElementById('scoreMode').addEventListener('change', onModeChange);
-document.getElementById('strokesMode').addEventListener('change', () => { saveState(); calculate(true); });
-document.getElementById('allowance').addEventListener('input', () => { saveState(); calculate(true); });
-
-function buildScoreTable(n, mode) {
-  const range = getHoleRange();
-  let html = '<div style="overflow-x:auto"><table><tr><th>Hole</th>';
-  if (mode === 'gross') html += '<th>SI</th>';
-  for (let i = 1; i <= n; i++) {
-    const nm = document.getElementById('p'+i)?.value || `P${i}`;
-    html += `<th title="${nm}">${nm.slice(0,8)}</th>`;
-  }
-  html += '<th>Result</th></tr>';
-  for (let h = range.start; h <= range.end; h++) {
-    html += `<tr><td>${h}</td>`;
-    if (mode === 'gross') html += `<td><input type="number" id="si${h}" aria-label="Hole ${h} stroke index" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px" oninput="saveState();validateSI()"></td>`;
-    for (let i = 1; i <= n; i++) {
-      html += `<td><input type="number" id="h${h}p${i}" aria-label="Hole ${h} score, player ${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"><span class="stroke-dot" id="dot${h}p${i}"></span></td>`;
-    }
-    html += `<td id="res${h}">—</td></tr>`;
-  }
-  html += '</table></div>';
-  if (mode === 'gross') html += '<p class="trust">Stroke Index (SI): 1 = hardest hole. Dots show strokes received.</p>';
-  document.getElementById('scoreTable').innerHTML = html;
-}
-
-function onScoreInput(el, hole, player) {
-  const val = el.value;
-  if (val && (+val < 1 || +val > 15)) el.classList.add('invalid');
-  else el.classList.remove('invalid');
-  saveState();
-  calculate(true);
-  if (val && val !== '1' && +val >= 2 && +val <= 9) {
-    const next = document.getElementById(`h${hole}p${player+1}`) || document.getElementById(`h${hole+1}p1`);
-    if (next) next.focus();
-  }
-}
-
-function validateSI() {
-  const range = getHoleRange();
-  const sis = [];
-  for (let h = range.start; h <= range.end; h++) {
-    const el = document.getElementById('si'+h);
-    if (el) sis.push(+el.value);
-  }
-  const unique = new Set(sis);
-  const warn = document.getElementById('siWarn');
-  if (sis.length === (range.end - range.start + 1) && unique.size !== sis.length) {
-    warn.textContent = 'Stroke Indexes should be unique.';
-    warn.style.display = 'block';
-  } else {
-    warn.style.display = 'none';
-  }
-}
-
-function newRound() {
-  if (!confirm('Clear scores for a new round? Players and handicaps will be kept.')) return;
-  const range = getHoleRange();
-  const n = +document.getElementById('numPlayers').value;
-  for (let h = range.start; h <= range.end; h++) {
-    for (let i = 1; i <= n; i++) {
-      const el = document.getElementById(`h${h}p${i}`);
-      if (el) el.value = '';
-    }
-    const res = document.getElementById('res'+h);
-    if (res) res.textContent = '—';
-  }
-  pageCache.scores = {};
-  saveState();
-  calculate(true);
-}
-
-function clearAll() {
-  if (!confirm('Clear everything including players and handicaps?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('numPlayers').value = 4;
-  document.getElementById('holesMode').value = '18';
-  document.getElementById('stake').value = 5;
-  document.getElementById('carryovers').checked = true;
-  document.getElementById('endRule').value = 'nobody';
-  document.getElementById('scoreMode').value = 'gross';
-  document.getElementById('strokesMode').value = 'full';
-  document.getElementById('allowance').value = 100;
-  updatePlayers(true, true);
-}
-
-function loadExample() {
-  document.getElementById('numPlayers').value = 4;
-  document.getElementById('scoreMode').value = 'gross';
-  document.getElementById('strokesMode').value = 'full';
-  document.getElementById('allowance').value = 100;
-  updatePlayers(false); refreshHeaders();
-  const names = ['Alex', 'Blake', 'Casey', 'Drew'];
-  const hcps = ['0', '4', '8', '12'];
-  names.forEach((name, i) => {
-    document.getElementById('p'+(i+1)).value = name;
-    document.getElementById('hcp'+(i+1)).value = hcps[i];
-  });
-  const sample = [
-    [4,5,4,5],[5,4,5,4],[3,4,4,5],[5,5,4,4],[4,4,5,3],
-    [6,5,5,4],[4,5,4,5],[5,4,4,5],[4,5,5,4],[3,4,5,4],
-    [5,4,4,5],[4,5,5,4],[5,4,4,5],[4,5,4,5],[5,4,5,4],
-    [4,5,4,4],[5,4,5,4],[4,5,4,5]
-  ];
-  sample.forEach((row, h) => row.forEach((s, p) => {
-    const el = document.getElementById(`h${h+1}p${p+1}`);
-    if (el) el.value = s;
-  }));
-  document.getElementById('stake').value = 5;
-  document.getElementById('carryovers').checked = true;
-  document.getElementById('endRule').value = 'nobody';
-  updatePlayoffSelect();
-  saveState();
-  calculate(true);
-}
-
-function getStrokeIndexes() {
-  const sis = [];
-  for (let h = 1; h <= 18; h++) {
-    const el = document.getElementById('si'+h);
-    sis.push(el ? (+el.value || h) : h);
-  }
-  return sis;
-}
-
-function strokesOnHole(r, si, totalHoles) {
-  if (r >= 0) {
-    return Math.floor(r / totalHoles) + (si <= (r % totalHoles) ? 1 : 0);
-  } else {
-    const give = Math.abs(r);
-    return si > (totalHoles - give) ? -1 : 0;
-  }
-}
-function rankSI(si, allSis) {
-  const sorted = [...allSis].sort((a,b)=>a-b);
-  return sorted.indexOf(si) + 1;
-}
-
-function calculate(runningOnly = true) {
-  const n = +document.getElementById('numPlayers').value;
-  const stakeRaw = document.getElementById('stake').value;
-  const stake = parseFloat(stakeRaw);
-  const stakeError = document.getElementById('stakeError');
-  if (!stake || stake <= 0) {
-    stakeError.textContent = 'Stake must be greater than 0';
-    stakeError.style.display = 'block';
-    return null;
-  } else {
-    stakeError.style.display = 'none';
-  }
-
-  const carry = document.getElementById('carryovers').checked;
-  const mode = document.getElementById('scoreMode').value;
-  const endRule = document.getElementById('endRule').value;
-  const strokesMode = document.getElementById('strokesMode').value;
-  const allowancePct = +document.getElementById('allowance').value || 100;
-  const allowance = Math.min(100, Math.max(50, allowancePct)) / 100;
-  const range = getHoleRange();
-  const totalHoles = range.end - range.start + 1;
-  const names = [], rawHcps = [], playing = [];
-  for (let i = 1; i <= n; i++) {
-    names.push(document.getElementById('p'+i)?.value || `Player ${i}`);
-    const raw = mode === 'gross' ? parseHcp(document.getElementById('hcp'+i)?.value) : 0;
-    rawHcps.push(raw);
-    const rh = x => Math.sign(x) * Math.round(Math.abs(x) + 1e-9);
-    const base = totalHoles === 9 ? rh(raw / 2) : raw;
-    const p = rh(base * allowance);
-    playing.push(p);
-  }
-  const minPlaying = Math.min(...playing);
-  const sis = mode === 'gross' ? getStrokeIndexes() : [];
-
-  let skins = Array(n).fill(0);
-  let carryValue = 0;
-  let holesEntered = 0;
-  let incomplete = [];
-
-  for (let h = range.start; h <= range.end; h++) {
-    let raw = [];
-    let allFilled = true;
-    for (let i = 0; i < n; i++) {
-      const el = document.getElementById(`h${h}p${i+1}`);
-      const val = el?.value;
-      if (!val) { allFilled = false; raw.push(null); }
-      else raw.push(+val);
-    }
-    const resEl = document.getElementById('res'+h);
-    if (!allFilled) {
-      incomplete.push(h);
-      if (resEl) resEl.textContent = '—';
-      continue;
-    }
-    holesEntered++;
-
-    let scores = raw.slice();
-    if (mode === 'gross') {
-      scores = raw.map((gross, i) => {
-        let r = strokesMode === 'offlow' ? playing[i] - minPlaying : playing[i];
-        const holeSis = [];
-        for (let hh = range.start; hh <= range.end; hh++) holeSis.push(sis[hh-1]);
-        const si = totalHoles === 9 ? rankSI(sis[h-1], holeSis) : sis[h-1];
-        const strokes = strokesOnHole(r, si, totalHoles);
-        const dot = document.getElementById(`dot${h}p${i+1}`);
-        if (dot) dot.textContent = strokes > 0 ? '●'.repeat(strokes) : (strokes < 0 ? '○' : '');
-        return gross - strokes;
-      });
-    }
-
-    const valid = scores.filter(s => s !== null);
-    if (!valid.length) continue;
-    const min = Math.min(...valid);
-    const winners = scores.map((s,i) => s === min ? i : -1).filter(i => i >= 0);
-
-    if (winners.length === 1) {
-      const w = winners[0];
-      const value = 1 + carryValue;
-      skins[w] += value;
-      if (resEl) resEl.textContent = names[w].slice(0,1).toUpperCase();
-      carryValue = 0;
-    } else if (carry) {
-      carryValue += 1;
-      if (resEl) resEl.textContent = 'C';
-    } else {
-      if (resEl) resEl.textContent = '—';
-    }
-  }
-
-  let leftoverNote = '';
-  if (carryValue > 0) {
-    if (endRule === 'nobody') {
-      leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} still carried ${range.label}: nobody wins them`;
-    } else if (endRule === 'playoff') {
-      const winnerVal = document.getElementById('playoffWinner').value;
-      const winnerIdx = winnerVal === '' ? NaN : +winnerVal;
-      if (isNaN(winnerIdx) || winnerVal === '') {
-        leftoverNote = 'Playoff winner required';
-      } else {
-        skins[winnerIdx] += carryValue;
-        leftoverNote = `${carryValue} skin${carryValue!==1?'s':''} awarded to ${names[winnerIdx]} (playoff)`;
-        carryValue = 0;
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var o = JSON.parse(raw);
+      if (o && o.v === 1 && Array.isArray(o.players) && o.players.length >= MIN_PLAYERS) {
+        for (var k in s) if (o[k] !== undefined) s[k] = o[k];
+        s.players = o.players.slice(0, MAX_PLAYERS).map(function (p) { return { name: String(p.name || '').slice(0, 24), hcp: Math.max(-10, Math.min(54, Math.round(+p.hcp || 0))) }; });
+        if (!Array.isArray(s.par) || s.par.length !== 18) s.par = DEF_PAR.slice();
+        if (!Array.isArray(s.si) || s.si.length !== 18) s.si = DEF_SI.slice();
+        if (typeof s.scores !== 'object' || !s.scores) s.scores = {};
+        return s;
       }
     }
+    var lg = localStorage.getItem(LEGACY); // remember players from the previous Skins page
+    if (lg) {
+      var l = JSON.parse(lg), ps = [];
+      (l.names || []).forEach(function (nm, i) { ps.push({ name: /^Player \d+$/.test(nm) ? '' : String(nm || '').slice(0, 24), hcp: Math.round(parseHcp((l.hcps || [])[i])) || 0 }); });
+      if (ps.length >= MIN_PLAYERS) s.players = ps.slice(0, MAX_PLAYERS);
+    }
+  } catch (e) {}
+  return s;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function range() { return holeRange(S.holes); }
+function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length); }
+function thru() { var rg = range(), c = 0; for (var h = rg[0]; h <= rg[1]; h++) if (recorded(h)) c++; return c; }
+function shown(h) { return recorded(h) ? S.scores[h].slice() : S.players.map(function () { return +S.par[h - 1]; }); }
+function record(h) { if (!recorded(h)) S.scores[h] = shown(h); }
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+
+function show(screen, focus) {
+  S.screen = screen; save();
+  ['setup', 'hole', 'result'].forEach(function (s) { $('scr-' + s).hidden = s !== screen; });
+  $('setup-next').hidden = screen !== 'setup';
+  if (screen === 'setup') renderSetup();
+  if (screen === 'hole') renderHole();
+  if (screen === 'result') renderResult();
+  if (focus) { window.scrollTo(0, 0); var hd = $(screen === 'setup' ? 'setup-h' : screen === 'hole' ? 'hole-h' : 'result-h'); if (hd) hd.focus({ preventScroll: true }); }
+}
+
+/* Setup */
+function renderPlayers() {
+  var gross = S.scoring === 'gross', n = S.players.length;
+  $('players').innerHTML = S.players.map(function (p, i) {
+    var nm = esc(nameOf(p, i));
+    return '<div class="sk-player">' +
+      '<label class="sr-only" for="pn' + i + '">Player ' + (i + 1) + ' name</label>' +
+      '<input class="gc-input" id="pn' + i + '" data-i="' + i + '" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player ' + (i + 1) + '" value="' + esc(p.name || '') + '">' +
+      '<button type="button" class="sk-x" data-rm="' + i + '" aria-label="Remove ' + nm + '"' + (n <= MIN_PLAYERS ? ' disabled' : '') + '>×</button>' +
+      (gross ? '' : '<div class="sk-hcp"><span class="gc-muted" id="phl' + i + '">Daily handicap</span>' +
+      '<span class="gc-stepper" role="group" aria-labelledby="phl' + i + '"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
+      '<input id="ph' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' daily handicap (+ for plus)" value="' + esc(fmtHcp(p.hcp)) + '">' +
+      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span></div>') +
+      '</div>';
+  }).join('');
+  $('btn-add').disabled = n >= MAX_PLAYERS;
+}
+function renderSetup() {
+  renderPlayers();
+  $('stake').value = S.stake;
+  setRadio('holes', S.holes); setRadio('scoring', S.scoring); setRadio('endRule', S.endRule);
+  $('carry').checked = !!S.carry;
+  $('allowance').value = S.allowance + '%';
+  $('allow-row').hidden = S.scoring === 'gross';
+  $('scoring-help').textContent = { full: 'Each player gets strokes from their full handicap, by stroke index.', offlow: 'Lowest handicap plays off scratch; everyone else gets the difference.', gross: 'Raw scores, no handicap strokes.' }[S.scoring];
+  var t = thru();
+  $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
+}
+function setRadio(name, v) { var els = document.querySelectorAll('input[name="' + name + '"]'); for (var i = 0; i < els.length; i++) els[i].checked = els[i].value === String(v); }
+function stakeValid() { var v = parseFloat(String(S.stake).replace(/[^0-9.]/g, '')); var ok = v > 0; $('stake-err').hidden = ok; $('stake').setAttribute('aria-invalid', ok ? 'false' : 'true'); return ok; }
+
+/* Hole */
+function stripText(h) {
+  var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h); tmp.endRule = 'nobody';
+  var r = compute(tmp), e = r.ledger.filter(function (x) { return x.hole === h; })[0], line;
+  var last = h === range()[1];
+  if (e.winner != null) line = 'Skin to ' + r.names[e.winner] + ' (' + e.net[e.winner] + (S.scoring === 'gross' ? '' : ' net') + ')' + (e.value > 1 ? ', worth ' + e.value + ' skins' : '');
+  else if (S.carry) line = 'Halved: carry ' + e.carryOut + (last ? ' (still carried after the last hole)' : ' to hole ' + (h + 1));
+  else line = 'Halved: no skin';
+  var so = r.names.map(function (nm, i) { return r.skins[i] ? esc(nm) + ' ' + r.skins[i] : ''; }).filter(Boolean).join(' · ') || 'none yet';
+  return '<strong>' + esc(line) + '</strong><span>Skins so far: ' + so + '</span>';
+}
+function strokesNote(n) { return n > 0 ? '●'.repeat(n) + ' gets ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives 1 shot' : 'no shot'; }
+function renderHole() {
+  var rg = range(), h = Math.min(rg[1], Math.max(rg[0], S.hole || rg[0])); S.hole = h;
+  $('hole-h').textContent = 'Hole ' + h;
+  $('hole-of').textContent = (h - rg[0] + 1) + ' of ' + (rg[1] - rg[0] + 1) + ' · thru ' + thru();
+  setRadio('par', S.par[h - 1]);
+  $('si').value = S.si[h - 1];
+  $('si-wrap').hidden = S.scoring === 'gross';
+  var pr = ''; for (var x = rg[0]; x <= rg[1]; x++) pr += '<i class="' + (x === h ? 'cur' : recorded(x) ? 'done' : '') + '"></i>'; $('progress').innerHTML = pr;
+  var r = compute(S), e = r.ledger.filter(function (x) { return x.hole === h; })[0];
+  var vals = shown(h), def = !recorded(h);
+  $('scores').innerHTML = '<h2 class="sr-only">Scores for hole ' + h + '</h2>' + S.players.map(function (p, i) {
+    var nm = esc(nameOf(p, i));
+    return '<div class="sk-score" id="row' + i + '"><div class="sk-who"><b>' + nm + '</b><small>' + (S.scoring === 'gross' ? 'gross' : strokesNote(e.strokes[i])) + '</small></div>' +
+      '<span class="gc-stepper' + (def ? ' is-default' : '') + '"><button type="button" data-sc="-1" data-i="' + i + '" aria-label="One less for ' + nm + '">−</button>' +
+      '<input id="sc' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' score, hole ' + h + '" value="' + vals[i] + '">' +
+      '<button type="button" data-sc="1" data-i="' + i + '" aria-label="One more for ' + nm + '">+</button></span></div>';
+  }).join('');
+  $('btn-prev').textContent = h === rg[0] ? '← Setup' : '← Hole ' + (h - 1);
+  $('btn-next').textContent = h === rg[1] ? 'See result →' : 'Next hole →';
+  updateStrip();
+}
+function updateStrip() {
+  var h = S.hole; $('strip').innerHTML = stripText(h);
+  var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h);
+  var e = compute(tmp).ledger.filter(function (x) { return x.hole === h; })[0];
+  S.players.forEach(function (p, i) { var row = $('row' + i); if (row) row.classList.toggle('is-win', e.winner === i); });
+}
+function setScore(i, v) {
+  var h = S.hole; record(h);
+  S.scores[h][i] = Math.max(1, Math.min(15, v));
+  var inp = $('sc' + i); if (inp && document.activeElement !== inp) inp.value = S.scores[h][i];
+  var steppers = $('scores').querySelectorAll('.gc-stepper'); for (var k = 0; k < steppers.length; k++) steppers[k].classList.remove('is-default');
+  save(); updateStrip();
+}
+function go(delta) {
+  var rg = range(); record(S.hole); save();
+  var h = S.hole + delta;
+  if (h > rg[1]) return show('result', true);
+  if (h < rg[0]) return show('setup', true);
+  S.hole = h; show('hole', true);
+}
+
+/* Result */
+function renderResult() {
+  var r = compute(S), hero = '';
+  var kicker = r.played === r.total ? 'Skins settled · ' + money(r.stake) + ' a skin' : 'So far · thru ' + r.played + ' of ' + r.total;
+  if (!r.played) hero = '<p class="gc-kicker">Skins</p><p class="gc-big">No holes scored yet</p>';
+  else if (r.needsPlayoff) hero = '<p class="gc-kicker">' + kicker + '</p><p class="gc-big">Playoff for ' + r.carry + ' skin' + (r.carry === 1 ? '' : 's') + '</p><p class="sk-hero-sub">Pick the playoff winner below to settle.</p>';
+  else {
+    var one = r.payments.length === 1;
+    hero = '<p class="gc-kicker">' + esc(kicker) + '</p>' + (r.payments.length ? r.payments.map(function (p) {
+      return one ? '<p class="gc-big">' + esc(r.names[p.from]) + ' pays ' + esc(r.names[p.to]) + ' ' + money(p.amount) + '</p>'
+        : '<p class="sk-pay"><span>' + esc(r.names[p.from]) + ' pays ' + esc(r.names[p.to]) + '</span> <span>' + money(p.amount) + '</span></p>';
+    }).join('') : '<p class="gc-big">All square</p>');
+    var note = r.playoffWinner != null ? esc(r.names[r.playoffWinner]) + ' won the playoff for ' + r.leftover + ' carried skin' + (r.leftover === 1 ? '' : 's') + '.'
+      : (r.leftover && r.played === r.total ? r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried after the last hole: nobody wins ' + (r.leftover === 1 ? 'it' : 'them') + '.' : '');
+    if (note) hero += '<p class="sk-hero-sub">' + note + '</p>';
   }
-
-  const incompleteWarn = document.getElementById('incompleteWarn');
-  if (incomplete.length) {
-    incompleteWarn.textContent = `Holes ${incomplete.join(', ')} incomplete: not counted`;
-    incompleteWarn.style.display = 'block';
-  } else {
-    incompleteWarn.style.display = 'none';
-  }
-
-  let runHtml = `<h2 style="margin-top:0">Running totals (${holesEntered} holes)</h2>`;
-  runHtml += `<p><strong>Current carryover:</strong> ${carryValue} skin${carryValue!==1?'s':''}</p>`;
-  runHtml += `<p><strong>Skins so far:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
-  if (leftoverNote) runHtml += `<p>${leftoverNote}</p>`;
-  document.getElementById('running').innerHTML = runHtml;
-  document.getElementById('running').style.display = holesEntered ? 'block' : 'none';
-
-  const sticky = document.getElementById('stickyBar');
-  document.getElementById('stickyText').textContent = `Thru ${holesEntered} · Carry: ${carryValue} skin${carryValue!==1?'s':''}`;
-  sticky.style.display = holesEntered ? 'flex' : 'none';
-
-  if (runningOnly) return { skins, names, stake, leftoverNote, incomplete, balances: null, payments: null };
-
-  const totalSkins = skins.reduce((a,b)=>a+b,0);
-  const balances = skins.map(s => stake * (n * s - totalSkins));
-
-  let creditors = [], debtors = [];
-  balances.forEach((b,i) => {
-    if (b > 0.01) creditors.push({i, amt: b});
-    if (b < -0.01) debtors.push({i, amt: -b});
+  $('hero').innerHTML = hero;
+  $('btn-share').disabled = !r.played || r.needsPlayoff;
+  $('totals').innerHTML = r.names.map(function (nm, i) {
+    var b = r.balances[i];
+    return '<span>' + esc(nm) + '</span><span class="sk-sk">' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + '</span><span class="' + (b < 0 ? 'neg' : b > 0 ? 'pos' : 'zero') + '">' + signed(b) + '</span>';
+  }).join('');
+  var g = S.scoring === 'gross' ? '' : ' net';
+  var li = r.ledger.map(function (e) {
+    var t;
+    if (!e.played) t = '<span class="gc-muted">Not scored</span>';
+    else if (e.winner != null) t = '<span class="win">' + esc(r.names[e.winner]) + '</span> ' + e.net[e.winner] + g + ', skin' + (e.carryIn ? ' + ' + e.carryIn + ' carry' : '');
+    else t = 'Halved on ' + e.low + g + ' (' + e.tied.map(function (i) { return esc(r.names[i]); }).join(', ') + ')' + (S.carry ? ', carry ' + e.carryOut : ', no skin');
+    return '<li><span class="h">H' + e.hole + '</span><span>' + t + '</span></li>';
   });
-  let payments = [];
-  while (creditors.length && debtors.length) {
-    const c = creditors[0], d = debtors[0];
-    const pay = Math.min(c.amt, d.amt);
-    payments.push(`${names[d.i]} pays ${names[c.i]} $${pay.toFixed(2)}`);
-    c.amt -= pay; d.amt -= pay;
-    if (c.amt < 0.01) creditors.shift();
-    if (d.amt < 0.01) debtors.shift();
-  }
-
-  return { skins, names, stake, leftoverNote, incomplete, balances, payments, totalSkins, strokesMode, allowance: allowance*100 };
+  if (r.leftover && r.played === r.total) li.push('<li><span class="h">End</span><span>' + (r.playoffWinner != null ? '<span class="win">' + esc(r.names[r.playoffWinner]) + '</span> wins the playoff: ' + r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') : r.needsPlayoff ? r.leftover + ' skins go to the playoff winner' : r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried: nobody wins') + '</span></li>');
+  $('ledger').innerHTML = li.join('');
+  var po = $('playoff');
+  if (S.endRule === 'playoff' && r.leftover && r.played === r.total) {
+    po.hidden = false;
+    po.innerHTML = '<h2 id="po-h">Who won the playoff?</h2><div class="sk-playoff" role="group" aria-labelledby="po-h">' + r.names.map(function (nm, i) {
+      return '<button type="button" class="gc-btn ' + (S.playoff === i ? 'gc-btn-primary' : 'gc-btn-secondary') + '" data-po="' + i + '" aria-pressed="' + (S.playoff === i) + '">' + esc(nm) + '</button>';
+    }).join('') + '</div>';
+  } else po.hidden = true;
+}
+function share() {
+  var r = compute(S), text = shareText(S, r);
+  var copy = function () {
+    var full = text + '\nSettled at ' + URL;
+    var done = function () { toast('Copied. Paste it in the group chat'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(full).then(done, fallback); else fallback();
+    function fallback() { var ta = document.createElement('textarea'); ta.value = full; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed'); } document.body.removeChild(ta); }
+  };
+  if (navigator.share) navigator.share({ title: 'Skins result', text: text, url: URL }).catch(function (e) { if (!e || e.name !== 'AbortError') copy(); });
+  else copy();
+  window._shareText = text + '\nSettled at ' + URL;
+}
+function loadExample() { S = exampleState(); save(); show('result', true); }
+function newRound() {
+  if (!confirm('Start a new round? Players and course stay; scores are cleared.')) return;
+  S.scores = {}; S.playoff = null; S.hole = range()[0]; save(); show('hole', true);
 }
 
-function settleUp() {
-  const endRule = document.getElementById('endRule').value;
-  if (endRule === 'playoff' && !document.getElementById('playoffWinner').value) {
-    const err = document.getElementById('settleError');
-    err.textContent = 'Pick a playoff winner before settling';
-    err.style.display = 'block';
-    document.getElementById('results').style.display = 'none';
-    window._shareText = '';
-    document.getElementById('playoffWinner').scrollIntoView({block:'center'});
-    return;
-  }
-  document.getElementById('settleError').style.display='none';
-  const res = calculate(false);
-  if (!res) return;
-
-  const { skins, names, stake, leftoverNote, balances, payments, strokesMode, allowance } = res;
-
-  let html = `<h2 style="margin-top:0">Settlement</h2>`;
-  html += `<p><strong>Skins won:</strong> ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(' · ')}</p>`;
-  if (balances) {
-    html += `<p><strong>Net $:</strong> ${names.map((nm,i)=>`${nm} ${balances[i]>=0?'+':''}$${balances[i].toFixed(2)}`).join(' · ')}</p>`;
-  html += `<p class="trust">Amounts rounded to nearest cent.</p>`;
-  }
-  if (leftoverNote) html += `<p>${leftoverNote}</p>`;
-  if (payments && payments.length) {
-    html += `<h3 style="font-size:1rem;margin:1rem 0 0.4rem">Who pays whom</h3><ul class="payments">${payments.map(p=>`<li>${p}</li>`).join('')}</ul>`;
-  } else if (balances) {
-    html += `<p>All square.</p>`;
-  }
-  html += `<button class="secondary" onclick="shareResult()">Share</button> <span id="copyConfirm" class="copied"></span>`;
-
-  document.getElementById('results').innerHTML = html;
-  document.getElementById('results').style.display = 'block';
-
-  const modeName = document.getElementById('scoreMode').value;
-  const offLow = strokesMode === 'offlow';
-  const modeLabel = { gross: offLow ? 'net, off the lowest' : 'net, full handicaps',
-                      net: 'direct net', grossonly: 'gross only' }[modeName];
-  const allowNote = modeName === 'gross' && allowance !== 100 ? ` ${Math.round(allowance)}%` : '';
-  const holesVal = document.getElementById('holesMode').value;
-  const holesNote = holesVal === 'front' ? ' (Front 9)' : holesVal === 'back' ? ' (Back 9)' : '';
-  const rules = `Skins: $${stake}/skin, ${modeLabel}${allowNote}${holesNote}, carryovers ${document.getElementById('carryovers').checked?'on':'off'}`;
-  const fmt = b => (b < 0 ? '−' : '+') + '$' + Math.abs(b).toFixed(2);
-  const balLines = names.map((nm,i) => `${nm} ${fmt(balances[i])}`).join(' · ');
-  const payLines = payments ? payments.join('\n') : 'All square';
-  const skinsLine = `Skins: ${names.map((nm,i)=>`${nm} ${skins[i]}`).join(', ')}${leftoverNote ? ` (${leftoverNote})` : ''}`;
-  window._shareText = `${rules}\n${balLines}\n${payLines}\n${skinsLine}\nSettled at golfcalculators.com/skins`;
-}
-
-async function shareResult() {
-  const text = window._shareText || 'No result';
-  const confirmEl = document.getElementById('copyConfirm');
-  if (navigator.share) {
-    try {
-      await navigator.share({ text, url: 'https://golfcalculators.com/skins' });
-      return;
-    } catch (e) {}
-  }
-  try {
-    await navigator.clipboard.writeText(text);
-    confirmEl.textContent = 'Copied ✓';
-    setTimeout(() => confirmEl.textContent = '', 2000);
-  } catch (e) {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    confirmEl.textContent = 'Copied ✓';
-    setTimeout(() => confirmEl.textContent = '', 2000);
-  }
-}
-
-document.addEventListener('input', (e) => {
-  if (e.target.id && (e.target.id.startsWith('h') || e.target.id.startsWith('si') || e.target.id === 'stake' || e.target.id === 'carryovers' || e.target.id.startsWith('p') || e.target.id.startsWith('hcp'))) {
-    saveState();
-    calculate(true);
+/* Events */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) return;
+  var i = +b.getAttribute('data-i');
+  if (b.hasAttribute('data-sc')) { setScore(i, shown(S.hole)[i] + +b.getAttribute('data-sc')); $('sc' + i).value = S.scores[S.hole][i]; return; }
+  if (b.hasAttribute('data-h')) { var p = S.players[i]; p.hcp = Math.max(-10, Math.min(54, (+p.hcp || 0) + +b.getAttribute('data-h'))); $('ph' + i).value = fmtHcp(p.hcp); save(); return; }
+  if (b.hasAttribute('data-rm')) { if (S.players.length > MIN_PLAYERS) { var rm = +b.getAttribute('data-rm'); S.players.splice(rm, 1); for (var h in S.scores) S.scores[h].splice(rm, 1); S.playoff = null; save(); renderSetup(); } return; }
+  if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
+  if (b.hasAttribute('data-si')) { var sv = Math.max(1, Math.min(18, (+S.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.si[S.hole - 1] = sv; $('si').value = sv; save(); renderHoleKeepFocus(b); return; }
+  if (b.hasAttribute('data-allow')) { S.allowance = Math.max(50, Math.min(100, S.allowance + +b.getAttribute('data-allow'))); $('allowance').value = S.allowance + '%'; save(); return; }
+  switch (b.id) {
+    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0 }); for (var hh in S.scores) delete S.scores[hh]; save(); renderSetup(); var el = $('pn' + (S.players.length - 1)); if (el) el.focus(); } break;
+    case 'btn-example': loadExample(); break;
+    case 'btn-start': if (!stakeValid()) { $('stake').focus(); break; } var rg = range(), h1 = rg[0]; while (h1 < rg[1] && recorded(h1)) h1++; S.hole = h1; show('hole', true); break;
+    case 'btn-next': go(1); break;
+    case 'btn-prev': go(-1); break;
+    case 'btn-setup': record(S.hole); show('setup', true); break;
+    case 'btn-settle': show('result', true); break;
+    case 'btn-share': share(); break;
+    case 'btn-edit': var r2 = range(), last = r2[0]; for (var x = r2[0]; x <= r2[1]; x++) if (recorded(x)) last = x; S.hole = last; show('hole', true); break;
+    case 'btn-new': newRound(); break;
   }
 });
+function renderHoleKeepFocus(btn) { var sel = btn && btn.getAttribute('data-si'); renderHole(); if (sel) { var nb = document.querySelector('button[data-si="' + sel + '"]'); if (nb) nb.focus(); } }
+document.addEventListener('input', function (ev) {
+  var t = ev.target, i = +t.getAttribute('data-i');
+  if (/^pn\d/.test(t.id)) { S.players[i].name = t.value.slice(0, 24); save(); }
+  else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) { S.players[i].hcp = Math.max(-10, Math.min(54, parseHcp(v))); save(); } }
+  else if (/^sc\d/.test(t.id)) { var n = parseInt(t.value, 10); if (n >= 1 && n <= 15) setScore(i, n); }
+  else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); } }
+  else if (t.id === 'stake') { S.stake = t.value.trim(); save(); }
+});
+document.addEventListener('change', function (ev) {
+  var t = ev.target;
+  if (t.name === 'holes') { S.holes = t.value; var rg = range(); if (S.hole < rg[0] || S.hole > rg[1]) S.hole = rg[0]; S.playoff = null; save(); renderSetup(); }
+  else if (t.name === 'scoring') { S.scoring = t.value; save(); renderSetup(); }
+  else if (t.name === 'endRule') { S.endRule = t.value; S.playoff = null; save(); }
+  else if (t.id === 'carry') { S.carry = t.checked; save(); }
+  else if (t.name === 'par') { var h = S.hole; S.par[h - 1] = +t.value; if (!recorded(h)) { S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = +t.value; }); } save(); updateStrip(); }
+  else if (t.id === 'si') { renderHole(); }
+});
+document.addEventListener('focusout', function (ev) {
+  var t = ev.target, i = +t.getAttribute('data-i');
+  if (/^ph\d/.test(t.id)) t.value = fmtHcp(S.players[i].hcp);
+  else if (/^sc\d/.test(t.id)) t.value = shown(S.hole)[i];
+  else if (t.id === 'si') t.value = S.si[S.hole - 1];
+  else if (t.id === 'stake') stakeValid();
+});
+document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev.target.matches('.gc-stepper input:not([readonly]), #stake')) { try { ev.target.select(); } catch (e) {} } });
+(function swipe() {
+  var x0 = null, y0 = null, el = $('scr-hole');
+  el.addEventListener('touchstart', function (e) { if (e.target.closest('input,button')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dy) < 40) go(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
+})();
 
-document.getElementById('numPlayers').addEventListener('change', onPlayersChange);
-
-if (!loadState()) updatePlayers();
+window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, reset: function () { S = defaultState(); save(); show('setup'); } };
+show(S.screen || 'setup');
+})();
 </script>
 </body>
 </html>
