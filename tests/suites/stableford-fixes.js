@@ -3,7 +3,8 @@
 // Expected strokes are written out by hand from the built-in card, not computed by the page.
 const {SITE,boot,ok,report,path,fs}=require('../lib/harness');
 const file=path.join(SITE,'stableford.html');
-if(!/function siRank\(/.test(fs.readFileSync(file,'utf8'))){console.log('SKIP  legacy Stableford without the P3 fixes');process.exit(0);}
+{const src=fs.readFileSync(file,'utf8');if(/data-gc="stableford-v2"/.test(src)){console.log('SKIP  rebuilt Stableford (P4): the same cases run in the stableford-v2 suite');process.exit(0);}
+ if(!/function siRank\(/.test(src)){console.log('SKIP  legacy Stableford without the P3 fixes');process.exit(0);}}
 const txt=el=>el?el.textContent.replace(/\s+/g,' ').trim():'';
 // card: par [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5], SI [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18]
 const PAR=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];

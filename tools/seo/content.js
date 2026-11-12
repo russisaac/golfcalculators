@@ -40,9 +40,9 @@ module.exports = {
     name: 'Stableford Points Calculator',
     how: `
   <h2 id="how-h">How it's calculated</h2>
-  <p>On each hole your handicap strokes come off your score to give a net score, which is then compared with par: net double bogey or worse scores 0 points, net bogey 1, net par 2, net birdie 3 and net eagle 4 (<a href="${RULE21}" rel="noopener">Rules of Golf, Rule 21.1b</a>). Strokes go by stroke index (SI), hardest hole first.</p>
+  <p>On each hole your handicap strokes come off your score to give a net score, which is then compared with par: net double bogey or worse scores 0 points, net bogey 1, net par 2, net birdie 3 and net eagle 4 (<a href="${RULE21}" rel="noopener">Rules of Golf, Rule 21.1b</a>). Strokes go by stroke index (SI), hardest hole first. Ties on the leaderboard are split with the Australian Countback Method: the last 9 holes, then the last 6, the last 3 and then hole by hole.</p>
   <h3>Worked example</h3>
-  <p>One player with a Daily Handicap of <span data-ex="hcp">20</span> plays the first 3 holes of the calculator's built-in card. A handicap of 20 gives one stroke on every hole, plus a second stroke on SI 1 and SI 2.</p>
+  <p>One player with a Daily Handicap of <span data-ex="hcp">20</span> plays the first 3 holes of the calculator's standard card. A handicap of 20 gives one stroke on every hole, plus a second stroke on SI 1 and SI 2.</p>
   <ul class="gc-learn-list">
     <li>Hole 1 (par 4, SI 5): <span data-ex="st-1">1</span> stroke. A score of <span data-ex="sc-1">5</span> is net 4, a net par: <span data-ex="pt-1">2</span> points.</li>
     <li>Hole 2 (par 4, SI 3): <span data-ex="st-2">1</span> stroke. A score of <span data-ex="sc-2">4</span> is net 3, a net birdie: <span data-ex="pt-2">3</span> points.</li>
@@ -50,14 +50,15 @@ module.exports = {
   </ul>
   <p class="gc-learn-result">Total: <span data-ex="total">6</span> points from 3 holes.</p>
   <p>Two points a hole for 18 holes is 36, which means you played to your handicap.</p>
-  <p class="gc-learn-src" id="rules-source">Rules source: points from the <a href="${RULE21}" rel="noopener">R&amp;A Rules of Golf, Rule 21.1b</a>. Strokes, plus handicaps and countback from ${GA_CITE}, §10C and §11.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: points from the <a href="${RULE21}" rel="noopener">R&amp;A Rules of Golf, Rule 21.1b</a>. Strokes, 9-hole rounds, plus handicaps and countback from ${GA_CITE}, §3H(iii), §10C and §11.</p>
   <p>Need your strokes? <a href="/daily-handicap">Work out your Daily Handicap first</a>. Playing for money too? <a href="/skins">Settle skins from the same round</a>.</p>`,
     faq: [
       ['How do you calculate Stableford points with a handicap?', 'Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole.'],
       ['How many shots do I get on each hole?', 'Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C).'],
       ['How does the Stableford countback work?', 'Golf Australia\'s default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11).'],
       ['How does Stableford work over 9 holes?', 'Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).'],
-      ['What is a good Stableford score?', 'Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.']
+      ['What is a good Stableford score?', 'Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.'],
+      ['What if players are still tied after the countback?', 'If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11).'],
     ]
   },
   'daily-handicap': {

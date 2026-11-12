@@ -57,6 +57,7 @@
   .next-card { display: block; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin: 1.5rem 0; text-decoration: none; color: #0f172a; }
   .next-card strong { display: block; color: var(--green); }
   .next-card span { color: #475569; font-size: 0.9rem; }
+  .next-card[hidden] { display: none; }
   .gc-learn { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; color: #334155; }
   .gc-learn h2 { font-size: 1.3rem; color: #0f172a; margin: 1.75rem 0 0.6rem; }
   .gc-learn h2:first-child { margin-top: 0; }
@@ -232,6 +233,7 @@
   <p class="big" id="dailyOut">—</p>
   <p class="how" id="howOut"></p>
   <p class="how">Formula: Golf Australia WHS reference guide, Edition January 2026, §3H. <a href="#how-h">How it's calculated</a></p>
+  <a class="next-card" id="sfBack" href="/stableford" hidden><strong id="sfBackT">Use this in Stableford →</strong><span>Back to your Stableford round to pick the player.</span></a>
 </div>
 
 <a class="next-card" href="/stableford"><strong>Next step: Stableford calculator →</strong><span>Turn today's Daily Handicap into Stableford points.</span></a>
@@ -363,6 +365,13 @@ function calculate() {
   document.getElementById('dailyOut').textContent = display;
   document.getElementById('howOut').textContent = formula;
   document.getElementById('result').style.display = 'block';
+  // Came from Stableford ("Work out my DH"): offer the way back with the value.
+  const sfBack = document.getElementById('sfBack');
+  if (sfBack && /(^|[?&])from=stableford(&|$)/.test(location.search)) {
+    sfBack.hidden = false;
+    sfBack.href = '/stableford?dh=' + encodeURIComponent(display);
+    document.getElementById('sfBackT').textContent = 'Use ' + display + ' in Stableford →';
+  }
 
   try {
     localStorage.setItem(STORAGE, JSON.stringify({

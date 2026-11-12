@@ -46,7 +46,9 @@ const observeDh=(file,name)=>{const h=boot(file,{url:'https://golfcalculators.co
   return {result:h.$('result').style.display,daily:txt(h.$('dailyOut')),how:txt(h.$('howOut')),errs:['gaErr','slopeErr','scratchErr','parErr'].map(shown),
     labels:['slopeLabel','scratchLabel','parLabel'].map(id=>txt(h.$(id))),vals:vals(h.d),ls:h.w.localStorage.getItem('golfcalculators_daily_hcp')};};
 
-const pages=[['stableford',observeSf,sfScenarios],['daily-handicap',observeDh,dhScenarios]];
+const pages=[['daily-handicap',observeDh,dhScenarios]];
+if(!/data-gc="stableford-v2"/.test(fs.readFileSync(path.join(SITE,'stableford.html'),'utf8')))pages.unshift(['stableford',observeSf,sfScenarios]);
+else ok('stableford: rebuilt page detected (data-gc="stableford-v2"); legacy parity skipped, engine cross-check vs live runs in stableford-v2 suite',true);
 if(isLegacySkins(path.join(SITE,'skins.html')))pages.unshift(['skins',observeSkins,skinsScenarios]);
 else ok('skins: rebuilt page detected (data-gc="skins-v2"); legacy parity skipped, engine cross-check runs in skins-v2 suite',true);
 // Intentional P3 behaviour fixes on Stableford (9-hole SI ranking, "+" = plus handicap): those two
