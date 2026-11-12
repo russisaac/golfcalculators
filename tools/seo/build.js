@@ -3,7 +3,7 @@
 //  - <title>, meta description, og:title/og:description, twitter:title/description and og/twitter image alt from
 //    tools/og-images/pages.json (one source, so they stay in sync);
 //  - on skins/stableford/daily-handicap: the "How it's calculated" section, rules source,
-//    body links and visible FAQ from content.js between <!-- seo:content:start/end -->, and
+//    body links and visible FAQ (optionally with one link per answer) from content.js between <!-- seo:content:start/end -->, and
 //    one JSON-LD @graph (WebApplication, FAQPage from the same FAQ strings, BreadcrumbList)
 //    between <!-- seo:jsonld:start/end -->. No ratings or reviews.
 // usage: node tools/seo/build.js [--check]   (--check: exit 1 if any page would change)
@@ -14,6 +14,10 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'
 const escText=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const between=(s,tag,body)=>{const a=`<!-- seo:${tag}:start -->`,b=`<!-- seo:${tag}:end -->`;const i=s.indexOf(a),j=s.indexOf(b);if(i<0||j<i)throw new Error('missing markers '+tag);return s.slice(0,i+a.length)+body+s.slice(j);};
 const setMeta=(s,re,val,label)=>{if(!re.test(s))throw new Error('missing '+label);return s.replace(re,(m,p1,_v,p3)=>p1+esc(val)+p3);};
+// An FAQ entry may be [question, answer, {text, href}]: the first occurrence of `text` in the
+// visible answer becomes a link; JSON-LD keeps the same plain text.
+const faqAnswer=(a,ln)=>{if(!ln)return escText(a);const i=a.indexOf(ln.text);if(i<0)throw new Error('FAQ link text not in answer: '+ln.text);
+  return escText(a.slice(0,i))+`<a href="${esc(ln.href)}">${escText(ln.text)}</a>`+escText(a.slice(i+ln.text.length));};
 let changed=0;
 for(const p of pages){
   const f=path.join(ROOT,p.file);let s=fs.readFileSync(f,'utf8');const before=s;
@@ -27,7 +31,7 @@ for(const p of pages){
   s=setMeta(s,/(<meta name="twitter:image:alt" content=")([^"]*)(">)/,p.alt,'twitter:image:alt');
   const c=C[p.page];
   if(c){
-    const faqHtml=`\n  <h2 id="faq-h">Frequently asked questions</h2>\n`+c.faq.map(([q,a])=>`  <div class="gc-faq-item"><h3>${escText(q)}</h3><p>${escText(a)}</p></div>`).join('\n')+'\n';
+    const faqHtml=`\n  <h2 id="faq-h">Frequently asked questions</h2>\n`+c.faq.map(([q,a,ln])=>`  <div class="gc-faq-item"><h3>${escText(q)}</h3><p>${faqAnswer(a,ln)}</p></div>`).join('\n')+'\n';
     s=between(s,'content',c.how+'\n'+faqHtml);
     const ld={'@context':'https://schema.org','@graph':[
       {'@type':'WebApplication','@id':p.url+'#app','name':c.name,'url':p.url,'description':p.ogDescription,'applicationCategory':'SportsApplication','operatingSystem':'Any','offers':{'@type':'Offer','price':0,'priceCurrency':'AUD'},'inLanguage':'en-AU'},

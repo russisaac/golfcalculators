@@ -139,7 +139,17 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  x=round(two(18),two(18));
  ok('identical cards: "Tied after countback (joint)", both =1st',x.line==='Tied after countback (joint)'&&x.r.board.every(b=>G.placeLabel(b)==='=1st'),x.line);
  x=round(mod(two(18),{1:1,2:1,3:1,4:1,14:3,15:3,16:3,17:3}),two(18),{st:{tenth:true}});
- ok('whole field off the 10th: last 9 = holes 1–9, B wins 18 v 14 on holes 1–9',x.first.name==='B'&&x.line==='B wins on countback: 18 v 14 on holes 1–9',x.line);
+ ok('whole field off the 10th: last 9 = holes 1–9, stated as "on the last nine (holes 1–9)"',x.first.name==='B'&&x.line==='B wins on countback: 18 v 14 on the last nine (holes 1–9)',x.line);
+ ok('whole field off the 10th: share text names the stage too',G.shareText(x.st,x.r).split('\n')[1]==='1st B 36 pts (countback: 18 v 14 on the last nine (holes 1–9))',G.shareText(x.st,x.r).split('\n')[1]);
+ x=round(mod(two(18),{1:3,4:1}),two(18),{st:{tenth:true}}); // holes 1–9 level (18–18); hole 4 is in the last six played
+ ok('whole field off the 10th, last 9 level: "last six (holes 4–9)" decides it (PO: 4–9, not 3–9)',x.first.name==='B'&&x.line==='B wins on countback: 12 v 11 on the last six (holes 4–9)',x.line);
+ x=round(mod(two(18),{4:1,7:3}),two(18),{st:{tenth:true}}); // 1–9 and 4–9 level, 7–9 decides
+ ok('whole field off the 10th: then "the last three (holes 7–9)"',x.first.name==='A'&&x.line==='A wins on countback: 7 v 6 on the last three (holes 7–9)',x.line);
+ { const h=open({storage:{gc_stableford_v1:JSON.stringify(Object.assign(G.defaultState(),{tenth:true}))}});
+   ok('setup help for a 10th-tee start: "Countback: the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from hole 9."',txt(h.$('round-help'))==='Countback: the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from hole 9.',txt(h.$('round-help')));
+   const faq=[...h.d.querySelectorAll('.gc-faq-item')].find(e=>/countback work/.test(e.textContent));
+   const tenthStages=G.cbStages(G.holesInPlay(Object.assign(G.defaultState(),{tenth:true}))).slice(0,3).map(hs=>G.cbRange(hs,G.holesInPlay(Object.assign(G.defaultState(),{tenth:true})))).map(t=>t.replace(/^the /,''));
+   ok('countback FAQ covers a whole field off the 10th with the same stages as the calculator ('+tenthStages.join(', ')+')',!!faq&&/whole field started on the 10th tee/.test(txt(faq))&&tenthStages.every(t=>txt(faq).includes(t)),tenthStages.join(' | ')); }
  ok('10th-tee start: stages 1–9, 4–9, 7–9, then hole 9',G.cbStages(G.holesInPlay(x.st)).slice(0,4).map(s=>s[0]+'-'+s[s.length-1]).join()==='1-9,4-9,7-9,9-9');
  // three-way tie: places 1-3 all on countback
  const st=G.defaultState();st.players=[{name:'A',hcp:0},{name:'B',hcp:0},{name:'C',hcp:0}];
@@ -241,6 +251,40 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  d2.set('ga','14.2');d2.set('slope','128');d2.set('scratch','71');d2.set('par','72');ok('DH page opened directly: no Stableford link',d2.$('sfBack').hidden);
  const d3=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap?from=stableford'});
  d3.set('ga','+4');d3.set('slope','140');d3.set('scratch','74');d3.set('par','72');ok('DH plus result goes back as ?dh=%2B…',/^\/stableford\?dh=%2B\d+$/.test(d3.$('sfBack').getAttribute('href')),d3.$('sfBack').getAttribute('href'));}
+
+// ---- 9 holes: "9-hole Daily Handicap" label and each player's DH link beside the field (PO, 12 Nov) ----
+{const h=open({storage:{}});const four=()=>{for(let k=0;k<3;k++)click(h,'#btn-add');};four();
+ const lbl=i=>h.$('ph'+i).getAttribute('aria-label'),grp=i=>h.$('ph'+i).closest('.gc-stepper').getAttribute('aria-label');
+ ok('18 holes: field reads "Daily handicap", one shared "Work out my DH" link, no per-player links',txt(h.$('hcp-col'))==='Daily handicap'&&/daily handicap \(\+ for plus\)$/.test(lbl(0))&&!h.$('dh-link').hidden&&!h.d.querySelector('.sf-dhrow'));
+ h.d.querySelector('input[name=round][value=front]').click();
+ ok('front 9: column and every field labelled "9-hole Daily Handicap"',txt(h.$('hcp-col'))==='9-hole Daily Handicap'&&[0,1,2,3].every(i=>lbl(i)==='Player '+(i+1)+' 9-hole Daily Handicap (+ for plus)'&&grp(i)==='Player '+(i+1)+' 9-hole Daily Handicap'),lbl(0));
+ const placed=[0,1,2,3].every(i=>{const a=h.$('dhl'+i),row=h.$('ph'+i).closest('.sk-player');return !!a&&a.closest('.sk-player')===row&&a.previousElementSibling===h.$('ph'+i).closest('.gc-stepper')&&a.getAttribute('href')==='/daily-handicap?from=stableford&holes=9&p='+i&&a.getAttribute('aria-label')==='Work out Player '+(i+1)+'\u2019s 9-hole Daily Handicap'&&txt(a)==='Work out 9-hole DH →';});
+ ok('front 9: each player\'s "Work out 9-hole DH →" sits right after their handicap stepper, in the same row, and opens the 9-hole DH for that player',placed);
+ ok('front 9: the shared link is hidden (one link per field instead)',h.$('dh-link').hidden);
+ h.d.querySelector('input[name=round][value=back]').click();ok('back 9: still "9-hole Daily Handicap" with per-player links',txt(h.$('hcp-col'))==='9-hole Daily Handicap'&&h.d.querySelectorAll('.sf-dhrow').length===4);
+ h.d.querySelector('input[name=round][value="18"]').click();ok('back to 18 holes: label and shared link switch back',txt(h.$('hcp-col'))==='Daily handicap'&&!h.$('dh-link').hidden&&!h.d.querySelector('.sf-dhrow')&&/^Player 1 daily handicap/.test(lbl(0)));
+ const st9=Object.assign(G.defaultState(),{course:Object.assign(G.defaultCourse(),{holes:9,par:G.DEF_PAR.slice(0,9),si:[3,2,1,4,5,6,7,8,9]})});
+ const h9=open({storage:{gc_stableford_v1:JSON.stringify(st9)}});ok('9-hole course card: "9-hole Daily Handicap" and the link beside the field',txt(h9.$('hcp-col'))==='9-hole Daily Handicap'&&!!h9.$('dhl0')&&h9.$('dh-link').hidden);
+ // the 9-hole link round trip goes straight to that player
+ const d=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap?from=stableford&holes=9&p=2'});
+ ok('DH page from a player\'s 9-hole link opens on 9 holes',d.$('holes').value==='9');
+ d.set('ga','14.2');d.set('slope','128');d.set('scratch','35.5');d.set('par','36');
+ const back=d.$('sfBack').getAttribute('href'),v=decodeURIComponent((back.match(/dh=([^&]+)/)||[])[1]||'');
+ ok('…and links back with the value and the player ('+back+')',!d.$('sfBack').hidden&&/^\/stableford\?dh=[^&]+&p=2$/.test(back)&&txt(d.$('sfBackT'))==='Use '+v+' in Stableford →',back);
+ h.d.querySelector('input[name=round][value=front]').click();
+ const h2=open({url:URL+'?dh='+encodeURIComponent(v)+'&p=2',storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1')}});
+ ok('back in Stableford with &p=2: Player 3 gets it directly (no prompt), with a toast',h2.w.GCStablefordUI.state().players[2].hcp===+v&&h2.$('ph2').value===v&&h2.$('dh-prompt').hidden&&txt(h2.$('toast'))==='Player 3: 9-hole Daily Handicap '+v&&h2.w.location.search==='',txt(h2.$('toast')));
+ const h3=open({url:URL+'?dh=7&p=9',storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1')}});ok('an out-of-range &p= falls back to asking which player',!h3.$('dh-prompt').hidden);}
+
+// ---- later visits: remembered players and course prefill setup (PO, 12 Nov) ----
+{const h=open({storage:{}});click(h,'#btn-add');click(h,'#btn-add');
+ h.set('pn0','Mel');h.set('pn1','Sam');h.set('pn2','Jo');h.set('ph0','12');h.set('ph1','+2');h.set('ph2','24');
+ click(h,'#btn-course');h.set('cname','Long Reef');h.set('fill-par','4 4 3 5 4 4 3 4 5 4 4 3 5 4 4 3 4 4');click(h,'#btn-fill-par');click(h,'#btn-cdone-top');
+ const later=open({storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1'),gc_courses_v1:h.w.localStorage.getItem('gc_courses_v1')||'[]'}});
+ const g=id=>later.$(id);
+ ok('later visit: setup prefilled with 3 remembered players (names and handicaps)',!g('scr-setup').hidden&&txt(g('pcount'))==='3'&&['pn0','pn1','pn2'].map(i=>g(i).value).join()==='Mel,Sam,Jo'&&['ph0','ph1','ph2'].map(i=>g(i).value).join()==='12,+2,24',['pn0','pn1','pn2','ph0','ph1','ph2'].map(i=>g(i)&&g(i).value).join());
+ ok('later visit: the +2 note is shown again for the remembered plus handicap',txt(g('hn1'))==='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index');
+ ok('later visit: the remembered course card prefills (name, par 71)',txt(g('course-name'))==='Long Reef'&&txt(g('course-sum'))==='18 holes · par 71',txt(g('course-name'))+' / '+txt(g('course-sum')));}
 
 // ---- 1-player round and empty states ----
 {const h=open();click(h,'#btn-start');click(h,'#btn-board');ok('leaderboard before any full hole is honest',/Stableford/.test(txt(h.$('hero'))));

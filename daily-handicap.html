@@ -68,6 +68,7 @@
   .gc-learn-src { font-size: 0.85rem; color: #475569; }
   .gc-learn a { color: var(--green); }
   .gc-faq-item { border-top: 1px solid var(--border); padding-top: 0.75rem; }
+.nowrap{white-space:nowrap}
 </style>
 <!-- seo:jsonld:start -->
 <script type="application/ld+json">
@@ -180,7 +181,7 @@
 <header><nav class="site-nav" aria-label="Calculators"><a href="/">Home</a><a href="/skins">Skins</a><a href="/stableford">Stableford</a><a href="/daily-handicap" aria-current="page">Daily Hcp</a></nav></header>
 <main>
 <h1>Golf Australia Daily Handicap</h1>
-<p class="lede">Calculate your Daily Handicap using the current Golf Australia formula (effective <a href="https://www.golfaustralia.com.au/news/australian-rules-of-handicapping-updated-with-launch-of-golf-australias-new-digital-platform-620524" rel="noopener">2 Oct 2025</a>). Works for 18 or 9 holes.</p>
+<p class="lede">Calculate your Daily Handicap using the current Golf Australia formula (<span class="nowrap">effective <a href="https://www.golfaustralia.com.au/news/australian-rules-of-handicapping-updated-with-launch-of-golf-australias-new-digital-platform-620524" rel="noopener">2 Oct 2025</a>)</span>. Works for 18 or 9 holes.</p>
 
 <div class="section">
   <h2>Your details</h2>
@@ -369,8 +370,10 @@ function calculate() {
   const sfBack = document.getElementById('sfBack');
   if (sfBack && /(^|[?&])from=stableford(&|$)/.test(location.search)) {
     sfBack.hidden = false;
-    sfBack.href = '/stableford?dh=' + encodeURIComponent(display);
+    const sfP = (location.search.match(/[?&]p=(\d)(&|$)/) || [])[1];
+    sfBack.href = '/stableford?dh=' + encodeURIComponent(display) + (sfP != null ? '&p=' + sfP : '');
     document.getElementById('sfBackT').textContent = 'Use ' + display + ' in Stableford →';
+    if (sfP != null) sfBack.querySelector('span').textContent = 'Back to your Stableford round, set for that player.';
   }
 
   try {
@@ -386,6 +389,7 @@ function loadSaved() {
     const s = JSON.parse(localStorage.getItem(STORAGE) || '{}');
     if (s.gender) document.getElementById('gender').value = s.gender;
     if (s.holes) document.getElementById('holes').value = s.holes;
+    if (/[?&]from=stableford(&|$)/.test(location.search) && /[?&]holes=9(&|$)/.test(location.search)) document.getElementById('holes').value = '9'; // a Stableford player's 9-hole link
     if (s.ga) document.getElementById('ga').value = s.ga;
     if (s.slope) document.getElementById('slope').value = s.slope;
     if (s.scratch) document.getElementById('scratch').value = s.scratch;

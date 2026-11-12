@@ -196,6 +196,8 @@ a{color:var(--accent)}
   .sf-hcpnote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#14532d;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:var(--s1) var(--s3)}
   .sf-hcpnote:empty{display:none}
   .sf-dhlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600}
+  .sf-dhlink[hidden]{display:none}
+  .sf-dhrow{grid-column:1/-1;justify-self:end;margin-top:calc(-1 * var(--s1));font-size:var(--fs-sm)}
   .sf-prompt{background:var(--accent-soft);border:1px solid var(--accent-line)}
   .sf-prompt .sk-playoff{margin-top:var(--s2)}
   .sf-coursesum{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
@@ -296,7 +298,7 @@ a{color:var(--accent)}
      "name": "How does the Stableford countback work?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11)."
+      "text": "Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11)."
      }
     },
     {
@@ -368,7 +370,7 @@ a{color:var(--accent)}
     <div class="gc-card sk-pad sk-tight">
       <div class="sk-cardhead"><h2 id="players-h">Players</h2>
         <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">1</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
-      <div class="sk-colhead" aria-hidden="true"><span>Name</span><span>Daily handicap</span></div>
+      <div class="sk-colhead" aria-hidden="true"><span>Name</span><span id="hcp-col">Daily handicap</span></div>
       <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" aria-describedby="hn0" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span><p class="sf-hcpnote" id="hn0" aria-live="polite"></p></div></div>
       <a class="sf-dhlink" id="dh-link" href="/daily-handicap?from=stableford">Work out my DH →</a>
     </div>
@@ -498,7 +500,7 @@ a{color:var(--accent)}
   <h2 id="faq-h">Frequently asked questions</h2>
   <div class="gc-faq-item"><h3>How do you calculate Stableford points with a handicap?</h3><p>Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole.</p></div>
   <div class="gc-faq-item"><h3>How many shots do I get on each hole?</h3><p>Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C).</p></div>
-  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11).</p></div>
+  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11).</p></div>
   <div class="gc-faq-item"><h3>How does Stableford work over 9 holes?</h3><p>Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).</p></div>
   <div class="gc-faq-item"><h3>What is a good Stableford score?</h3><p>Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.</p></div>
   <div class="gc-faq-item"><h3>What if players are still tied after the countback?</h3><p>If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11).</p></div>
@@ -577,12 +579,18 @@ function siMessage(p, n) {
 function range(h) { // "holes 10–18" / "hole 18"
   return h.length === 1 ? 'hole ' + h[0] : 'holes ' + h[0] + '–' + h[h.length - 1];
 }
+function cbRange(h, order) { // whole field from the 10th tee: "the last six (holes 4–9)", so the 1–9 / 4–9 choice is visible
+  var words = { 9: 'nine', 6: 'six', 3: 'three' };
+  if (order && order.length === 18 && order[0] === 10 && h.length > 1 && words[h.length]) return 'the last ' + words[h.length] + ' (' + range(h) + ')';
+  return range(h);
+}
 function cbStages(order) { // Australian Countback Method stages for the holes in play order
   var n = order.length, st = [], lasts = n >= 18 ? [9, 6, 3] : n >= 10 ? [9, 6, 3] : [6, 3];
   lasts.forEach(function (k) { if (k < n) st.push(order.slice(n - k)); });
   for (var i = n - 1; i >= 0; i--) st.push([order[i]]); // then hole by hole from the last hole
   return st;
 }
+function nineHole(st) { return +st.course.holes === 9 || st.round !== '18'; } // 9-hole round: players enter a 9-hole Daily Handicap
 function nameOf(p, i) { return (p && String(p.name || '').trim()) || ('Player ' + (i + 1)); }
 function isScore(v) { return v === 'P' || (v >= 1 && v <= 20); }
 function compute(st) {
@@ -622,7 +630,7 @@ function placeLabel(r) { var p = r.place, s = p === 1 ? '1st' : p === 2 ? '2nd' 
 function cbSentence(res, r, first) { // "Mel wins on countback: 19 v 17 on holes 10–18"
   if (!r.cb) return '';
   if (r.cb.joint) return 'Tied after countback (joint)';
-  var other = res.rows[r.cb.over].name, why = r.cb.a + ' v ' + r.cb.b + ' on ' + range(r.cb.holes);
+  var other = res.rows[r.cb.over].name, why = r.cb.a + ' v ' + r.cb.b + ' on ' + cbRange(r.cb.holes, res.order);
   return first ? r.name + ' wins on countback: ' + why : r.name + ' ahead of ' + other + ' on countback: ' + why;
 }
 function roundLabel(st) {
@@ -633,7 +641,7 @@ function shareText(st, res) {
   var head = 'Stableford' + (String(st.course.name || '').trim() ? ' · ' + String(st.course.name).trim() : '') + ' · ' + roundLabel(st) + (res.complete ? '' : ' (thru ' + res.played + ')');
   var lines = [head];
   res.board.forEach(function (r, k) {
-    var cb = r.cb ? (r.cb.joint ? ' (tied after countback, joint)' : ' (countback: ' + r.cb.a + ' v ' + r.cb.b + ' on ' + range(r.cb.holes) + ')') : '';
+    var cb = r.cb ? (r.cb.joint ? ' (tied after countback, joint)' : ' (countback: ' + r.cb.a + ' v ' + r.cb.b + ' on ' + cbRange(r.cb.holes, res.order) + ')') : '';
     lines.push(placeLabel(r) + ' ' + r.name + ' ' + r.total + ' pts' + cb);
   });
   lines.push(URL);
@@ -664,7 +672,7 @@ function parseList(txt, kind, n) { // "4 4 3 5 ..." or "443544345" (par only) ->
 }
 window.GCStableford = { compute: compute, strokesOn: strokesOn, points: points, netLabel: netLabel, parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote,
   holesInPlay: holesInPlay, cbStages: cbStages, siProblems: siProblems, siMessage: siMessage, shareText: shareText, parseList: parseList,
-  defaultState: defaultState, exampleState: exampleState, defaultCourse: defaultCourse, placeLabel: placeLabel, cbSentence: cbSentence, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
+  defaultState: defaultState, exampleState: exampleState, defaultCourse: defaultCourse, placeLabel: placeLabel, cbSentence: cbSentence, cbRange: cbRange, nineHole: nineHole, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
 
 /* ---------- UI ---------- */
 var KEY = 'gc_stableford_v1', CKEY = 'gc_courses_v1';
@@ -718,15 +726,18 @@ function show(screen, focus) {
 
 /* Setup */
 function renderPlayers() {
-  var n = S.players.length;
+  var n = S.players.length, nine = nineHole(S), lbl = nine ? '9-hole Daily Handicap' : 'daily handicap';
+  $('hcp-col').textContent = nine ? '9-hole Daily Handicap' : 'Daily handicap';
+  $('dh-link').hidden = nine; // on 9 holes each player's own link sits beside their field
   $('players').innerHTML = S.players.map(function (p, i) {
     var nm = esc(nameOf(p, i));
     return '<div class="sk-player">' +
       '<label class="sr-only" for="pn' + i + '">Player ' + (i + 1) + ' name</label>' +
       '<input class="gc-input" id="pn' + i + '" data-i="' + i + '" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player ' + (i + 1) + '" value="' + esc(p.name || '') + '">' +
-      '<span class="gc-stepper" role="group" aria-label="' + nm + ' daily handicap"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
-      '<input id="ph' + i + '" data-i="' + i + '" type="text" autocomplete="off" aria-label="' + nm + ' daily handicap (+ for plus)" aria-describedby="hn' + i + '" value="' + esc(fmtHcp(p.hcp)) + '">' +
+      '<span class="gc-stepper" role="group" aria-label="' + nm + ' ' + lbl + '"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
+      '<input id="ph' + i + '" data-i="' + i + '" type="text" autocomplete="off" aria-label="' + nm + ' ' + lbl + ' (+ for plus)" aria-describedby="hn' + i + '" value="' + esc(fmtHcp(p.hcp)) + '">' +
       '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span>' +
+      (nine ? '<a class="sf-dhlink sf-dhrow" id="dhl' + i + '" href="/daily-handicap?from=stableford&amp;holes=9&amp;p=' + i + '" aria-label="Work out ' + nm + '\u2019s 9-hole Daily Handicap">Work out 9-hole DH →</a>' : '') +
       '<p class="sf-hcpnote" id="hn' + i + '" aria-live="polite">' + esc(plusNote(+p.hcp)) + '</p>' +
       '</div>';
   }).join('');
@@ -750,7 +761,7 @@ function renderSetup() {
   $('tenth').checked = !!S.tenth;
   var o = order(), cb = cbStages(o);
   $('round-help').textContent = (nine ? '9-hole card. ' : S.round !== '18' ? 'Use each player\u2019s 9-hole Daily Handicap. Strokes go by the 18-hole stroke index, ranked. ' : '') +
-    'Countback: ' + cb.slice(0, o.length >= 10 ? 3 : 2).map(range).join(', then ') + ', then hole by hole from hole ' + o[o.length - 1] + '.';
+    'Countback: ' + cb.slice(0, o.length >= 10 ? 3 : 2).map(function (h) { return cbRange(h, o); }).join(', then ') + ', then hole by hole from hole ' + o[o.length - 1] + '.';
   var t = thru();
   $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
   var p = siProblems(c); $('setup-si').hidden = p.ok; $('setup-si').textContent = p.ok ? '' : siMessage(p, nine ? 9 : 18) + ' Fix it in Edit course.';
@@ -972,17 +983,21 @@ document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev
   el.addEventListener('touchstart', function (e) { if (e.target.closest('input,button')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
   el.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dy) < 40) go(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
 })();
-// Back from /daily-handicap?from=stableford with ?dh=12 (or +2): ask which player it is for.
+// Back from /daily-handicap?from=stableford with ?dh=12 (or +2): ask which player it is for (or set it for ?p=<index>).
+var dhSet = null;
 (function dhReturn() {
   try {
     var q = new URLSearchParams(location.search), v = q.get('dh');
     if (v != null && /^[+\-\u2212]?\d{1,2}$/.test(v.trim())) { pendingDH = Math.max(HMIN, Math.min(HMAX, parseHcp(v))); S.screen = 'setup'; }
+    var pi = q.get('p'); // from a player's own 9-hole link: no need to ask who it is for
+    if (pendingDH != null && pi != null && /^\d$/.test(pi) && +pi < S.players.length) { S.players[+pi].hcp = pendingDH; save(); dhSet = nameOf(S.players[+pi], +pi) + ': ' + (nineHole(S) ? '9-hole ' : '') + 'Daily Handicap ' + fmtHcp(pendingDH); pendingDH = null; }
     if (v != null && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
   } catch (e) {}
 })();
 window.GCStablefordUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share,
   reset: function () { S = defaultState(); save(); show('setup'); }, set: function (s) { S = s; save(); show(S.screen || 'setup'); } };
 show(S.screen || 'setup');
+if (dhSet) toast(dhSet);
 })();
 </script>
 </body>
