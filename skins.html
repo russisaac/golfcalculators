@@ -191,9 +191,10 @@ a{color:var(--accent)}
   .sk-pay span:first-child{min-width:0;overflow-wrap:anywhere}
   .sk-pay span:last-child{flex:none}
   .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
-  /* shared viewer with 4+ payments: compact lines so Start your own round stays on the first screen (PO, 12 Nov) */
-  .gc-view .sk-many .sk-pay{display:block;font-size:var(--fs-md);font-weight:600;line-height:1.35;margin-top:var(--s1)}
-  .gc-view .sk-many .sk-pay span:last-child{white-space:nowrap;font-weight:800;margin-left:var(--s1)}
+  /* 4+ payments: compact lines, so the next action stays on the first screen at 375x812 (PO, 12 Nov): Share result on
+     your own result, Start your own round in the shared viewer */
+  .sk-many .sk-pay{display:block;font-size:var(--fs-md);font-weight:600;line-height:1.35;margin-top:var(--s1)}
+  .sk-many .sk-pay span:last-child{white-space:nowrap;font-weight:800;margin-left:var(--s1)}
   .sk-ledger{list-style:none;margin:0;padding:0}
   .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
   .sk-ledger li+li{border-top:1px solid var(--line)}
