@@ -92,7 +92,7 @@ jobs:
         if: steps.preview.outputs.url == ''
         run: |
           node tests/lib/serve.js . "$PORT" > /tmp/serve.log 2>&1 &
-          for i in $(seq 1 30); do curl -fsS -o /dev/null "http://localhost:$PORT/skins" && break; sleep 1; done
+          for i in $(seq 1 30); do curl -fs -o /dev/null "http://localhost:$PORT/skins" && break; sleep 1; done
 
       - name: Published paths
         env:
