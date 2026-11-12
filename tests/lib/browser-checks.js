@@ -90,10 +90,14 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       for(let h=1;h<=18;h++)s.scores[h]=pts.map(a=>s.course.par[h-1]+2-a[h-1]);s.screen='result';U.set(s);});};
     const course=async p=>{await p.evaluate(()=>GCStablefordUI.show('course',true));};
     const nine=async p=>{await four(p);await p.evaluate(()=>{const s=GCStablefordUI.state();s.round='front';GCStablefordUI.show('setup');});};
+    const dhAsk=async p=>{await four(p);await p.evaluate(()=>{const s=GCStablefordUI.state();s.round='18';GCStablefordUI.show('setup');});await p.goto(p.url().split('?')[0]+'?dh=7&holes=9&p=1',{waitUntil:'load'});};
+    const dhSwitched=async p=>{await dhAsk(p);await p.click('button[data-dhr=front]');};
     const courseDupe=async p=>{await p.evaluate(()=>{const s=GCStablefordUI.state();s.course.si[6]=5;GCStablefordUI.show('course',true);});};
     for(const w of [375,320]){
       await check('stableford setup: 4 long names, +2 note',w,'/stableford',four,`stableford-1-setup-${w}.png`);
       await check('stableford setup, front 9: 9-hole DH label + link beside each field',w,'/stableford',nine,`stableford-1b-setup-9holes-${w}.png`);
+      await check('stableford DH return: 9-hole DH onto an 18-hole round asks first',w,'/stableford',dhAsk,`stableford-1c-dh-ask-switch-${w}.png`);
+      await check('stableford DH return: switched to front 9, 9-hole DH set',w,'/stableford',dhSwitched,`stableford-1d-dh-switched-front9-${w}.png`);
       await check('stableford course card',w,'/stableford',course,`stableford-2-course-${w}.png`);
       await check('stableford course card, duplicate SI',w,'/stableford',courseDupe,w===375?'stableford-2b-course-dupe-375-full.png':null);
       await check('stableford hole entry, live strip (hole 7)',w,'/stableford',hole7,`stableford-3-hole7-strip-${w}.png`);

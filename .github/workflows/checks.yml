@@ -10,6 +10,7 @@
 #     countback stages, 9 holes, plus/24+, pickup, SI warning, reload), stableford-fixes (legacy page),
 #     skins-9hole-dh (Skins 9-hole DH: own number, separate remembered values, prefill + check note, DH round trip)
 #     skins-plus-hcp (Skins handicap field plain text: +2 / -2 / −2 = plus 2, Stableford's inline plus note + ARIA)
+#     stableford-9hole-split (Stableford 18- and 9-hole DHs kept separately, migration + check note, DH return asks before switching to 9 holes)
 #     (a suite that does not apply to the branch skips itself)
 #   - og-tags again against the tested URL: each og:image is 200 image/png 1200x630 <= 300 KB
 #   - axe WCAG 2.2 AA at 375 and 320 px on every page: 0 serious, 0 critical
