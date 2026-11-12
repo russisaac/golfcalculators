@@ -294,7 +294,8 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
 
 // ---- next-step card only on setup and result (p4b: gc.css display:grid beat [hidden]; the browser check measures it) ----
 {const h=open({storage:{}});ok('page CSS hides a [hidden] next-step card (gc.css sets display:grid)',/\.gc-next\[hidden\]\{display:none\}/.test(src));
- click(h,'#btn-start');ok('next-step card flagged hidden on the hole screen',h.$('setup-next').hidden);h.w.GCStablefordUI.loadExample();ok('…and shown on the result',!h.$('setup-next').hidden);}
+ click(h,'#btn-start');ok('next-step card flagged hidden on the hole screen',h.$('setup-next').hidden);h.w.GCStablefordUI.show('course',true);ok('…and on the course card',h.$('setup-next').hidden);
+ h.w.GCStablefordUI.loadExample();ok('…and shown on the result, after the podium (PO)',!h.$('setup-next').hidden&&!!h.$('scr-result').compareDocumentPosition(h.$('setup-next'))&&(h.$('scr-result').compareDocumentPosition(h.$('setup-next'))&4)>0);}
 
 // ---- 1-player round and empty states ----
 {const h=open();click(h,'#btn-start');click(h,'#btn-board');ok('leaderboard before any full hole is honest',/Stableford/.test(txt(h.$('hero'))));

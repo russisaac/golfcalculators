@@ -112,13 +112,18 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       console.log(`${gate(bad)}  stableford 9-hole DH link right under each stepper @${w}: ${r.map(x=>`P${x.i+1} gap ${x.gap}px, ${x.h}px tall`).join('; ')}`);
       await p.context().close();}
   }
-  { // p4b: a [hidden] next-step card must really be hidden (gc.css .gc-next{display:grid} used to win over [hidden])
-    const cases=[];if(isSf)cases.push(['stableford','/stableford',()=>{GCStablefordUI.loadExample();GCStablefordUI.show('hole',true);}]);
-    if(isV2)cases.push(['skins','/skins',()=>{GCSkinsUI.loadExample();GCSkinsUI.show('hole');}]);
-    for(const [n,u,fn] of cases){const p=await page(375);await p.goto(base+u,{waitUntil:'load'});await p.evaluate(fn);
+  { // p4b + PO 12 Nov: the next-step card is shown on Stableford setup and after the podium (result), and really hidden
+    // (display:none, 0 px) on the hole-entry and course screens; Skins shows it on setup only. gc.css .gc-next{display:grid}
+    // used to win over [hidden].
+    const cases=[];
+    if(isSf)cases.push(['stableford setup','/stableford',()=>GCStablefordUI.show('setup'),true],['stableford result (podium)','/stableford',()=>GCStablefordUI.loadExample(),true],
+      ['stableford hole entry','/stableford',()=>{GCStablefordUI.loadExample();GCStablefordUI.show('hole',true);},false],['stableford course card','/stableford',()=>GCStablefordUI.show('course',true),false]);
+    if(isV2)cases.push(['skins setup','/skins',()=>GCSkinsUI.show('setup'),true],['skins hole entry','/skins',()=>{GCSkinsUI.loadExample();GCSkinsUI.show('hole');},false],['skins result','/skins',()=>GCSkinsUI.loadExample(),false]);
+    for(const [n,u,fn,want] of cases){const p=await page(375);await p.goto(base+u,{waitUntil:'load'});await p.evaluate(fn);
       const r=await p.evaluate(()=>{const e=document.getElementById('setup-next');return {hidden:e.hidden,display:getComputedStyle(e).display,h:Math.round(e.getBoundingClientRect().height)};});
-      const bad=!(r.hidden&&r.display==='none'&&r.h===0);if(bad)fail=1;rows.push({name:`${n} next-step card hidden on hole`,width:375,next:r});
-      console.log(`${gate(bad)}  ${n} hole screen: next-step card not shown (hidden ${r.hidden}, display ${r.display}, ${r.h}px)`);await p.context().close();}
+      const bad=want?!(!r.hidden&&r.display!=='none'&&r.h>=44):!(r.hidden&&r.display==='none'&&r.h===0);if(bad)fail=1;rows.push({name:`${n} next-step card`,width:375,next:r,want});
+      if(n==='stableford result (podium)'){await p.evaluate(()=>document.getElementById('setup-next').scrollIntoView({block:'end'}));await p.screenshot({path:path.join(OUT,'stableford-result-next-step-375.png')});}
+      console.log(`${gate(bad)}  ${n}: next-step card ${want?'shown':'not shown'} (hidden ${r.hidden}, display ${r.display}, ${r.h}px)`);await p.context().close();}
   }
   if(isSf){ // PO 12 Nov (p4b): every course-card par and SI value field has a hit area of at least 44x44 px, with no sideways scroll
     for(const w of [375,320]){

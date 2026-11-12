@@ -733,7 +733,7 @@ function setRadio(name, v) { var els = document.querySelectorAll('input[name="' 
 function show(screen, focus) {
   S.screen = screen; save();
   ['setup', 'course', 'hole', 'result'].forEach(function (s) { $('scr-' + s).hidden = s !== screen; });
-  $('setup-next').hidden = !(screen === 'setup' || screen === 'result');
+  $('setup-next').hidden = !(screen === 'setup' || screen === 'result'); // PO: keep it after the podium; hide on hole entry and the course card
   $('learn').hidden = screen === 'hole' || screen === 'course';
   if (screen === 'setup') renderSetup();
   if (screen === 'course') renderCourse();
