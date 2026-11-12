@@ -6,7 +6,7 @@
 //                     or Lighthouse < 95 in any category on home/skins/stableford/privacy.
 //   --ci (PR gate, priorities-v7 P1): fail on axe serious/critical (WCAG 2.2 AA) at 375 and 320,
 //                     any sideways scroll at 320/375, any input[type=number] on a rebuilt page
-//                     (legacy allowlist: Stableford until P4, Skins while it is the legacy page),
+//                     (legacy allowlist: Skins while it is the legacy page; Stableford removed in P4),
 //                     Lighthouse mobile Performance < 95, Accessibility < 95, LCP > 2.5 s or CLS > 0.1
 //                     (median of 3 runs when the first run misses a budget), and the calculator-first
 //                     fold check on skins/stableford/daily-handicap (P3).
@@ -21,7 +21,7 @@ const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
 let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false;
-const legacyNumberOK=name=>/^stableford/.test(name)||(!isV2&&/^skins/.test(name)); // type=number allowlist
+const legacyNumberOK=name=>!isV2&&/^skins/.test(name); // type=number allowlist: only the legacy Skins page (Stableford rebuilt in P4)
 const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
 (async()=>{
   if(!base){const port=8790+Math.floor(Math.random()*100);srv=spawn(process.execPath,[path.join(__dirname,'serve.js'),SITE,String(port)],{stdio:'ignore'});base='http://localhost:'+port;await new Promise(r=>setTimeout(r,700));}
@@ -73,6 +73,31 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     } else if(pages.some(p=>p[0]==='skins')){
       await check('skins (legacy)',w,'/skins',null,w===375?'skins-legacy-375.png':null);
       await check('skins (legacy) example settled',w,'/skins',async p=>{await p.evaluate(()=>{loadExample();settleUp();});},null);
+    }
+  }
+  // Stableford rebuild (P4): every screen at 375 and 320, incl. 4 long names (max data)
+  const isSf=await (async()=>{const p=await page(375);await p.goto(base+'/stableford');const r=await p.evaluate(()=>document.body.dataset.gc==='stableford-v2');await p.context().close();return r;})();
+  if(isSf){
+    const LONG=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'];
+    const four=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;const s=U.state();s.players=[{name:L[0],hcp:12},{name:L[1],hcp:2},{name:L[2],hcp:24},{name:L[3],hcp:-2}];U.show('setup');},LONG);};
+    const hole7=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L?L[i]:x.name);for(let h=8;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole',true);},null);await p.click('button[data-sc="-1"][data-i="0"]');await p.evaluate(()=>scrollTo(0,0));};
+    const hole7long=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L[i]);for(let h=8;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole',true);},LONG);await p.click('button[data-pu="3"]');};
+    const result=async p=>{await p.evaluate(()=>GCStablefordUI.loadExample());};
+    const resultLong=async p=>{await p.evaluate(L=>{GCStablefordUI.loadExample();const s=GCStablefordUI.state();s.players.forEach((x,i)=>x.name=L[i]);GCStablefordUI.show('result');document.querySelectorAll('#why details').forEach(d=>d.open=true);},LONG);};
+    const tie=async p=>{await p.evaluate(()=>{const U=GCStablefordUI,G=GCStableford;const s=G.defaultState();s.course.name='Countback demo';s.players=[{name:'Mel',hcp:0},{name:'Sam',hcp:0},{name:'Jo',hcp:0},{name:'Al',hcp:0}];
+      const pts=[[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],[3,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2],[3,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1]];
+      for(let h=1;h<=18;h++)s.scores[h]=pts.map(a=>s.course.par[h-1]+2-a[h-1]);s.screen='result';U.set(s);});};
+    const course=async p=>{await p.evaluate(()=>GCStablefordUI.show('course',true));};
+    const courseDupe=async p=>{await p.evaluate(()=>{const s=GCStablefordUI.state();s.course.si[6]=5;GCStablefordUI.show('course',true);});};
+    for(const w of [375,320]){
+      await check('stableford setup: 4 long names, +2 note',w,'/stableford',four,`stableford-1-setup-${w}.png`);
+      await check('stableford course card',w,'/stableford',course,`stableford-2-course-${w}.png`);
+      await check('stableford course card, duplicate SI',w,'/stableford',courseDupe,w===375?'stableford-2b-course-dupe-375-full.png':null);
+      await check('stableford hole entry, live strip (hole 7)',w,'/stableford',hole7,`stableford-3-hole7-strip-${w}.png`);
+      await check('stableford hole entry, 4 long names + pickup',w,'/stableford',hole7long,null);
+      await check('stableford result podium (example)',w,'/stableford',result,`stableford-4-podium-${w}.png`);
+      await check('stableford result, countback ties',w,'/stableford',tie,`stableford-5-countback-${w}.png`);
+      await check('stableford result full page, long names, why open',w,'/stableford',resultLong,w===375?'stableford-6-result-375-full.png':null);
     }
   }
   if(isV2){ // setup clearance: sticky Start bar must not cover setup controls
