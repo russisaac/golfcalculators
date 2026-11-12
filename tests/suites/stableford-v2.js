@@ -112,6 +112,13 @@ const click=(h,sel)=>{const b=h.d.querySelector(sel);if(!b)throw new Error('no '
 }
 
 // ---- countback at each stage (points per hole, hcp 0, built from par) ----
+{ // no layout shift on first load: the fresh setup screen is pre-rendered in the HTML and matches what the script renders
+  const h=open({storage:{}});const g=id=>h.d.getElementById(id);
+  const stat=id=>{const m=src.match(new RegExp('id="'+id+'"[^>]*>([\\s\\S]*?)</(div|b|span|p)>\\s*(<a class="sf-dhlink"|<span class="gc-muted" id="course-sum"|</div>|<label class="sk-switch")'));return m?m[1]:null;};
+  const norm=t=>(t||'').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+  ok('fresh setup pre-rendered (no CLS): player row in the HTML equals the rendered row',norm(src.split('<div id="players">')[1].split('</div>\n      <a class="sf-dhlink"')[0])===norm(g('players').innerHTML));
+  for(const id of ['course-name','course-sum','round-help'])ok('fresh setup pre-rendered: #'+id+' text in the HTML equals the rendered text',norm(stat(id))===norm(g(id).textContent),norm(stat(id))+' | '+norm(g(id).textContent));
+}
 const G=open().w.GCStableford;
 function round(ptsA,ptsB,opt={}){const st=G.defaultState();st.players=[{name:'A',hcp:0},{name:'B',hcp:0}];Object.assign(st,opt.st||{});if(opt.course)st.course=opt.course;
  const hs=G.holesInPlay(st);hs.forEach((h,k)=>{const par=+st.course.par[h-1],ix=ptsA.length===18?h-1:k;st.scores[h]=[par+2-ptsA[ix],par+2-ptsB[ix]];}); // 18 values: by hole number; 9: in play order

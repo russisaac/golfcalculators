@@ -369,12 +369,12 @@ a{color:var(--accent)}
       <div class="sk-cardhead"><h2 id="players-h">Players</h2>
         <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">1</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
       <div class="sk-colhead" aria-hidden="true"><span>Name</span><span>Daily handicap</span></div>
-      <div id="players"></div>
+      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" aria-describedby="hn0" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span><p class="sf-hcpnote" id="hn0" aria-live="polite"></p></div></div>
       <a class="sf-dhlink" id="dh-link" href="/daily-handicap?from=stableford">Work out my DH →</a>
     </div>
     <div class="gc-card sk-pad">
       <h2 class="sr-only">Course and round</h2>
-      <div class="sf-coursesum"><div><span class="gc-label" style="margin:0">Course</span><b id="course-name"></b><span class="gc-muted" id="course-sum"></span></div>
+      <div class="sf-coursesum"><div><span class="gc-label" style="margin:0">Course</span><b id="course-name">Standard card (edit to match yours)</b><span class="gc-muted" id="course-sum">18 holes · par 72</span></div>
         <button type="button" class="gc-btn gc-btn-secondary" id="btn-course">Edit course</button></div>
       <div id="saved-wrap" style="margin-top:var(--s3)" hidden><label class="gc-label" for="saved">Saved courses</label>
         <select class="gc-input sf-select" id="saved"></select></div>
@@ -384,7 +384,7 @@ a{color:var(--accent)}
           <label><input type="radio" name="round" value="front"><span>Front 9</span></label>
           <label><input type="radio" name="round" value="back"><span>Back 9</span></label>
         </div></div>
-      <p class="gc-muted" id="round-help" style="margin-top:var(--s2)"></p>
+      <p class="gc-muted" id="round-help" style="margin-top:var(--s2)">Countback: holes 10–18, then holes 13–18, then holes 16–18, then hole by hole from hole 18.</p>
       <label class="sk-switch" id="tenth-wrap" style="margin-top:var(--s1)"><input type="checkbox" id="tenth"> Whole field started on the 10th tee (countback uses holes 1–9)</label>
     </div>
   </div>
