@@ -179,6 +179,21 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       const bad=r.some(x=>!x.ok);if(bad)fail=1;rows.push({name:`skins 9-hole DH link placement ${w}`,width:w,placement:r});
       console.log(`${gate(bad)}  skins 9-hole DH link right under each of 8 steppers @${w}: gaps ${[...new Set(r.map(x=>x.gap))].join('/')}px, ${[...new Set(r.map(x=>x.h))].join('/')}px tall`);
       await p.context().close();}
+    // PO 12 Nov: the Skins handicap field is plain text (no inputmode) so + and − can be typed; +2, -2 and −2 all
+    // mean plus 2 with Stableford's inline note (aria-live, aria-describedby). Typed with the real keyboard.
+    const W2='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index';
+    for(const w of [375,320]){
+      const p=await page(w);await p.goto(base+'/skins',{waitUntil:'load'});const got=[];
+      for(const v of ['+2','-2','\u22122']){await p.click('#ph1');await p.keyboard.press('Control+A');await p.keyboard.press('Backspace');await p.keyboard.type(v);
+        got.push(await p.evaluate(()=>{const e=document.getElementById('ph1'),n=document.getElementById('pl1'),R=n.getBoundingClientRect();
+          return {note:n.textContent,live:n.getAttribute('aria-live'),desc:e.getAttribute('aria-describedby'),im:e.hasAttribute('inputmode'),type:e.type,shown:R.height>0&&R.right<=innerWidth,hcp:GCSkinsUI.state().players[1].hcp};}));
+        await p.keyboard.press('Tab');got[got.length-1].after=await p.$eval('#ph1',e=>e.value);}
+      const bad=got.some(g=>g.note!==W2||g.live!=='polite'||!/\bpl1\b/.test(g.desc)||g.im||g.type!=='text'||!g.shown||g.hcp!==-2||g.after!=='+2');if(bad)fail=1;
+      rows.push({name:`skins plus handicap typed ${w}`,width:w,typed:got});
+      console.log(`${gate(bad)}  skins handicap field @${w}: type=text, no inputmode; typed +2 / -2 / −2 → plus 2 (+2 on leaving), note "${got[0].note}" visible, aria-live polite, described by pl1${bad?' · '+JSON.stringify(got):''}`);
+      await p.context().close();}
+    for(const w of [375,320])await check('skins setup plus note (front 9)',w,'/skins',async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.holes='front';s.players[0].name='Mel';s.players[1].name='Sam';s.players[1].hcp=-4;GCSkinsUI.show('setup');});
+      await p.click('#ph0');await p.keyboard.press('Control+A');await p.keyboard.type('\u22122');await p.keyboard.press('Tab');await p.evaluate(()=>scrollTo(0,document.getElementById('players').getBoundingClientRect().top+scrollY-60));},`skins-plus-note-${w}.png`);
   }
   if(pages.some(p=>p[0]==='daily-handicap')){ // PO 12 Nov: "(effective 2 Oct 2025)" never wraps mid-phrase, and never causes sideways scroll
     for(const w of [375,320]){

@@ -35,7 +35,7 @@ const saved=(players,extra={})=>JSON.stringify(Object.assign(E.defaultState(),{p
   ok('front 9: each player\'s "Work out 9-hole DH →" sits right after their stepper, in the same row, for that player',[0,1,2,3].every(i=>{const a=h.$('dhl'+i);return !!a&&a.closest('.sk-player')===h.$('ph'+i).closest('.sk-player')&&a.previousElementSibling===h.$('ph'+i).closest('.gc-stepper')&&a.getAttribute('href')==='/daily-handicap?from=skins&holes=9&p='+i&&txt(a)==='Work out 9-hole DH →'&&/^Work out .+’s 9-hole Daily Handicap$/.test(a.getAttribute('aria-label'));}));
   ok('saved before 9-hole DHs: prefilled with half the 18-hole DH (6, 0, 12, +1)',[0,1,2,3].map(i=>h.$('ph'+i).value).join()==='6,0,12,+1',[0,1,2,3].map(i=>h.$('ph'+i).value).join());
   ok('one-line "please check" note on each prefilled field ("Half of 18-hole DH 12: please check"), none for DH 0',txt(h.$('hn0'))==='Half of 18-hole DH 12: please check'&&txt(h.$('hn2'))==='Half of 18-hole DH 24: please check'&&txt(h.$('hn3'))==='Half of 18-hole DH +2: please check'&&txt(h.$('hn1'))==='',[0,1,2,3].map(i=>txt(h.$('hn'+i))).join(' | '));
-  ok('the note is announced and described: aria-live=polite, field aria-describedby',h.$('hn0').getAttribute('aria-live')==='polite'&&h.$('ph0').getAttribute('aria-describedby')==='hn0');
+  ok('the note is announced and described: aria-live=polite, field aria-describedby',h.$('hn0').getAttribute('aria-live')==='polite'&&h.$('ph0').getAttribute('aria-describedby').split(' ').includes('hn0'));
   const S=()=>h.w.GCSkinsUI.state();
   ok('prefill is not stored: 9-hole DH stays empty and the 18-hole DH is untouched',S().players.every(p=>p.hcp9==null)&&S().players.map(p=>p.hcp).join()==='12,0,24,-2');
   click(h,'button[data-h="1"][data-i="0"]');

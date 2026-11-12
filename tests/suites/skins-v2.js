@@ -47,7 +47,7 @@ const U='https://golfcalculators.com/skins';
   ok('shared nav links all 3 calculators, Skins current',['/skins','/stableford','/daily-handicap'].every(u=>d.querySelector(`.gc-nav a[href="${u}"]`))&&d.querySelector('.gc-nav a[aria-current=page]').getAttribute('href')==='/skins');
   ok('footer Privacy link',!!d.querySelector('footer a[href="/privacy"]'));
   ok('no type=number anywhere',!/type=["']?number/i.test(html));
-  ok('numeric fields use inputmode',[...d.querySelectorAll('#stake,input[id^=ph]')].every(e=>e.getAttribute('inputmode')));
+  ok('stake uses inputmode; handicap fields are plain text with no inputmode, so + and − can be typed (PO, 12 Nov)',$('stake').getAttribute('inputmode')&&[...d.querySelectorAll('input[id^=ph]')].every(e=>e.type==='text'&&!e.hasAttribute('inputmode')));
   ok('GA4 tag present and unchanged (G-DH32H3GWKE, single loader)',(html.match(/gtag\/js\?id=G-DH32H3GWKE/g)||[]).length===1&&/gtag\('config', 'G-DH32H3GWKE'\);/.test(html));
   ok('vanilla: no external scripts besides GA4',[...d.querySelectorAll('script[src]')].every(s=>/googletagmanager/.test(s.src)));
   // names, escaping
