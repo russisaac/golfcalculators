@@ -105,12 +105,18 @@ a{color:var(--accent)}
 .gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
 </style>
 
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
 <script>
+  // GA4 (G-DH32H3GWKE) on the production hostnames only: previews and localhost send nothing.
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-DH32H3GWKE');
+  if (location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com') {
+    var gaTag = document.createElement('script');
+    gaTag.async = true;
+    gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE';
+    document.head.appendChild(gaTag);
+    gtag('js', new Date());
+    gtag('config', 'G-DH32H3GWKE');
+  }
 </script>
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
