@@ -139,6 +139,7 @@ a{color:var(--accent)}
   .sk-dhlink{grid-column:1/-1;justify-self:end;display:inline-flex;align-items:center;min-height:44px;margin-top:calc(-1 * var(--s1));font-size:var(--fs-sm);font-weight:600}
   .sk-hcpnote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#7c2d12;background:#fff7ed;border:1px solid #fdba74;border-radius:var(--r-sm);padding:var(--s1) var(--s2)}
   .sk-hcpnote:empty{display:none}
+  #players.nine .sk-player+.sk-player{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)} /* link and note clearly belong to the player above */
   .sk-cardhead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
   .sk-colhead{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);margin:var(--s1) 0}
   .sk-colhead span:last-child{width:132px;text-align:center}
@@ -615,6 +616,7 @@ function show(screen, focus) {
 function renderPlayers() {
   var gross = S.scoring === 'gross', n = S.players.length, nine = isNine(S), lbl = nine ? '9-hole Daily Handicap' : 'daily handicap';
   $('hcp-col').textContent = nine ? '9-hole Daily Handicap' : 'Daily handicap';
+  $('players').classList.toggle('nine', nine && !gross);
   $('players').innerHTML = S.players.map(function (p, i) {
     var nm = esc(nameOf(p, i));
     return '<div class="sk-player">' +
