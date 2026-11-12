@@ -95,13 +95,16 @@ jobs:
           node tests/lib/serve.js . "$PORT" > /tmp/serve.log 2>&1 &
           for i in $(seq 1 30); do curl -fs -o /dev/null "http://localhost:$PORT/skins" && break; sleep 1; done
 
-      - name: Published paths
+      - name: Published paths (site 200, repo-only 404)
         env:
           BASE: ${{ steps.preview.outputs.url || format('http://localhost:{0}', env.PORT) }}
         run: |
-          for p in / /skins /stableford /daily-handicap /privacy /favicon.ico /sitemap.xml /robots.txt /og/skins.png /tests/run /tests/package.json /tools/og-images/render.js /.github/workflows/checks.yml; do
-            printf '%s %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "$BASE$p")" "$p"
-          done
+          bad=0
+          check() { c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$2"); printf '%s %s (want %s)\n' "$c" "$2" "$1"; [ "$c" = "$1" ] || bad=1; }
+          for p in / /skins /stableford /daily-handicap /privacy /favicon.ico /sitemap.xml /robots.txt; do check 200 "$p"; done
+          for p in /og/home.png /og/skins.png; do if [ -f "${p#/}" ]; then check 200 "$p"; fi; done
+          for p in /tests/run /tests/package.json /tools/og-images/render.js /.github/workflows/checks.yml /netlify.toml; do check 404 "$p"; done
+          exit $bad
 
       - name: og-tags against the tested URL
         if: hashFiles('tests/suites/og-tags.js') != ''
