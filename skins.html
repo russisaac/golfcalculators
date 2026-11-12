@@ -115,17 +115,27 @@ a{color:var(--accent)}
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
   .sk-screen[hidden]{display:none}
-  .sk-player{display:grid;grid-template-columns:1fr 44px;gap:var(--s2);align-items:center}
-  .sk-player+.sk-player{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
-  .sk-hcp{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
-  .sk-x{width:44px;height:44px;border:1px solid #cbd5e1;border-radius:var(--r-sm);background:var(--card);color:var(--muted);font-size:var(--fs-lg);line-height:1;cursor:pointer}
+  html{scroll-padding-top:56px;scroll-padding-bottom:96px}
+  .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
+  .sk-player+.sk-player{margin-top:var(--s2)}
+  .sk-player .gc-input{min-width:0}
+  .sk-cardhead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sk-colhead{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);margin:var(--s1) 0}
+  .sk-colhead span:last-child{width:132px;text-align:center}
+  .sk-tight .gc-stepper button{width:44px}
+  .sk-tight .gc-stepper input,.sk-tight .gc-stepper output{width:44px}
+  .gc-stepper output{display:flex;align-items:center;justify-content:center;width:52px;height:var(--tap);font-size:var(--fs-lg);font-weight:700}
+  .sk-game{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s2) var(--s3);align-items:center}
+  .sk-game>.gc-label{margin:0}
+  .sk-game .sk-full{grid-column:1/-1}
+  .gc-card.sk-pad{padding:var(--s3)}
   .sk-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
   .sk-money{display:flex;align-items:center;gap:var(--s1);font-weight:700}
   .sk-money input{width:96px;text-align:right}
   details.sk-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer}
   .sk-switch{display:flex;align-items:center;gap:var(--s3);min-height:44px;cursor:pointer}
   .sk-switch input{flex:none;width:24px;height:24px;margin:0;accent-color:var(--accent)}
-  .sk-actions{position:sticky;bottom:0;background:linear-gradient(rgba(246,248,247,0),var(--bg) 24%);padding:var(--s4) 0 var(--s3);margin-top:var(--s3);display:grid;gap:var(--s2);z-index:5}
+  .sk-actions{position:sticky;bottom:0;background:linear-gradient(rgba(246,248,247,0),var(--bg) 24%);padding:var(--s3) 0 var(--s3);margin-top:var(--s3);display:grid;gap:var(--s2);z-index:5}
   .sk-actions-2{grid-template-columns:1fr 1fr}
   .sk-holehead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
   .sk-holeno{font-size:var(--fs-xl);font-weight:800;line-height:1.1}
@@ -177,32 +187,32 @@ a{color:var(--accent)}
 <!-- SETUP -->
 <section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
   <div class="sk-title"><h1 id="setup-h" tabindex="-1">Skins calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
-  <p class="gc-muted" style="margin-bottom:var(--s4)">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
   <div class="gc-stack">
-    <div class="gc-card">
-      <h2 style="margin-bottom:var(--s3)">Players</h2>
-      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><button type="button" class="sk-x" data-rm="0" aria-label="Remove Player 1">×</button><div class="sk-hcp"><span class="gc-muted" id="phl0">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl0"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" data-i="1" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 2" value=""><button type="button" class="sk-x" data-rm="1" aria-label="Remove Player 2">×</button><div class="sk-hcp"><span class="gc-muted" id="phl1">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl1"><button type="button" data-h="-1" data-i="1" aria-label="Lower handicap for Player 2">−</button><input id="ph1" data-i="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 2 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="1" aria-label="Raise handicap for Player 2">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" data-i="2" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 3" value=""><button type="button" class="sk-x" data-rm="2" aria-label="Remove Player 3">×</button><div class="sk-hcp"><span class="gc-muted" id="phl2">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl2"><button type="button" data-h="-1" data-i="2" aria-label="Lower handicap for Player 3">−</button><input id="ph2" data-i="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 3 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="2" aria-label="Raise handicap for Player 3">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" data-i="3" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 4" value=""><button type="button" class="sk-x" data-rm="3" aria-label="Remove Player 4">×</button><div class="sk-hcp"><span class="gc-muted" id="phl3">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl3"><button type="button" data-h="-1" data-i="3" aria-label="Lower handicap for Player 4">−</button><input id="ph3" data-i="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 4 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="3" aria-label="Raise handicap for Player 4">+</button></span></div></div></div>
-      <button type="button" class="gc-btn gc-btn-secondary gc-btn-block" id="btn-add" style="margin-top:var(--s3)">+ Add player</button>
+    <div class="gc-card sk-pad sk-tight">
+      <div class="sk-cardhead"><h2 id="players-h">Players</h2>
+        <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">4</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
+      <div class="sk-colhead" id="colhead" aria-hidden="true"><span>Name</span><span>Daily handicap</span></div>
+      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" data-i="1" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 2" value=""><span class="gc-stepper" role="group" aria-label="Player 2 daily handicap"><button type="button" data-h="-1" data-i="1" aria-label="Lower handicap for Player 2">−</button><input id="ph1" data-i="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 2 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="1" aria-label="Raise handicap for Player 2">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" data-i="2" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 3" value=""><span class="gc-stepper" role="group" aria-label="Player 3 daily handicap"><button type="button" data-h="-1" data-i="2" aria-label="Lower handicap for Player 3">−</button><input id="ph2" data-i="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 3 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="2" aria-label="Raise handicap for Player 3">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" data-i="3" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 4" value=""><span class="gc-stepper" role="group" aria-label="Player 4 daily handicap"><button type="button" data-h="-1" data-i="3" aria-label="Lower handicap for Player 4">−</button><input id="ph3" data-i="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 4 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="3" aria-label="Raise handicap for Player 4">+</button></span></div></div>
     </div>
-    <div class="gc-card gc-stack">
-      <h2>Game</h2>
-      <div class="sk-row"><label class="gc-label" for="stake" style="margin:0">Stake per skin</label>
-        <span class="sk-money">$<input class="gc-input" id="stake" type="text" inputmode="decimal" autocomplete="off" value="5"></span></div>
-      <p id="stake-err" class="gc-muted" style="color:var(--danger)" hidden>Enter a stake above $0, e.g. 5</p>
-      <div><span class="gc-label" id="holes-l">Holes</span>
-        <div class="gc-seg" role="radiogroup" aria-labelledby="holes-l">
-          <label><input type="radio" name="holes" value="18" checked><span>18</span></label>
-          <label><input type="radio" name="holes" value="front"><span>Front 9</span></label>
-          <label><input type="radio" name="holes" value="back"><span>Back 9</span></label>
-        </div></div>
-      <div><span class="gc-label" id="scoring-l">Scoring</span>
-        <div class="gc-seg" role="radiogroup" aria-labelledby="scoring-l">
-          <label><input type="radio" name="scoring" value="full" checked><span>Net</span></label>
-          <label><input type="radio" name="scoring" value="offlow"><span>Net off low</span></label>
-          <label><input type="radio" name="scoring" value="gross"><span>Gross</span></label>
-        </div>
-        <p class="gc-muted" id="scoring-help" style="margin-top:var(--s1)">Each player gets strokes from their full handicap, by stroke index.</p></div>
-      <details class="sk-more"><summary>More options</summary>
+    <div class="gc-card sk-pad sk-game">
+      <h2 class="sr-only">Game</h2>
+      <label class="gc-label" for="stake">Stake per skin</label>
+      <span class="sk-money">$<input class="gc-input" id="stake" type="text" inputmode="decimal" autocomplete="off" value="5" aria-describedby="stake-err"></span>
+      <p id="stake-err" class="gc-muted sk-full" style="color:var(--danger)" hidden>Enter a stake above $0, e.g. 5</p>
+      <span class="gc-label" id="holes-l">Holes</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="holes-l">
+        <label><input type="radio" name="holes" value="18" checked><span>18</span></label>
+        <label><input type="radio" name="holes" value="front"><span>Front 9</span></label>
+        <label><input type="radio" name="holes" value="back"><span>Back 9</span></label>
+      </div>
+      <span class="gc-label" id="scoring-l">Scoring</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="scoring-l" aria-describedby="scoring-help">
+        <label><input type="radio" name="scoring" value="full" checked><span>Net</span></label>
+        <label><input type="radio" name="scoring" value="offlow"><span>Off low</span></label>
+        <label><input type="radio" name="scoring" value="gross"><span>Gross</span></label>
+      </div>
+      <p class="gc-muted sk-full" id="scoring-help">Full handicap strokes, by stroke index.</p>
+      <details class="sk-more sk-full"><summary>More options</summary>
         <div class="gc-stack" style="margin-top:var(--s2)">
           <div class="sk-row" id="allow-row"><span class="gc-label" id="allow-l" style="margin:0">Handicap allowance</span>
             <span class="gc-stepper" role="group" aria-labelledby="allow-l"><button type="button" data-allow="-5" aria-label="Lower allowance">−</button><input id="allowance" type="text" inputmode="numeric" aria-label="Allowance percent" value="100%" readonly><button type="button" data-allow="5" aria-label="Raise allowance">+</button></span></div>
@@ -217,6 +227,7 @@ a{color:var(--accent)}
     </div>
   </div>
   <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <p class="gc-muted">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
 </section>
 
 <!-- HOLE -->
@@ -236,6 +247,7 @@ a{color:var(--accent)}
       <div id="si-wrap"><span class="gc-label" id="si-l">Stroke index</span>
         <span class="gc-stepper" role="group" aria-labelledby="si-l"><button type="button" data-si="-1" aria-label="Lower stroke index">−</button><input id="si" type="text" inputmode="numeric" aria-label="Stroke index" autocomplete="off"><button type="button" data-si="1" aria-label="Raise stroke index">+</button></span></div>
     </div>
+    <p class="sk-note" id="si-warn" role="alert" style="margin-top:var(--s3)" hidden></p>
     <div class="sk-progress" id="progress" aria-hidden="true"></div>
   </div>
   <div class="sk-strip" id="strip" role="status" aria-live="polite" style="margin-top:var(--s3)"></div>
@@ -262,6 +274,7 @@ a{color:var(--accent)}
   </div>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Hole by hole</h2>
+    <p class="sk-note" id="si-note" style="margin-top:var(--s2)" hidden></p>
     <ol class="sk-ledger" id="ledger"></ol>
   </div>
   <div class="sk-actions sk-actions-2" style="position:static;background:none">
@@ -419,9 +432,9 @@ function load() {
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function range() { return holeRange(S.holes); }
-function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length); }
+function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length && sc.every(function (v) { return v >= 1; })); }
 function thru() { var rg = range(), c = 0; for (var h = rg[0]; h <= rg[1]; h++) if (recorded(h)) c++; return c; }
-function shown(h) { return recorded(h) ? S.scores[h].slice() : S.players.map(function () { return +S.par[h - 1]; }); }
+function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return sc[i] >= 1 ? sc[i] : +S.par[h - 1]; }); }
 function record(h) { if (!recorded(h)) S.scores[h] = shown(h); }
 function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
@@ -443,14 +456,15 @@ function renderPlayers() {
     return '<div class="sk-player">' +
       '<label class="sr-only" for="pn' + i + '">Player ' + (i + 1) + ' name</label>' +
       '<input class="gc-input" id="pn' + i + '" data-i="' + i + '" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player ' + (i + 1) + '" value="' + esc(p.name || '') + '">' +
-      '<button type="button" class="sk-x" data-rm="' + i + '" aria-label="Remove ' + nm + '"' + (n <= MIN_PLAYERS ? ' disabled' : '') + '>×</button>' +
-      (gross ? '' : '<div class="sk-hcp"><span class="gc-muted" id="phl' + i + '">Daily handicap</span>' +
-      '<span class="gc-stepper" role="group" aria-labelledby="phl' + i + '"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
+      (gross ? '' : '<span class="gc-stepper" role="group" aria-label="' + nm + ' daily handicap"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
       '<input id="ph' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' daily handicap (+ for plus)" value="' + esc(fmtHcp(p.hcp)) + '">' +
-      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span></div>') +
+      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span>') +
       '</div>';
   }).join('');
+  $('pcount').value = n; $('pcount').textContent = n;
   $('btn-add').disabled = n >= MAX_PLAYERS;
+  $('btn-less').disabled = n <= MIN_PLAYERS;
+  $('colhead').hidden = gross;
 }
 function renderSetup() {
   renderPlayers();
@@ -459,7 +473,7 @@ function renderSetup() {
   $('carry').checked = !!S.carry;
   $('allowance').value = S.allowance + '%';
   $('allow-row').hidden = S.scoring === 'gross';
-  $('scoring-help').textContent = { full: 'Each player gets strokes from their full handicap, by stroke index.', offlow: 'Lowest handicap plays off scratch; everyone else gets the difference.', gross: 'Raw scores, no handicap strokes.' }[S.scoring];
+  $('scoring-help').textContent = { full: 'Full handicap strokes, by stroke index.', offlow: 'Lowest handicap plays off scratch; others get the difference.', gross: 'Raw scores, no handicap strokes.' }[S.scoring];
   var t = thru();
   $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
 }
@@ -478,6 +492,19 @@ function stripText(h) {
   return '<strong>' + esc(line) + '</strong><span>Skins so far: ' + so + '</span>';
 }
 function strokesNote(n) { return n > 0 ? '●'.repeat(n) + ' gets ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives 1 shot' : 'no shot'; }
+function siDupes() { // holes in play that share a stroke index (net modes only)
+  var rg = range(), seen = {}, out = [];
+  if (S.scoring === 'gross') return out;
+  for (var h = rg[0]; h <= rg[1]; h++) { var v = +S.si[h - 1]; (seen[v] = seen[v] || []).push(h); }
+  for (var k in seen) if (seen[k].length > 1) out.push({ si: +k, holes: seen[k] });
+  return out;
+}
+function siWarn() {
+  var h = S.hole, d = siDupes().filter(function (x) { return x.holes.indexOf(h) >= 0; })[0], el = $('si-warn');
+  el.hidden = !d;
+  el.textContent = d ? 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '. Each hole needs a different stroke index, so check the card.' : '';
+  $('si').setAttribute('aria-invalid', d ? 'true' : 'false');
+}
 function renderHole() {
   var rg = range(), h = Math.min(rg[1], Math.max(rg[0], S.hole || rg[0])); S.hole = h;
   $('hole-h').textContent = 'Hole ' + h;
@@ -497,7 +524,7 @@ function renderHole() {
   }).join('');
   $('btn-prev').textContent = h === rg[0] ? '← Setup' : '← Hole ' + (h - 1);
   $('btn-next').textContent = h === rg[1] ? 'See result →' : 'Next hole →';
-  updateStrip();
+  updateStrip(); siWarn();
 }
 function updateStrip() {
   var h = S.hole; $('strip').innerHTML = stripText(h);
@@ -552,6 +579,9 @@ function renderResult() {
   });
   if (r.leftover && r.played === r.total) li.push('<li><span class="h">End</span><span>' + (r.playoffWinner != null ? '<span class="win">' + esc(r.names[r.playoffWinner]) + '</span> wins the playoff: ' + r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') : r.needsPlayoff ? r.leftover + ' skins go to the playoff winner' : r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried: nobody wins') + '</span></li>');
   $('ledger').innerHTML = li.join('');
+  var dup = siDupes(), sn = $('si-note');
+  sn.hidden = !dup.length;
+  sn.textContent = dup.length ? 'Check stroke indexes: ' + dup.map(function (x) { return 'holes ' + x.holes.join(' and ') + ' share SI ' + x.si; }).join('; ') + '. Shots are given by SI, so fix the card for a fair result.' : '';
   var po = $('playoff');
   if (S.endRule === 'playoff' && r.leftover && r.played === r.total) {
     po.hidden = false;
@@ -584,12 +614,12 @@ document.addEventListener('click', function (ev) {
   var i = +b.getAttribute('data-i');
   if (b.hasAttribute('data-sc')) { setScore(i, shown(S.hole)[i] + +b.getAttribute('data-sc')); $('sc' + i).value = S.scores[S.hole][i]; return; }
   if (b.hasAttribute('data-h')) { var p = S.players[i]; p.hcp = Math.max(-10, Math.min(54, (+p.hcp || 0) + +b.getAttribute('data-h'))); $('ph' + i).value = fmtHcp(p.hcp); save(); return; }
-  if (b.hasAttribute('data-rm')) { if (S.players.length > MIN_PLAYERS) { var rm = +b.getAttribute('data-rm'); S.players.splice(rm, 1); for (var h in S.scores) S.scores[h].splice(rm, 1); S.playoff = null; save(); renderSetup(); } return; }
   if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
   if (b.hasAttribute('data-si')) { var sv = Math.max(1, Math.min(18, (+S.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.si[S.hole - 1] = sv; $('si').value = sv; save(); renderHoleKeepFocus(b); return; }
   if (b.hasAttribute('data-allow')) { S.allowance = Math.max(50, Math.min(100, S.allowance + +b.getAttribute('data-allow'))); $('allowance').value = S.allowance + '%'; save(); return; }
   switch (b.id) {
-    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0 }); for (var hh in S.scores) delete S.scores[hh]; save(); renderSetup(); var el = $('pn' + (S.players.length - 1)); if (el) el.focus(); } break;
+    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0 }); for (var hh in S.scores) S.scores[hh].push(null); S.playoff = null; save(); renderSetup(); } break;
+    case 'btn-less': if (S.players.length > MIN_PLAYERS) { S.players.pop(); for (var hl in S.scores) S.scores[hl].pop(); S.playoff = null; save(); renderSetup(); } break;
     case 'btn-example': loadExample(); break;
     case 'btn-start': if (!stakeValid()) { $('stake').focus(); break; } var rg = range(), h1 = rg[0]; while (h1 < rg[1] && recorded(h1)) h1++; S.hole = h1; show('hole', true); break;
     case 'btn-next': go(1); break;
@@ -607,7 +637,7 @@ document.addEventListener('input', function (ev) {
   if (/^pn\d/.test(t.id)) { S.players[i].name = t.value.slice(0, 24); save(); }
   else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) { S.players[i].hcp = Math.max(-10, Math.min(54, parseHcp(v))); save(); } }
   else if (/^sc\d/.test(t.id)) { var n = parseInt(t.value, 10); if (n >= 1 && n <= 15) setScore(i, n); }
-  else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); } }
+  else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); siWarn(); } }
   else if (t.id === 'stake') { S.stake = t.value.trim(); save(); }
 });
 document.addEventListener('change', function (ev) {
