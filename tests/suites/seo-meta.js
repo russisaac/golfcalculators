@@ -52,6 +52,7 @@ for(const p of TOOLS){const f=p+'.html',d=docs[f],url='https://golfcalculators.c
   const body=[...d.querySelectorAll('.gc-learn p a')].filter(a=>others.includes(a.getAttribute('href')));
   ok(`${p}: body copy links to the other two with descriptive anchors`,others.every(o=>body.some(a=>a.getAttribute('href')===o&&words(a.textContent)>=3)),body.map(a=>a.textContent).join(' | '));
   if(p==='skins')ok('skins: says "common club format"',/common club format/.test(d.body.textContent));
+  if(p==='daily-handicap'){const a=d.querySelector('p.lede a');ok('daily-handicap: "effective 2 Oct 2025" links to the Golf Australia article it came from',!!a&&norm(a.textContent)==='2 Oct 2025'&&a.getAttribute('href')==='https://www.golfaustralia.com.au/news/australian-rules-of-handicapping-updated-with-launch-of-golf-australias-new-digital-platform-620524'&&/\(effective 2 Oct 2025\)/.test(norm(a.parentNode.textContent)));}
   if(p==='daily-handicap')ok('daily-handicap: cites the GA WHS guide, Edition January 2026, §3H, with the PDF link',/Edition January 2026, §3H/.test(src.textContent)&&!!src.querySelector('a[href*="static.golf.com.au"]'));
   // calculator first: between the H1 and the first control, at most one short line (≤ 20 words)
   const all=[...d.body.querySelectorAll('*')];const h1=d.querySelector('main h1');const ctl=all.find(e=>/^(INPUT|SELECT|BUTTON|TEXTAREA)$/.test(e.tagName)&&!e.closest('header')&&all.indexOf(e)>all.indexOf(h1));
