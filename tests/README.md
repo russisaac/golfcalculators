@@ -29,7 +29,7 @@ Suites (`tests/suites/*.js`, each skips itself when not applicable):
 | skins-share-pin | Skins share payload for the standard example byte-identical to cbb93c8 (fixture in tests/baseline; skips on legacy Skins) |
 | seo-meta | P3 search: titles ≤ 60 / descriptions ≤ 155, unique, primary query kept; og: and twitter: title/description = title/description; canonical; one JSON-LD @graph (WebApplication, FAQPage = visible FAQ, BreadcrumbList), no ratings/reviews; 5–8 FAQs ≤ 60 words; "How it's calculated" + rules source; nav, body and next-step links; sitemap lastmod; calculator before any search content; `tools/seo/build.js --check` in sync (skips without JSON-LD) |
 | worked-examples | every `data-ex` number in the "How it's calculated" examples equals what that page's own calculator code produces (Skins engine, Stableford `calc()`, Daily Handicap `calculate()`, men and women) |
-| stableford-fixes | Stableford 9-hole strokes by ranking the 18-hole stroke indexes; "+2" (or −2) is a plus handicap giving strokes back from SI 18; hand-written expected strokes (skips on the legacy page) |
+| stableford-fixes | Stableford plus-handicap note beside the field (aria-describedby, aria-live), 9-hole strokes by ranking the 18-hole stroke indexes; "+2" (or −2) is a plus handicap giving strokes back from SI 18; hand-written expected strokes (skips on the legacy page) |
 
 CI gates (`--ci`): axe serious/critical at 375 and 320 px on every page; no sideways scroll;
 no `input[type=number]` on rebuilt pages; calculator first at 375×812 on skins, stableford and

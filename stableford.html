@@ -55,6 +55,9 @@
   header a { display: inline-block; min-height: 44px; line-height: 44px; }
   .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
   .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
+  .hcp-note { margin: .4rem 0 0; font-size: .95rem; font-weight: 600; color: #14532d; }
+  .hcp-note:empty { display: none; }
+  .hcp-note:not(:empty) { background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: .35rem .6rem; }
   .site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
   @media (max-width: 360px) { .site-nav { gap: 0 .7rem; } .site-nav a { font-size: .95rem; } }
   .site-nav a { display: inline-block; min-height: 44px; line-height: 44px; text-decoration: none; color: var(--green); font-weight: 600; }
@@ -172,7 +175,8 @@
 <p class="lede">Enter your Daily Handicap and gross scores to get Stableford points per hole, by stroke index.</p>
 <div class="section">
   <label for="hcp">Daily / Playing Handicap</label>
-  <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2">
+  <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2" aria-describedby="hcpNote">
+  <p id="hcpNote" class="hcp-note" aria-live="polite"></p>
   <label for="holes">Holes</label>
   <select id="holes"><option value="18">18</option><option value="9">9</option></select>
 </div>
@@ -261,7 +265,21 @@ function calc() {
   out.innerHTML = `Total Stableford points: ${total}`;
   out.scrollIntoView({behavior:'smooth'});
 }
+// Inline note beside the handicap field when the entry is a plus handicap (+2, -2 or \u22122).
+function hcpNote() {
+  const raw = document.getElementById('hcp').value;
+  const h = parseHcp(raw);
+  const note = document.getElementById('hcpNote');
+  if (!(h < 0)) { note.textContent = ''; return; }
+  const n = String(Math.abs(h));
+  const k = Math.round(Math.abs(h));
+  note.textContent = k === 0
+    ? `Plus ${n} (+${n}): rounds to 0, so no strokes given back`
+    : `Plus ${n} (+${n}): gives back ${k} stroke${k === 1 ? '' : 's'}, starting at the highest stroke index`;
+}
+document.getElementById('hcp').addEventListener('input', hcpNote);
 document.getElementById('holes').addEventListener('change', build);
+hcpNote();
 build();
 </script>
 </body>

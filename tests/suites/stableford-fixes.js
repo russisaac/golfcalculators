@@ -1,4 +1,4 @@
-// Stableford fixes (P3): 9-hole strokes go by the rank of the 18-hole stroke indexes, and a
+// Stableford fixes (P3): plus-handicap note beside the field; 9-hole strokes go by the rank of the 18-hole stroke indexes, and a
 // "+" handicap is a plus handicap (strokes given back from SI 18 up, GA WHS guide §10C).
 // Expected strokes are written out by hand from the built-in card, not computed by the page.
 const {SITE,boot,ok,report,path,fs}=require('../lib/harness');
@@ -37,4 +37,16 @@ for(const [label,hcp,n,strokes] of cases){const r=run(hcp,n,score);const want=pt
  ok('siRank over 9 = 3,2,1,4,5,6,7,8,9',[...Array(9)].map((_,k)=>h.w.siRank(k+1,9)).join()==='3,2,1,4,5,6,7,8,9');
  ok('siRank over 18 = SI',[...Array(18)].map((_,k)=>h.w.siRank(k+1,18)).join()===h.w.eval('si').join());
  ok('parseHcp: "+2"→-2, "12"→12, " 7.4 "→7.4, ""→0',h.w.parseHcp('+2')===-2&&h.w.parseHcp('12')===12&&h.w.parseHcp(' 7.4 ')===7.4&&h.w.parseHcp('')===0);}
+// Plus-handicap note beside the field (aria-describedby + aria-live), updated as you type.
+{const h=boot(file,{url:'https://golfcalculators.com/stableford'});const inp=h.$('hcp'),note=h.$('hcpNote');
+ ok('plus note: element right after the handicap field, aria-describedby + aria-live=polite',!!note&&inp.nextElementSibling===note&&(inp.getAttribute('aria-describedby')||'').split(' ').includes('hcpNote')&&note.getAttribute('aria-live')==='polite');
+ ok('plus note: empty for the default 12',note.textContent==='');
+ const cases=[['+2','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],['-2','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],
+   ['\u22122','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],['+1','Plus 1 (+1): gives back 1 stroke, starting at the highest stroke index'],
+   ['+1.6','Plus 1.6 (+1.6): gives back 2 strokes, starting at the highest stroke index'],['+0.4','Plus 0.4 (+0.4): rounds to 0, so no strokes given back'],
+   ['12',''],['0',''],['',''],['abc',''],['+abc','']];
+ for(const [v,want] of cases){h.set('hcp',v);ok(`plus note for "${v}": ${want?'"'+want+'"':'hidden (empty)'}`,note.textContent===want,note.textContent);}
+ h.set('hcp','+2');h.set('hcp','14');ok('plus note clears when the entry stops being a plus handicap',note.textContent==='');
+ ok('handicap field stays a text input (no type=number, keyboard has + and -)',inp.type==='text'&&!inp.hasAttribute('inputmode'));
+ const h2=boot(file,{url:'https://golfcalculators.com/stableford',beforeParse(w){}});h2.$('hcp').value='+3';h2.w.hcpNote();ok('hcpNote() is callable for a prefilled value',h2.$('hcpNote').textContent.startsWith('Plus 3 (+3)'));}
 process.exitCode=report('stableford-fixes')?1:0;
