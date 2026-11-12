@@ -112,6 +112,14 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       console.log(`${gate(bad)}  stableford 9-hole DH link right under each stepper @${w}: ${r.map(x=>`P${x.i+1} gap ${x.gap}px, ${x.h}px tall`).join('; ')}`);
       await p.context().close();}
   }
+  { // p4b: a [hidden] next-step card must really be hidden (gc.css .gc-next{display:grid} used to win over [hidden])
+    const cases=[];if(isSf)cases.push(['stableford','/stableford',()=>{GCStablefordUI.loadExample();GCStablefordUI.show('hole',true);}]);
+    if(isV2)cases.push(['skins','/skins',()=>{GCSkinsUI.loadExample();GCSkinsUI.show('hole');}]);
+    for(const [n,u,fn] of cases){const p=await page(375);await p.goto(base+u,{waitUntil:'load'});await p.evaluate(fn);
+      const r=await p.evaluate(()=>{const e=document.getElementById('setup-next');return {hidden:e.hidden,display:getComputedStyle(e).display,h:Math.round(e.getBoundingClientRect().height)};});
+      const bad=!(r.hidden&&r.display==='none'&&r.h===0);if(bad)fail=1;rows.push({name:`${n} next-step card hidden on hole`,width:375,next:r});
+      console.log(`${gate(bad)}  ${n} hole screen: next-step card not shown (hidden ${r.hidden}, display ${r.display}, ${r.h}px)`);await p.context().close();}
+  }
   if(isSf){ // PO 12 Nov (p4b): every course-card par and SI value field has a hit area of at least 44x44 px, with no sideways scroll
     for(const w of [375,320]){
       const p=await page(w);await p.goto(base+'/stableford',{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.show('course',true));

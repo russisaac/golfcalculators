@@ -292,6 +292,10 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('later visit: the +2 note is shown again for the remembered plus handicap',txt(g('hn1'))==='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index');
  ok('later visit: the remembered course card prefills (name, par 71)',txt(g('course-name'))==='Long Reef'&&txt(g('course-sum'))==='18 holes · par 71',txt(g('course-name'))+' / '+txt(g('course-sum')));}
 
+// ---- next-step card only on setup and result (p4b: gc.css display:grid beat [hidden]; the browser check measures it) ----
+{const h=open({storage:{}});ok('page CSS hides a [hidden] next-step card (gc.css sets display:grid)',/\.gc-next\[hidden\]\{display:none\}/.test(src));
+ click(h,'#btn-start');ok('next-step card flagged hidden on the hole screen',h.$('setup-next').hidden);h.w.GCStablefordUI.loadExample();ok('…and shown on the result',!h.$('setup-next').hidden);}
+
 // ---- 1-player round and empty states ----
 {const h=open();click(h,'#btn-start');click(h,'#btn-board');ok('leaderboard before any full hole is honest',/Stableford/.test(txt(h.$('hero'))));
  const h2=open();h2.set('pn0','Solo');click(h2,'#btn-start');ok('1 player: strip shows the running total',/Total 2 pts thru 1/.test(txt(h2.$('strip'))),txt(h2.$('strip')));click(h2,'#btn-next');

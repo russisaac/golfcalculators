@@ -212,6 +212,7 @@ a{color:var(--accent)}
   /* Setup: Start sits in the flow right after the course card, so it can never cover the hole-count
      radios, the 10th-tee switch or a player's 9-hole DH link at any scroll position (PO, 12 Nov). */
   .sk-actions.sf-start{position:static;background:none}
+  .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the Skins card showed on the hole screen */
   .sf-holes .gc-stepper input{width:44px;font-size:var(--fs-md)} /* value field hit area >= 44x44 (PO, 12 Nov) */
   @media (max-width:360px){.sf-holes li,.sf-holeshead{grid-template-columns:18px 1fr 1fr;gap:var(--s1)}.sf-holes .n{font-size:var(--fs-sm)}}
   @media (max-width:340px){.sf-holes,.sf-holeshead{margin-left:calc(var(--s2) * -1 + 2px);margin-right:calc(var(--s2) * -1 + 2px)}}
