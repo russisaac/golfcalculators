@@ -17,7 +17,93 @@
 <meta name="twitter:title" content="Golf Skins Calculator — Who Pays Whom">
 <meta name="twitter:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
 <meta name="theme-color" content="#166534">
-<link rel="stylesheet" href="/gc.css">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). test/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+</style>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
 <script>
@@ -95,7 +181,7 @@
   <div class="gc-stack">
     <div class="gc-card">
       <h2 style="margin-bottom:var(--s3)">Players</h2>
-      <div id="players"></div>
+      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><button type="button" class="sk-x" data-rm="0" aria-label="Remove Player 1">×</button><div class="sk-hcp"><span class="gc-muted" id="phl0">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl0"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" data-i="1" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 2" value=""><button type="button" class="sk-x" data-rm="1" aria-label="Remove Player 2">×</button><div class="sk-hcp"><span class="gc-muted" id="phl1">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl1"><button type="button" data-h="-1" data-i="1" aria-label="Lower handicap for Player 2">−</button><input id="ph1" data-i="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 2 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="1" aria-label="Raise handicap for Player 2">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" data-i="2" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 3" value=""><button type="button" class="sk-x" data-rm="2" aria-label="Remove Player 3">×</button><div class="sk-hcp"><span class="gc-muted" id="phl2">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl2"><button type="button" data-h="-1" data-i="2" aria-label="Lower handicap for Player 3">−</button><input id="ph2" data-i="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 3 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="2" aria-label="Raise handicap for Player 3">+</button></span></div></div><div class="sk-player"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" data-i="3" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 4" value=""><button type="button" class="sk-x" data-rm="3" aria-label="Remove Player 4">×</button><div class="sk-hcp"><span class="gc-muted" id="phl3">Daily handicap</span><span class="gc-stepper" role="group" aria-labelledby="phl3"><button type="button" data-h="-1" data-i="3" aria-label="Lower handicap for Player 4">−</button><input id="ph3" data-i="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 4 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="3" aria-label="Raise handicap for Player 4">+</button></span></div></div></div>
       <button type="button" class="gc-btn gc-btn-secondary gc-btn-block" id="btn-add" style="margin-top:var(--s3)">+ Add player</button>
     </div>
     <div class="gc-card gc-stack">
@@ -105,25 +191,25 @@
       <p id="stake-err" class="gc-muted" style="color:var(--danger)" hidden>Enter a stake above $0, e.g. 5</p>
       <div><span class="gc-label" id="holes-l">Holes</span>
         <div class="gc-seg" role="radiogroup" aria-labelledby="holes-l">
-          <label><input type="radio" name="holes" value="18"><span>18</span></label>
+          <label><input type="radio" name="holes" value="18" checked><span>18</span></label>
           <label><input type="radio" name="holes" value="front"><span>Front 9</span></label>
           <label><input type="radio" name="holes" value="back"><span>Back 9</span></label>
         </div></div>
       <div><span class="gc-label" id="scoring-l">Scoring</span>
         <div class="gc-seg" role="radiogroup" aria-labelledby="scoring-l">
-          <label><input type="radio" name="scoring" value="full"><span>Net</span></label>
+          <label><input type="radio" name="scoring" value="full" checked><span>Net</span></label>
           <label><input type="radio" name="scoring" value="offlow"><span>Net off low</span></label>
           <label><input type="radio" name="scoring" value="gross"><span>Gross</span></label>
         </div>
-        <p class="gc-muted" id="scoring-help" style="margin-top:var(--s1)"></p></div>
+        <p class="gc-muted" id="scoring-help" style="margin-top:var(--s1)">Each player gets strokes from their full handicap, by stroke index.</p></div>
       <details class="sk-more"><summary>More options</summary>
         <div class="gc-stack" style="margin-top:var(--s2)">
           <div class="sk-row" id="allow-row"><span class="gc-label" id="allow-l" style="margin:0">Handicap allowance</span>
             <span class="gc-stepper" role="group" aria-labelledby="allow-l"><button type="button" data-allow="-5" aria-label="Lower allowance">−</button><input id="allowance" type="text" inputmode="numeric" aria-label="Allowance percent" value="100%" readonly><button type="button" data-allow="5" aria-label="Raise allowance">+</button></span></div>
-          <label class="sk-switch"><input type="checkbox" id="carry"> Carryovers (a halved hole adds its skin to the next)</label>
+          <label class="sk-switch"><input type="checkbox" id="carry" checked> Carryovers (a halved hole adds its skin to the next)</label>
           <div><span class="gc-label" id="end-l">Skins still carried after the last hole</span>
             <div class="gc-seg" role="radiogroup" aria-labelledby="end-l">
-              <label><input type="radio" name="endRule" value="nobody"><span>Nobody wins</span></label>
+              <label><input type="radio" name="endRule" value="nobody" checked><span>Nobody wins</span></label>
               <label><input type="radio" name="endRule" value="playoff"><span>Playoff winner</span></label>
             </div></div>
         </div>
