@@ -1,0 +1,15 @@
+{
+  "name": "golfcalculators-tests",
+  "private": true,
+  "description": "jsdom suites, axe and Lighthouse checks for golfcalculators.com (not published)",
+  "scripts": {
+    "test": "./run",
+    "test:browser": "./run --browser"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "jsdom": "^29.1.1",
+    "lighthouse": "^12.8.2",
+    "playwright-core": "^1.64.1"
+  }
+}

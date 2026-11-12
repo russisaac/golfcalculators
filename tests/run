@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# golfcalculators.com test runner (lives in the repo; not published, see netlify.toml).
+#   tests/run                 jsdom suites against the repo root
+#   tests/run --browser       + axe 375/320, tap targets, h-scroll, screenshots, Lighthouse (local server)
+#   tests/run --browser --ci  CI gates only: axe serious/critical, Lighthouse a11y < 95 or LCP > 2.5s
+#   SITE=/path/to/checkout tests/run    test another checkout
+# Suites that are absent or not applicable to the branch are skipped, so the
+# same runner works on the P1 branch (legacy Skins) and on P2a.
+set -uo pipefail
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -n "${SITE:-}" ] && SITE="$(cd "$SITE" && pwd)"
+export SITE="${SITE:-$(cd "$DIR/.." && pwd)}"
+cd "$DIR"
+[ -d node_modules/jsdom ] || npm ci --silent
+echo "golfcalc tests against $SITE ($(git -C "$SITE" rev-parse --short HEAD 2>/dev/null || echo no-git))"
+fail=0
+shopt -s nullglob
+for s in suites/*.js; do echo; echo "== $(basename "$s" .js)"; node "$s" || fail=1; done
+if [[ " $* " == *" --browser "* ]]; then
+  echo; echo "== browser checks"
+  args=(); [[ " $* " == *" --ci "* ]] && args+=(--ci)
+  node lib/browser-checks.js "${args[@]}" ${BROWSER_ARGS:-} || fail=1
+fi
+echo; [ $fail -eq 0 ] && echo "ALL SUITES PASSED" || echo "SOME SUITES FAILED"
+exit $fail
