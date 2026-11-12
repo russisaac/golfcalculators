@@ -209,7 +209,12 @@ a{color:var(--accent)}
   .sf-holes .n{font-weight:700;color:var(--muted);text-align:center}
   .sf-holes .gc-stepper{justify-self:end}
   .sf-holes .gc-stepper button{width:44px}
-  .sf-holes .gc-stepper input{width:34px;font-size:var(--fs-md)}
+  /* Setup: Start sits in the flow right after the course card, so it can never cover the hole-count
+     radios, the 10th-tee switch or a player's 9-hole DH link at any scroll position (PO, 12 Nov). */
+  .sk-actions.sf-start{position:static;background:none}
+  .sf-holes .gc-stepper input{width:44px;font-size:var(--fs-md)} /* value field hit area >= 44x44 (PO, 12 Nov) */
+  @media (max-width:360px){.sf-holes li,.sf-holeshead{grid-template-columns:18px 1fr 1fr;gap:var(--s1)}.sf-holes .n{font-size:var(--fs-sm)}}
+  @media (max-width:340px){.sf-holes,.sf-holeshead{margin-left:calc(var(--s2) * -1 + 2px);margin-right:calc(var(--s2) * -1 + 2px)}}
   .sf-holes li.bad .si{border-color:var(--danger);box-shadow:0 0 0 2px #fecaca}
   .sf-holeshead{display:grid;grid-template-columns:28px 1fr 1fr;gap:var(--s2);font-size:var(--fs-sm);color:var(--muted);font-weight:600}
   .sf-holeshead span{text-align:center}
@@ -298,7 +303,15 @@ a{color:var(--accent)}
      "name": "How does the Stableford countback work?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11)."
+      "text": "Golf Australia's default, the Australian Countback Method, compares points on the last 9 holes (10–18), then the last 6 (13–18), then the last 3 (16–18), then hole by hole from the 18th. After a shotgun start it uses the same holes, whichever hole each player started on (GA WHS guide, January 2026, §11)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What if the whole field started on the 10th tee?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Then the countback uses the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from the 9th. Tick “Whole field started on the 10th tee” in setup. It applies only when everyone teed off on the 10th, not to a shotgun start."
      }
     },
     {
@@ -391,7 +404,7 @@ a{color:var(--accent)}
     </div>
   </div>
   <p class="sk-note" id="setup-si" style="margin-top:var(--s3)" hidden></p>
-  <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <div class="sk-actions sf-start"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
   <p class="gc-muted">Set up once, then score hole by hole. Points, the leaderboard and the countback update as you go. Saved on this device only.</p>
 </section>
 
@@ -500,7 +513,8 @@ a{color:var(--accent)}
   <h2 id="faq-h">Frequently asked questions</h2>
   <div class="gc-faq-item"><h3>How do you calculate Stableford points with a handicap?</h3><p>Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole.</p></div>
   <div class="gc-faq-item"><h3>How many shots do I get on each hole?</h3><p>Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C).</p></div>
-  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11).</p></div>
+  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default, the Australian Countback Method, compares points on the last 9 holes (10–18), then the last 6 (13–18), then the last 3 (16–18), then hole by hole from the 18th. After a shotgun start it uses the same holes, whichever hole each player started on (GA WHS guide, January 2026, §11).</p></div>
+  <div class="gc-faq-item"><h3>What if the whole field started on the 10th tee?</h3><p>Then the countback uses the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from the 9th. Tick “Whole field started on the 10th tee” in setup. It applies only when everyone teed off on the 10th, not to a shotgun start.</p></div>
   <div class="gc-faq-item"><h3>How does Stableford work over 9 holes?</h3><p>Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).</p></div>
   <div class="gc-faq-item"><h3>What is a good Stableford score?</h3><p>Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.</p></div>
   <div class="gc-faq-item"><h3>What if players are still tied after the countback?</h3><p>If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11).</p></div>
@@ -565,6 +579,9 @@ function siProblems(course) { // {dupes:[{si,holes}], missing:[], out:[{hole,si}
   for (var h = 1; h <= n; h++) { var v = +course.si[h - 1]; if (!(v >= 1 && v <= n)) out.push({ hole: h, si: v }); else (seen[v] = seen[v] || []).push(h); }
   for (var k = 1; k <= n; k++) { if (!seen[k]) missing.push(k); else if (seen[k].length > 1) dupes.push({ si: k, holes: seen[k] }); }
   return { dupes: dupes, missing: missing, out: out, ok: !dupes.length && !missing.length && !out.length };
+}
+function siNotice(c) { // setup and hole screens show exactly this
+  var p = siProblems(c); return p.ok ? '' : siMessage(p, +c.holes === 9 ? 9 : 18) + ' Fix it in Edit course.';
 }
 function siMessage(p, n) {
   if (p.ok) return '';
@@ -671,7 +688,7 @@ function parseList(txt, kind, n) { // "4 4 3 5 ..." or "443544345" (par only) ->
   return { nums: nums };
 }
 window.GCStableford = { compute: compute, strokesOn: strokesOn, points: points, netLabel: netLabel, parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote,
-  holesInPlay: holesInPlay, cbStages: cbStages, siProblems: siProblems, siMessage: siMessage, shareText: shareText, parseList: parseList,
+  holesInPlay: holesInPlay, cbStages: cbStages, siProblems: siProblems, siMessage: siMessage, siNotice: siNotice, shareText: shareText, parseList: parseList,
   defaultState: defaultState, exampleState: exampleState, defaultCourse: defaultCourse, placeLabel: placeLabel, cbSentence: cbSentence, cbRange: cbRange, nineHole: nineHole, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
 
 /* ---------- UI ---------- */
@@ -764,7 +781,7 @@ function renderSetup() {
     'Countback: ' + cb.slice(0, o.length >= 10 ? 3 : 2).map(function (h) { return cbRange(h, o); }).join(', then ') + ', then hole by hole from hole ' + o[o.length - 1] + '.';
   var t = thru();
   $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
-  var p = siProblems(c); $('setup-si').hidden = p.ok; $('setup-si').textContent = p.ok ? '' : siMessage(p, nine ? 9 : 18) + ' Fix it in Edit course.';
+  var p = siProblems(c); $('setup-si').hidden = p.ok; $('setup-si').textContent = siNotice(c);
   renderPrompt();
 }
 var pendingDH = null;
@@ -816,8 +833,7 @@ function stripHtml(h) {
 function strokesNote(n) { return n > 0 ? '●'.repeat(Math.min(n, 4)) + ' ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives back ' + (-n) : 'no shot'; }
 function siWarn() {
   var h = S.hole, p = siProblems(S.course), d = p.dupes.filter(function (x) { return x.holes.indexOf(h) >= 0; })[0], el = $('si-warn');
-  el.hidden = !d;
-  el.textContent = d ? 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '. Each hole needs a different stroke index, so check the card.' : '';
+  el.hidden = p.ok; el.textContent = siNotice(S.course); // the same words as on setup (PO, 12 Nov)
   $('si').setAttribute('aria-invalid', d ? 'true' : 'false');
 }
 function renderHole() {
