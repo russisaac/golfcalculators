@@ -27,7 +27,9 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   console.log(`browser checks: ${base} · pages ${pages.map(p=>p[1]).join(' ')} · mode ${CI?'ci':'strict'} · out ${OUT}`);
   const b=await chromium.launch({executablePath:CHROME,args:['--no-sandbox']});
   const rows=[];
-  async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});return ctx.newPage();}
+  // Netlify injects a feedback drawer (/.netlify/scripts/cdp, a fixed iframe) into Deploy Preview URLs only;
+  // block it so previews are tested as production serves them.
+  async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});await ctx.route('**/.netlify/scripts/**',r=>r.abort());return ctx.newPage();}
   async function check(name,w,url,prep,shot){
     const p=await page(w);const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base+url,{waitUntil:'load'});if(prep)await prep(p);await p.waitForTimeout(250);
@@ -47,7 +49,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     const bad=CI?(serious.length>0||hs||tnBad):strictBad;
     if(CI&&strictBad&&!bad)warn.push(`${name}@${w}`);
     rows.push({name,width:w,axe:v,hscroll:hs,innerScroll:m.innerScroll,controls:m.controls,pct44:m.pct44,under24:m.under24,typeNumber:m.typeNumber,jsErrors:errs,shot:shot?path.join(OUT,shot):null});
-    console.log(`${gate(bad)}${CI&&strictBad&&!bad?' (WARN)':''}  ${name} @${w}: axe ${v.length} (serious/critical ${serious.length})${v.length?' '+v.map(x=>`${x.impact}:${x.id}(${x.nodes})`).join('; '):''} · hscroll ${hs} · controls ${m.controls}, ≥44px ${m.pct44}%, <24px ${m.under24.length} · type=number ${m.typeNumber}${m.typeNumber&&!tnBad?' (legacy allowlist)':''}${errs.length?' · JS errors '+errs.join('|'):''}`);
+    console.log(`${gate(bad)}${CI&&strictBad&&!bad?' (WARN)':''}  ${name} @${w}: axe ${v.length} (serious/critical ${serious.length})${v.length?' '+v.map(x=>`${x.impact}:${x.id}(${x.nodes})`).join('; '):''} · sideways scroll ${hs}${hs?` (page ${m.docScroll}px in ${m.vw}px${m.innerScroll.length?', inner scroller '+m.innerScroll.join(','):''})`:''} · controls ${m.controls}, ≥44px ${m.pct44}%, <24px ${m.under24.length} · type=number ${m.typeNumber}${m.typeNumber&&!tnBad?' (legacy allowlist)':''}${errs.length?' · JS errors '+errs.join('|'):''}`);
     await p.context().close();
   }
   isV2=await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>document.body.dataset.gc==='skins-v2');await p.context().close();return r;})();
