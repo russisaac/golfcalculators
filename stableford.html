@@ -219,20 +219,38 @@ function build() {
   h += '</table>';
   document.getElementById('table').innerHTML = h;
 }
-function strokesOn(hcp, holeSI, totalHoles) {
-  const r = Math.round(hcp);
-  const full = Math.floor(r / totalHoles);
-  const rem = r % totalHoles;
-  return full + (holeSI <= rem ? 1 : 0);
+// Strokes on one hole. holeRank = the hole's stroke-index rank among the holes played
+// (over 18 that is the SI itself; over 9 the 18-hole SIs ranked 1-9). A negative hcp is a
+// plus handicap: strokes are given back from the highest rank (SI 18 first), GA WHS guide §10C.
+function strokesOn(hcp, holeRank, totalHoles) {
+  const r = hcp < 0 ? -Math.round(-hcp) : Math.round(hcp);
+  const a = Math.abs(r);
+  const full = Math.floor(a / totalHoles);
+  const rem = a % totalHoles;
+  if (r >= 0) return full + (holeRank <= rem ? 1 : 0);
+  return -(full + (holeRank > totalHoles - rem ? 1 : 0));
+}
+// "+2" (or "-2") is a plus handicap and returns -2; "12" returns 12; anything else 0.
+function parseHcp(v) {
+  const t = String(v).trim().replace(/\u2212/g, '-');
+  const n = parseFloat(t.replace(/^[+-]/, ''));
+  if (!isFinite(n)) return 0;
+  return /^[+-]/.test(t) ? -Math.abs(n) : n;
+}
+// Rank of hole i (1-based) by 18-hole SI among holes 1..n.
+function siRank(i, n) {
+  let k = 1;
+  for (let j = 1; j <= n; j++) if (si[j-1] < si[i-1]) k++;
+  return k;
 }
 function calc() {
-  const hcp = parseFloat(document.getElementById('hcp').value) || 0;
+  const hcp = parseHcp(document.getElementById('hcp').value);
   const n = +document.getElementById('holes').value;
   let total = 0;
   for (let i = 1; i <= n; i++) {
     const gross = +document.getElementById('s'+i).value;
     if (!gross) { document.getElementById('p'+i).textContent = '—'; continue; }
-    const strokes = strokesOn(hcp, si[i-1], n);
+    const strokes = strokesOn(hcp, siRank(i, n), n);
     const net = gross - strokes;
     const pts = Math.max(0, 2 + (par[i-1] - net));
     document.getElementById('p'+i).textContent = pts;
