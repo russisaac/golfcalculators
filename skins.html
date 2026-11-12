@@ -563,7 +563,7 @@ function shareText(st, r) {
   var lines = ['Skins: ' + money(r.stake) + '/skin, ' + mode + holes + ', carryovers ' + (st.carry ? 'on' : 'off') + (r.played < r.total ? ' (thru ' + r.played + ' of ' + r.total + ')' : '')];
   if (r.payments.length) r.payments.forEach(function (p) { lines.push(r.names[p.from] + ' pays ' + r.names[p.to] + ' ' + money(p.amount)); });
   else lines.push('All square');
-  lines.push(r.names.map(function (nm, i) { return nm + ' ' + signed(r.balances[i]) + ' (' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + ')'; }).join(' · '));
+  lines.push(r.names.map(function (nm, i) { return nm + ' ' + signed(r.balances[i]).replace('\u2212', '-') + ' (' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + ')'; }).join(' | ')); // plain ASCII: SMS stays GSM-7 (PO, 12 Nov)
   if (r.playoffWinner != null) lines.push(r.names[r.playoffWinner] + ' won the playoff for ' + r.leftover + ' carried skin' + (r.leftover === 1 ? '' : 's'));
   else if (r.leftover && r.played === r.total) lines.push(r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried after the last hole: nobody wins ' + (r.leftover === 1 ? 'it' : 'them'));
   return lines.join('\n');
