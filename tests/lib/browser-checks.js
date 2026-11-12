@@ -60,6 +60,10 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   const maxData=async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.players=[...Array(8)].map((_,i)=>({name:'Bartholomew-Fitzgerald'+i,hcp:i===0?-10:54-i}));s.scores={};s.hole=18;GCSkinsUI.show('hole');});};
   const maxSetup=async p=>{await maxData(p);await p.evaluate(()=>GCSkinsUI.show('setup'));};
   const maxResult=async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.players=[...Array(8)].map((_,i)=>({name:'Bartholomew-Fitzgerald'+i,hcp:i*6}));s.scores={};for(let h=1;h<=18;h++)s.scores[h]=s.players.map((_,i)=>3+((h*7+i*3)%5));GCSkinsUI.show('result');});};
+  const SKLONG=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'];
+  const skLong=async(p,holes)=>{await p.evaluate(([L,ho])=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:[12,20,24,-2][i],hcp9:null}));s.holes=ho;s.scores={};GCSkinsUI.show('setup');},[SKLONG,holes]);};
+  const skAsk=async p=>{await skLong(p,'18');await p.goto(p.url().split('?')[0]+'?dh=7&holes=9&p=1',{waitUntil:'load'});};
+  const hasSkAsk=await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>!!document.getElementById('dh-prompt'));await p.context().close();return r;})();
   const shotName={home:'home-375.png',privacy:'privacy-375-full.png',stableford:'stableford-375-full.png'};
   for(const w of [375,320]){
     for(const [n,u] of pages){if(n==='skins')continue;await check(n,w,u,null,w===375?shotName[n]||null:null);}
@@ -72,10 +76,26 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('skins max data: setup 8 players',w,'/skins',maxSetup,null);
       await check('skins setup, front 9: 9-hole DH labels, links and check notes (8 long names)',w,'/skins',async p=>{await maxSetup(p);await p.evaluate(()=>{const s=GCSkinsUI.state();s.holes='front';s.players.forEach(x=>{delete x.hcp9;});GCSkinsUI.show('setup');});},`skins-1b-setup-9holes-${w}.png`);
       await check('skins max data: result 8 players',w,'/skins',maxResult,w===320?'skins-6-maxdata-result-320-full.png':null);
+      if(hasSkAsk){ // skins-dh-return-ask: the Stableford question on Skins (4 long names), then each answer
+        await check('skins DH return: 9-hole DH onto an 18-hole round asks first',w,'/skins',skAsk,`skins-1c-dh-ask-switch-${w}.png`);
+        await check('skins DH return: switched to front 9, 9-hole DH set',w,'/skins',async p=>{await skAsk(p);await p.click('button[data-dhr=front]');},`skins-1d-dh-switched-front9-${w}.png`);
+        await check('skins DH return: kept 18 holes, 9-hole DH saved',w,'/skins',async p=>{await skAsk(p);await p.click('button[data-dhr=keep]');},`skins-1e-dh-kept18-${w}.png`);
+        await check('skins DH return: &holes=18 onto a 9-hole round sets the 18-hole DH only',w,'/skins',async p=>{await skLong(p,'front');await p.goto(p.url().split('?')[0]+'?dh=12&holes=18&p=1',{waitUntil:'load'});},`skins-1f-dh-18-onto-9-${w}.png`);
+      }
     } else if(pages.some(p=>p[0]==='skins')){
       await check('skins (legacy)',w,'/skins',null,w===375?'skins-legacy-375.png':null);
       await check('skins (legacy) example settled',w,'/skins',async p=>{await p.evaluate(()=>{loadExample();settleUp();});},null);
     }
+  }
+  if(isV2&&hasSkAsk){ // the question is focused and fully on the first screen; nothing set until a choice
+    for(const [w,hgt] of [[375,812],[320,568]]){
+      const p=await page(w,hgt);await p.goto(base+'/skins',{waitUntil:'load'});await skAsk(p);await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const c=document.getElementById('dh-prompt').getBoundingClientRect(),s=JSON.parse(localStorage.getItem('gc_skins_v2'));
+        return {focus:document.activeElement&&document.activeElement.id,top:Math.round(c.top),bottom:Math.round(c.bottom),vh:innerHeight,holes:s.holes,hcp9:s.players[1].hcp9,q:document.getElementById('dhp-h').textContent};});
+      const bad=r.focus!=='dhp-h'||r.bottom>r.vh||r.top<0||r.holes!=='18'||r.hcp9!=null;
+      if(bad)fail=1;rows.push({name:`skins dh ask ${w}`,width:w,r});
+      console.log(`${gate(bad)}  skins DH question @${w}x${hgt}: "${r.q}" focused (${r.focus}), card ${r.top}-${r.bottom}px of ${r.vh}px; before a choice: round ${r.holes}, 9-hole DH ${r.hcp9}`);
+      await p.context().close();}
   }
   // Stableford rebuild (P4): every screen at 375 and 320, incl. 4 long names (max data)
   const isSf=await (async()=>{const p=await page(375);await p.goto(base+'/stableford');const r=await p.evaluate(()=>document.body.dataset.gc==='stableford-v2');await p.context().close();return r;})();
