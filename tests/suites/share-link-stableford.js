@@ -13,6 +13,7 @@ const b64u=b=>Buffer.from(b).toString('base64').replace(/\+/g,'-').replace(/\//g
 const linkOf=(obj,z=true)=>URL+'#r='+(z?'1z.'+b64u(zlib.deflateRawSync(Buffer.from(JSON.stringify(obj)))):'1.'+b64u(Buffer.from(JSON.stringify(obj))));
 const H0=open(),G=H0.w.GCStableford,GS=H0.w.GCShare;
 const sum=(st)=>{const r=G.compute(st);return JSON.stringify({b:r.board.map(x=>[x.i,x.total,x.place,!!x.joint,x.cb,x.thru]),p:r.played,c:r.complete,o:r.order,h:r.rows.map(x=>r.order.map(h=>[x.byHole[h].strokes,x.byHole[h].pts]))});};
+const mut=(name,a,b)=>{const s=src.replace(a,b);if(s===src)return null;const t=path.join(require('os').tmpdir(),'sl-'+name+'.html');fs.writeFileSync(t,s);return t;};
 const tasks=[];const later=(f)=>tasks.push(f);
 
 // ---- component ----
@@ -121,11 +122,45 @@ later(async()=>{const bad=[];for(const [label,frag] of hostile){const h=open({ur
   ok('a duplicate SI still opens, with the app\'s usual warning',dup.w.GCStablefordUI.viewing()&&!dup.$('si-note').hidden&&/SI 1/.test(txt(dup.$('si-note'))),txt(dup.$('si-note')));
 });
 
+// ---- history in viewer mode (PO, GA closed in code): no pushState/replaceState while #r= is in the URL ----
+// Every history call is recorded with the hash before and after, and whether the viewer was still showing at that moment.
+const spy=log=>w=>{for(const fn of ['pushState','replaceState']){const o=w.History.prototype[fn];w.History.prototype[fn]=function(...a){const before=w.location.hash,view=w.document.documentElement.classList.contains('gc-view');
+  const r=o.apply(this,a);log.push({fn,before,after:w.location.hash,view});return r;};}};
+async function histFlow(f){const log=[],link=linkOf(G.toPayload(G.exampleState())),u=URL+'?dh=7&p=0#r='+link.split('#r=')[1];
+  // 1) open a link that also carries ?dh= (the DH return must not run), share, copy, then Start your own round
+  const h=open({url:u,storage:{[KEY]:mine},before:spy(log)},f);await h.w.GCStablefordUI.opened();
+  h.w.navigator.share=()=>Promise.resolve();h.$('btn-share').click();Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:()=>Promise.resolve()},configurable:true});h.$('gc-copy').click();
+  await new Promise(r=>setTimeout(r,5));const beforeOwn=log.length;h.$('gc-own').click();const own=log.slice(beforeOwn);
+  // 2) the error card's Start your own round
+  const e=open({url:URL+'#r=1z.AAAA',storage:{[KEY]:mine},before:spy(log)},f);await e.w.GCStablefordUI.opened();const be=log.length;e.$('gc-own').click();const ownErr=log.slice(be);
+  // 3) a link pasted into an open tab (hashchange), then Start your own round
+  const t=open({storage:{[KEY]:mine},before:spy(log)},f);t.w.location.hash='#r='+link.split('#r=')[1];t.w.dispatchEvent(new t.w.HashChangeEvent('hashchange'));await t.w.GCStablefordUI.opened();
+  const bt=log.length;t.$('gc-own').click();const ownTab=log.slice(bt);
+  return {log,beforeOwn,own,ownErr,ownTab,viewing:h.w.GCStablefordUI.viewing()};}
+later(async()=>{const r=await histFlow();
+  ok('viewer mode: no history call at all while the link is open (opening with ?dh=&p=, Share, Copy link)',r.beforeOwn===0,JSON.stringify(r.log.slice(0,r.beforeOwn)));
+  ok('viewer mode: pushState is never called',r.log.every(c=>c.fn!=='pushState'),JSON.stringify(r.log));
+  ok('every history call in viewer mode leaves location.hash without r= (result, error card, link pasted into an open tab)',r.log.length>=3&&r.log.every(c=>!/r=/.test(c.after)),JSON.stringify(r.log));
+  ok('Start your own round clears the fragment as its very first step (one replaceState, made while the viewer is still showing, before anything else)',
+    [r.own,r.ownErr,r.ownTab].every(o=>o.length===1&&o[0].fn==='replaceState'&&o[0].view&&/^#r=/.test(o[0].before)&&o[0].after===''),JSON.stringify([r.own,r.ownErr,r.ownTab]));
+  const f1=mut('ownorder',"history.replaceState(null, '', location.pathname + location.search); leaveShared(true);","leaveShared(true); history.replaceState(null, '', location.pathname + location.search);");
+  const m1=await histFlow(f1);ok('mutation: clearing the fragment after leaving the viewer is caught',f1&&!m1.own.every(c=>c.view));
+  const f2=mut('dhguard',"  if (RAW != null) return; // a shared result link is open: leave your round alone\n","");
+  const m2=await histFlow(f2);ok('mutation: letting the DH return run on a #r= page is caught (a history call keeps r=)',f2&&m2.log.some(c=>/r=/.test(c.after)));
+});
+
+// ---- error card colour: amber, not the success green; AA contrast ----
+const lum=h=>{const c=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4));return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];};
+const cr=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);};
+{const css=fs.readFileSync(path.join(SITE,'gc.css'),'utf8'),v=n=>(css.match(new RegExp('--'+n+':(#[0-9a-f]{6})'))||[])[1];
+ const rule=/\.gc-view-err \.gc-shared\{background:var\(--warn-soft\);border-color:#fcd34d\}/.test(src)&&/\.gc-view-err \.gc-shared p\{color:var\(--warn\)\}/.test(src);
+ const a=cr(v('warn'),v('warn-soft')),b=cr(v('ink'),v('warn-soft'));
+ ok(`error card is amber (--warn-soft background, amber border), not the success green; contrast AA: line ${a.toFixed(1)}:1, heading ${b.toFixed(1)}:1`,rule&&a>=4.5&&b>=4.5,[v('warn'),v('warn-soft'),v('ink')].join());}
+
 // ---- privacy ----
 ok('/privacy: the PO\'s sentence on shared result links',(()=>{const p=fs.readFileSync(path.join(SITE,'privacy.html'),'utf8');return p.includes('<p id="shared-links">Shared result links carry the names and scores inside the link itself; they are never sent to or stored by us and are stripped from analytics.</p>');})());
 
 // ---- mutation checks ----
-const mut=(name,a,b)=>{const s=src.replace(a,b);if(s===src)return null;const t=path.join(require('os').tmpdir(),'sl-'+name+'.html');fs.writeFileSync(t,s);return t;};
 later(async()=>{const link=linkOf(G.toPayload(G.exampleState()));
   let f=mut('save',"function save() { if (VIEW || RAW != null) return; try","function save() { try");let h=open({url:link,storage:{[KEY]:mine}},f);await h.w.GCStablefordUI.opened();
   ok('mutation: dropping the viewer storage guard is caught (saved round overwritten)',f&&h.w.localStorage.getItem(KEY)!==mine);

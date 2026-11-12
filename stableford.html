@@ -213,6 +213,8 @@ a{color:var(--accent)}
   .gc-shared-wait,.gc-view-actions{display:none}
   .gc-view:not(.gc-wait) .gc-view-actions{display:grid;gap:var(--s2);margin-top:var(--s3)}
   .gc-view-err .gc-view-actions #gc-copy{display:none}
+  .gc-view-err .gc-shared{background:var(--warn-soft);border-color:#fcd34d}
+  .gc-view-err .gc-shared p{color:var(--warn)}
   .gc-shared-h1{display:none}
   .gc-view-err .gc-shared-h1{display:block}
   .gc-view #own-actions,.gc-view #new-note{display:none}
@@ -1268,6 +1270,9 @@ addEventListener('hashchange', function () {
   if (raw != null && raw !== RAW) openShared(raw); // RAW: the link open (or opening) now
   else if (raw == null && RAW != null) leaveShared(false);
 });
+// Start your own round: clearing the #r= fragment is the FIRST step, before anything else runs (PO, GA). In viewer mode this is
+// the only history call: nothing calls pushState/replaceState while #r= is in the URL (dhReturn is skipped), so GA's
+// history listener never sees a URL that still holds names.
 $('gc-own').addEventListener('click', function () { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); leaveShared(true); });
 $('gc-copy').addEventListener('click', copyLink);
 window.GCStablefordUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, copyLink: copyLink,

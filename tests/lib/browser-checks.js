@@ -117,17 +117,20 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   }
   if(isSf&&hasShare){ // share-link-stableford in a real browser: CompressionStream link, viewer on the first screen, storage untouched, own round back
     for(const [w,hgt] of [[375,812],[320,568]]){
-      const p=await page(w,hgt);await p.goto(base+'/stableford',{waitUntil:'load'});
+      let p=await page(w,hgt);await p.goto(base+'/stableford',{waitUntil:'load'});
       const own=await p.evaluate(async()=>{const U=GCStablefordUI;U.loadExample();const url=(await U.link()).url;const s=U.state();s.players[0].name='Me';s.screen='setup';U.set(s);return {url,saved:localStorage.getItem('gc_stableford_v1')};});
+      const p0=p;p=await p0.context().newPage();await p0.close(); // a fresh page load of the link (not a same-document hash change)
+      await p.addInitScript(()=>{window.__hist=[];for(const fn of ['pushState','replaceState']){const o=History.prototype[fn];History.prototype[fn]=function(...a){const before=location.hash,view=document.documentElement.classList.contains('gc-view');const r=o.apply(this,a);window.__hist.push({fn,before,after:location.hash,view});return r;};}});
       await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.opened());
       const r=await p.evaluate(()=>{const pod=document.querySelector('.sf-podium').getBoundingClientRect(),ban=document.getElementById('gc-shared').getBoundingClientRect();
         return {viewing:GCStablefordUI.viewing(),podBottom:Math.round(pod.bottom),banTop:Math.round(ban.top),vh:innerHeight,saved:localStorage.getItem('gc_stableford_v1'),t:document.getElementById('gc-shared-t').textContent};});
       await p.click('#gc-own');
-      const back=await p.evaluate(()=>({viewing:GCStablefordUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id}));
+      const back=await p.evaluate(()=>({viewing:GCStablefordUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
+      const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
       const firstScreen=w===375?r.podBottom<=r.vh:true;
-      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>300||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h';
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>300||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
       if(bad)fail=1;rows.push({name:`stableford share link ${w}`,width:w,link:own.url.length,r,back});
-      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium on the first screen (bottom ${r.podBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}`);
+      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium on the first screen (bottom ${r.podBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
       await p.context().close();}
   }
   if(isSf){ // PO 12 Nov: on 9 holes each player's "Work out 9-hole DH" link sits right under their handicap stepper (one tap away)
