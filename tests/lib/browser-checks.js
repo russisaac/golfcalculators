@@ -1,5 +1,6 @@
 // Browser checks: axe (WCAG 2.2 AA + best-practice) at 375 and 320px on every page,
-// tap targets, horizontal scroll, Skins setup clearance, screenshots, Lighthouse mobile.
+// tap targets, horizontal scroll, Skins setup clearance, calculator-first fold check (375x812),
+// screenshots, Lighthouse mobile.
 // usage: node lib/browser-checks.js [--ci] [--url=https://preview...] [--label=name] [--out=dir] [--no-lh]
 //   default (strict): fail on any axe violation, h-scroll, <24px control, JS error, Skins setup overlap,
 //                     or Lighthouse < 95 in any category on home/skins/stableford/privacy.
@@ -7,7 +8,8 @@
 //                     any sideways scroll at 320/375, any input[type=number] on a rebuilt page
 //                     (legacy allowlist: Stableford until P4, Skins while it is the legacy page),
 //                     Lighthouse mobile Performance < 95, Accessibility < 95, LCP > 2.5 s or CLS > 0.1
-//                     (median of 3 runs when the first run misses a budget).
+//                     (median of 3 runs when the first run misses a budget), and the calculator-first
+//                     fold check on skins/stableford/daily-handicap (P3).
 //                     Everything else (minor/moderate axe, <24px controls, Skins setup clearance) is WARN.
 // Env: SITE (checkout to serve and list pages from; default repo root), CHROME_PATH.
 const {chromium}=require('playwright-core');const {AxeBuilder}=require('@axe-core/playwright');
@@ -85,6 +87,20 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       console.log(`${CI?(bad?'WARN':'PASS'):gate(bad)}  skins setup clearance @${w}x${hgt} (${w===375?'all visible and uncovered with no scrolling':'each control uncovered after scrollIntoView'}): ${res.map(r=>`${r.s}→${r.ok?'ok':'covered by '+r.hit}@y${r.y}`).join(', ')}`);
       await p.context().close();}
   }
+  // P3 fold check at 375x812, fresh load: the H1 and the first calculator control are fully in the
+  // first viewport, and the search content (.gc-learn: how it's calculated, FAQ) starts below that control.
+  for(const [n,u] of pages.filter(p=>['skins','stableford','daily-handicap'].includes(p[0]))){
+    const p=await page(375,812);await p.goto(base+u,{waitUntil:'load'});await p.waitForTimeout(250);
+    const r=await p.evaluate(()=>{const vis=e=>e&&e.offsetParent&&getComputedStyle(e).visibility!=='hidden';
+      const h1=document.querySelector('h1');const ctl=[...document.querySelectorAll('main input:not([type=hidden]),main select,main button,main textarea')].find(vis);
+      const learn=document.querySelector('.gc-learn');const R=e=>e?e.getBoundingClientRect():null;const a=R(h1),c=R(ctl),l=R(learn);
+      return {h1:a?Math.round(a.bottom):-1,ctl:ctl?(ctl.id||ctl.tagName.toLowerCase()):'none',ctlBottom:c?Math.round(c.bottom):-1,learnTop:l?Math.round(l.top+scrollY):null,vh:innerHeight};});
+    await p.screenshot({path:path.join(OUT,`fold-${n}-375x812.png`)});
+    await p.screenshot({path:path.join(OUT,`full-${n}-375.png`),fullPage:true});
+    const bad=!(r.h1>0&&r.h1<=r.vh&&r.ctlBottom>0&&r.ctlBottom<=r.vh&&(r.learnTop===null||r.learnTop>=r.ctlBottom));
+    if(bad)fail=1;rows.push({name:`${n} fold 375x812`,width:375,fold:r});
+    console.log(`${gate(bad)}  ${n} calculator first @375x812: H1 bottom ${r.h1}px, first control #${r.ctl} bottom ${r.ctlBottom}px (viewport ${r.vh}), search content starts at ${r.learnTop===null?'n/a':r.learnTop+'px'}`);
+    await p.context().close();}
   await b.close();
   const lh=[];
   if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['stableford','/stableford'],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
