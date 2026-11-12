@@ -128,6 +128,9 @@ a{color:var(--accent)}
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
   .sk-screen[hidden]{display:none}
+  /* Setup: Start sits in the flow right after the setup card, as on Stableford (PO, 12 Nov), so it never covers
+     the players, holes or scoring controls at any scroll position. */
+  .sk-actions.sk-start{position:static;background:none}
   .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the next-step card showed on the hole and result screens */
   html{scroll-padding-top:56px;scroll-padding-bottom:96px}
   .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
@@ -351,7 +354,7 @@ a{color:var(--accent)}
       </details>
     </div>
   </div>
-  <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <div class="sk-actions sk-start"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
   <p class="gc-muted">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
 </section>
 
