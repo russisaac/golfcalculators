@@ -368,12 +368,14 @@ function calculate() {
   document.getElementById('result').style.display = 'block';
   // Came from Stableford ("Work out my DH"): offer the way back with the value.
   const sfBack = document.getElementById('sfBack');
-  if (sfBack && /(^|[?&])from=stableford(&|$)/.test(location.search)) {
+  const from = (location.search.match(/[?&]from=(stableford|skins)(&|$)/) || [])[1]; // opened from a calculator's DH link
+  if (sfBack && from) {
+    const tool = from === 'skins' ? 'Skins' : 'Stableford';
     sfBack.hidden = false;
     const sfP = (location.search.match(/[?&]p=(\d)(&|$)/) || [])[1];
-    sfBack.href = '/stableford?dh=' + encodeURIComponent(display) + (sfP != null ? '&p=' + sfP : '');
-    document.getElementById('sfBackT').textContent = 'Use ' + display + ' in Stableford →';
-    if (sfP != null) sfBack.querySelector('span').textContent = 'Back to your Stableford round, set for that player.';
+    sfBack.href = '/' + from + '?dh=' + encodeURIComponent(display) + (sfP != null ? '&p=' + sfP : '');
+    document.getElementById('sfBackT').textContent = 'Use ' + display + ' in ' + tool + ' →';
+    sfBack.querySelector('span').textContent = sfP != null ? 'Back to your ' + tool + ' round, set for that player.' : 'Back to your ' + tool + ' round to pick the player.';
   }
 
   try {
@@ -389,7 +391,7 @@ function loadSaved() {
     const s = JSON.parse(localStorage.getItem(STORAGE) || '{}');
     if (s.gender) document.getElementById('gender').value = s.gender;
     if (s.holes) document.getElementById('holes').value = s.holes;
-    if (/[?&]from=stableford(&|$)/.test(location.search) && /[?&]holes=9(&|$)/.test(location.search)) document.getElementById('holes').value = '9'; // a Stableford player's 9-hole link
+    if (/[?&]from=(stableford|skins)(&|$)/.test(location.search) && /[?&]holes=9(&|$)/.test(location.search)) document.getElementById('holes').value = '9'; // a Stableford or Skins player's 9-hole link
     if (s.ga) document.getElementById('ga').value = s.ga;
     if (s.slope) document.getElementById('slope').value = s.slope;
     if (s.scratch) document.getElementById('scratch').value = s.scratch;
