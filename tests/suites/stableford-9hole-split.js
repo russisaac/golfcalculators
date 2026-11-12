@@ -80,7 +80,7 @@ const base18=save(P([['Mel',14,null],['Sam',20,null]]),{scores:{1:[5,6],2:[4,5]}
   ok('the ?dh= query is removed from the address',h.w.location.search==='');
   click(h,'button[data-dhr=keep]');
   ok('Keep 18 holes: round stays 18, Sam\'s 9-hole DH saved as 7, 18-hole DH 20 untouched, field still 20',st(h).round==='18'&&st(h).players[1].hcp9===7&&st(h).players[1].hcp===20&&h.$('ph1').value==='20'&&pr.hidden);
-  ok('…with a toast saying so',txt(h.$('toast'))==='Sam: 9-hole Daily Handicap 7 saved for 9-hole rounds; this round uses the 18-hole DH 20',txt(h.$('toast')));
+  ok('…with a toast saying so',txt(h.$('toast'))==='Sam: 9-hole DH 7 saved for 9-hole rounds; this round uses 20',txt(h.$('toast')));
 }
 { const h=open({url:URL+'?dh=7&holes=9&p=1',storage:{[KEY]:base18}});click(h,'button[data-dhr=front]');
   ok('Switch to front 9: round front, Sam\'s 9-hole DH 7 in the field, toast, scores kept',st(h).round==='front'&&st(h).players[1].hcp9===7&&st(h).players[1].hcp===20&&h.$('ph1').value==='7'&&txt(h.$('toast'))==='Sam: 9-hole Daily Handicap 7'&&JSON.stringify(st(h).scores)==='{"1":[5,6],"2":[4,5]}'&&h.$('dh-prompt').hidden);
@@ -102,7 +102,7 @@ const base18=save(P([['Mel',14,null],['Sam',20,null]]),{scores:{1:[5,6],2:[4,5]}
 { const h=open({url:URL+'?dh=7&holes=9&p=0',storage:{[KEY]:save(P([['Mel',14,null]]),{course:G.defaultCourse(9)})}});
   ok('9-hole DH onto a 9-hole card: set directly',h.$('dh-prompt').hidden&&st(h).players[0].hcp9===7);}
 { const h=open({url:URL+'?dh=15&holes=18&p=0',storage:{[KEY]:save(P([['Mel',14,6]]),{round:'front'})}});
-  ok('18-hole DH onto a 9-hole round: sets the 18-hole DH only, round stays front 9, toast says so',h.$('dh-prompt').hidden&&st(h).round==='front'&&st(h).players[0].hcp===15&&st(h).players[0].hcp9===6&&h.$('ph0').value==='6'&&txt(h.$('toast'))==='Mel: Daily Handicap 15 saved for 18-hole rounds; this round uses the 9-hole DH 6',txt(h.$('toast')));}
+  ok('18-hole DH onto a 9-hole round: sets the 18-hole DH only, round stays front 9, toast says so',h.$('dh-prompt').hidden&&st(h).round==='front'&&st(h).players[0].hcp===15&&st(h).players[0].hcp9===6&&h.$('ph0').value==='6'&&txt(h.$('toast'))==='Mel: 18-hole DH 15 saved for 18-hole rounds; this round uses 6',txt(h.$('toast')));}
 { const h=open({url:URL+'?dh=16&holes=18&p=0',storage:{[KEY]:base18}});ok('18-hole DH onto an 18-hole round: set directly',st(h).players[0].hcp===16&&txt(h.$('toast'))==='Mel: Daily Handicap 16');}
 { const h=open({url:URL+'?dh=16&p=0',storage:{[KEY]:base18}});ok('an old link with no &holes=: taken as this round\'s DH (as before)',st(h).players[0].hcp===16&&h.$('dh-prompt').hidden);}
 

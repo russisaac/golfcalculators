@@ -198,6 +198,7 @@ a{color:var(--accent)}
   .sf-checknote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#7c2d12;background:#fff7ed;border:1px solid #fdba74;border-radius:var(--r-sm);padding:var(--s1) var(--s2)}
   .sf-checknote:empty{display:none}
   .sf-prompt p{margin:0 0 var(--s3)}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px} /* longer DH messages: wide, not a tall blob */
   .sf-prompt .sf-ask{display:grid;grid-template-columns:1fr;gap:var(--s2)}
   .sf-dhlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600}
   .sf-dhlink[hidden]{display:none}
@@ -843,9 +844,8 @@ function dhSetValue() { // sets the returned value on the right one of the playe
   var d = pendingDH, p = S.players[d.p];
   if (d.nine) p.hcp9 = d.v; else p.hcp = d.v;
   save(); pendingDH = null;
-  var msg = nameOf(p, d.p) + ': ' + dhKind(d.nine) + ' ' + fmtHcp(d.v);
-  if (d.nine !== nineHole(S)) msg += ' saved for ' + (d.nine ? '9' : '18') + '-hole rounds; this round uses the ' + (d.nine ? '18' : '9') + '-hole DH ' + fmtHcp(hcpFor(S, p));
-  return msg;
+  if (d.nine !== nineHole(S)) return nameOf(p, d.p) + ': ' + (d.nine ? '9' : '18') + '-hole DH ' + fmtHcp(d.v) + ' saved for ' + (d.nine ? '9' : '18') + '-hole rounds; this round uses ' + fmtHcp(hcpFor(S, p));
+  return nameOf(p, d.p) + ': ' + dhKind(d.nine) + ' ' + fmtHcp(d.v);
 }
 function dhApply() { var msg = dhSetValue(); renderSetup(); toast(msg); }
 
