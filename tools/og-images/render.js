@@ -15,7 +15,7 @@ function pngInfo(buf){if(buf.slice(0,8).toString('hex')!=='89504e470d0a1a0a')ret
   fs.mkdirSync(path.join(ROOT,'og'),{recursive:true});let bad=0;
   for(const pg of pages){
     await p.goto('file://'+path.join(__dirname,'template.html'));
-    await p.evaluate(d=>{for(const k of ['kicker','title','value'])document.getElementById(k).textContent=d[k];},pg);
+    await p.evaluate(d=>{for(const k of ['kicker','title','value'])document.getElementById(k).textContent=d[k];const tg=document.getElementById('tagline');tg.textContent=d.tagline==null?'Free · No sign-up':d.tagline;tg.hidden=!tg.textContent;},pg);
     await p.evaluate(()=>document.fonts.ready);
     const fit=await p.evaluate(()=>{const t=document.querySelector('.txt');return t.scrollHeight<=t.parentElement.clientHeight;});
     const out=path.join(ROOT,'og',pg.page+'.png');
