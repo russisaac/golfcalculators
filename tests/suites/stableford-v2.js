@@ -174,7 +174,7 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('9-hole card: last 6 = holes 4–9',x.line==='B wins on countback: 12 v 11 on holes 4–9',x.line);}
 
 // ---- strokes: plus handicaps, DH 24+, 9 holes ranked by 18-hole SI (hand-written) ----
-{const strokes=(hcp,opt)=>{const st=G.defaultState();st.players=[{name:'',hcp}];Object.assign(st,opt||{});const r=G.compute(st);return G.holesInPlay(st).map(h=>r.rows[0].byHole[h].strokes);};
+{const strokes=(hcp,opt)=>{const st=G.defaultState();st.players=[{name:'',hcp,hcp9:hcp}]; /* the value is the round's DH (18- or 9-hole) */Object.assign(st,opt||{});const r=G.compute(st);return G.holesInPlay(st).map(h=>r.rows[0].byHole[h].strokes);};
  const cases=[
   ['+2 (18): gives back on SI 18 (hole 18) and SI 17 (hole 9)',-2,null,[0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,0,-1]],
   ['+3 (18): SI 18, 17, 16 (holes 18, 9, 17)',-3,null,[0,0,0,0,0,0,0,0,-1,0,0,0,0,0,0,0,-1,-1]],
@@ -236,7 +236,7 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
 {const h=open();const U=h.w.GCStablefordUI;
  ok('1 player minimum',h.$('btn-less').disabled);for(let k=0;k<5;k++)click(h,'#btn-add');ok('4 players maximum',U.state().players.length===4&&h.$('btn-add').disabled);
  const note=h.$('hn0'),inp=h.$('ph0');
- ok('plus note: right after the stepper field, aria-describedby + aria-live=polite',(inp.getAttribute('aria-describedby')||'')==='hn0'&&note.getAttribute('aria-live')==='polite'&&inp.closest('.sk-player')===note.parentElement);
+ ok('plus note: right after the stepper field, aria-describedby + aria-live=polite',(inp.getAttribute('aria-describedby')||'')==='hc0 hn0'&&note.getAttribute('aria-live')==='polite'&&inp.closest('.sk-player')===note.parentElement);
  const cases=[['+2','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],['-2','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],['\u22122','Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'],
   ['+1','Plus 1 (+1): gives back 1 stroke, starting at the highest stroke index'],['+0.4','Plus 0.4 (+0.4): rounds to 0, so no strokes given back'],['12',''],['0','']];
  for(const [v,want] of cases){h.set('ph0',v);ok(`plus note for "${v}": ${want?'"'+want+'"':'hidden (empty)'}`,txt(note)===want,txt(note));}
@@ -249,14 +249,14 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('back from DH with ?dh=+2: asks which player',!h2.$('dh-prompt').hidden&&/Use Daily Handicap \+2 for:/.test(txt(h2.$('dh-prompt')))&&h2.d.querySelectorAll('#dh-prompt button[data-dh]').length===5);
  ok('the ?dh= query is removed from the address',h2.w.location.search==='');
  click(h2,'#dh-prompt button[data-dh="2"]');
- ok('picking Player 3 sets +2, shows the plus note and a toast',h2.w.GCStablefordUI.state().players[2].hcp===-2&&h2.$('ph2').value==='+2'&&txt(h2.$('hn2'))==='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'&&/Daily Handicap \+2 set for Player 3/.test(txt(h2.$('toast')))&&h2.$('dh-prompt').hidden);
+ ok('picking Player 3 sets +2, shows the plus note and a toast',h2.w.GCStablefordUI.state().players[2].hcp===-2&&h2.$('ph2').value==='+2'&&txt(h2.$('hn2'))==='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index'&&txt(h2.$('toast'))==='Player 3: Daily Handicap +2'&&h2.$('dh-prompt').hidden);
  const d1=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap?from=stableford'});
  d1.set('ga','14.2');d1.set('slope','128');d1.set('scratch','71');d1.set('par','72');
- ok('DH page from Stableford: "Use 14 in Stableford →" (14.2 / 128 / 71 / 72 → 14) links back with the value',!d1.$('sfBack').hidden&&d1.$('sfBack').getAttribute('href')==='/stableford?dh=14'&&txt(d1.$('sfBackT'))==='Use 14 in Stableford →',d1.$('sfBack').getAttribute('href'));
+ ok('DH page from Stableford: "Use 14 in Stableford →" (14.2 / 128 / 71 / 72 → 14) links back with the value',!d1.$('sfBack').hidden&&d1.$('sfBack').getAttribute('href')==='/stableford?dh=14&holes=18'&&txt(d1.$('sfBackT'))==='Use 14 in Stableford →',d1.$('sfBack').getAttribute('href'));
  const d2=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap'});
  d2.set('ga','14.2');d2.set('slope','128');d2.set('scratch','71');d2.set('par','72');ok('DH page opened directly: no Stableford link',d2.$('sfBack').hidden);
  const d3=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap?from=stableford'});
- d3.set('ga','+4');d3.set('slope','140');d3.set('scratch','74');d3.set('par','72');ok('DH plus result goes back as ?dh=%2B…',/^\/stableford\?dh=%2B\d+$/.test(d3.$('sfBack').getAttribute('href')),d3.$('sfBack').getAttribute('href'));}
+ d3.set('ga','+4');d3.set('slope','140');d3.set('scratch','74');d3.set('par','72');ok('DH plus result goes back as ?dh=%2B…',/^\/stableford\?dh=%2B\d+&holes=18$/.test(d3.$('sfBack').getAttribute('href')),d3.$('sfBack').getAttribute('href'));}
 
 // ---- 9 holes: "9-hole Daily Handicap" label and each player's DH link beside the field (PO, 12 Nov) ----
 {const h=open({storage:{}});const four=()=>{for(let k=0;k<3;k++)click(h,'#btn-add');};four();
@@ -276,10 +276,10 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('DH page from a player\'s 9-hole link opens on 9 holes',d.$('holes').value==='9');
  d.set('ga','14.2');d.set('slope','128');d.set('scratch','35.5');d.set('par','36');
  const back=d.$('sfBack').getAttribute('href'),v=decodeURIComponent((back.match(/dh=([^&]+)/)||[])[1]||'');
- ok('…and links back with the value and the player ('+back+')',!d.$('sfBack').hidden&&/^\/stableford\?dh=[^&]+&p=2$/.test(back)&&txt(d.$('sfBackT'))==='Use '+v+' in Stableford →',back);
+ ok('…and links back with the value and the player ('+back+')',!d.$('sfBack').hidden&&/^\/stableford\?dh=[^&]+&holes=9&p=2$/.test(back)&&txt(d.$('sfBackT'))==='Use '+v+' in Stableford →',back);
  h.d.querySelector('input[name=round][value=front]').click();
- const h2=open({url:URL+'?dh='+encodeURIComponent(v)+'&p=2',storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1')}});
- ok('back in Stableford with &p=2: Player 3 gets it directly (no prompt), with a toast',h2.w.GCStablefordUI.state().players[2].hcp===+v&&h2.$('ph2').value===v&&h2.$('dh-prompt').hidden&&txt(h2.$('toast'))==='Player 3: 9-hole Daily Handicap '+v&&h2.w.location.search==='',txt(h2.$('toast')));
+ const h2=open({url:URL+'?dh='+encodeURIComponent(v)+'&holes=9&p=2',storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1')}});
+ ok('back in Stableford with &holes=9&p=2 on a 9-hole round: Player 3\'s 9-hole DH set directly (no prompt; 18-hole DH untouched), with a toast',h2.w.GCStablefordUI.state().players[2].hcp9===+v&&h2.w.GCStablefordUI.state().players[2].hcp===0&&h2.$('ph2').value===v&&h2.$('dh-prompt').hidden&&txt(h2.$('toast'))==='Player 3: 9-hole Daily Handicap '+v&&h2.w.location.search==='',txt(h2.$('toast')));
  const h3=open({url:URL+'?dh=7&p=9',storage:{gc_stableford_v1:h.w.localStorage.getItem('gc_stableford_v1')}});ok('an out-of-range &p= falls back to asking which player',!h3.$('dh-prompt').hidden);}
 
 // ---- later visits: remembered players and course prefill setup (PO, 12 Nov) ----

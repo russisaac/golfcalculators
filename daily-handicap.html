@@ -373,7 +373,7 @@ function calculate() {
     const tool = from === 'skins' ? 'Skins' : 'Stableford';
     sfBack.hidden = false;
     const sfP = (location.search.match(/[?&]p=(\d)(&|$)/) || [])[1];
-    sfBack.href = '/' + from + '?dh=' + encodeURIComponent(display) + (sfP != null ? '&p=' + sfP : '');
+    sfBack.href = '/' + from + '?dh=' + encodeURIComponent(display) + '&holes=' + (is9 ? '9' : '18') + (sfP != null ? '&p=' + sfP : ''); // holes: tells the calculator which DH this is
     document.getElementById('sfBackT').textContent = 'Use ' + display + ' in ' + tool + ' →';
     sfBack.querySelector('span').textContent = sfP != null ? 'Back to your ' + tool + ' round, set for that player.' : 'Back to your ' + tool + ' round to pick the player.';
   }
