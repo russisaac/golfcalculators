@@ -1,5 +1,5 @@
 // P1 "calculator behaviour unchanged": run identical scenarios on the live
-// baseline (live12/) and on site/, and require identical observable output.
+// baseline (tests/baseline = live c54e467) and on this checkout, and require identical observable output.
 const {SITE,BASE,boot,ok,report,path,fs}=require('../lib/harness');
 const txt=el=>el?el.textContent.replace(/\s+/g,' ').trim():null;
 const vals=d=>[...d.querySelectorAll('main input, main select')].map(e=>e.id+'='+(e.type==='checkbox'?e.checked:e.value)).join('|');
@@ -41,7 +41,10 @@ const dhScenarios={
   invalid(h){h.set('ga','abc');h.set('slope','300');h.set('scratch','x');h.set('par','72');},
 };
 const observeDh=(file,name)=>{const h=boot(file,{url:'https://golfcalculators.com/daily-handicap'});dhScenarios[name](h);
-  return {main:txt(h.d.querySelector('main')),vals:vals(h.d),ls:h.w.localStorage.getItem('golfcalculators_daily_hcp')};};
+  // calculator observables only (result, working, every error and its visibility); static copy may change (P3).
+  const shown=id=>{const e=h.$(id);return e?e.style.display+'|'+txt(e):null;};
+  return {result:h.$('result').style.display,daily:txt(h.$('dailyOut')),how:txt(h.$('howOut')),errs:['gaErr','slopeErr','scratchErr','parErr'].map(shown),
+    labels:['slopeLabel','scratchLabel','parLabel'].map(id=>txt(h.$(id))),vals:vals(h.d),ls:h.w.localStorage.getItem('golfcalculators_daily_hcp')};};
 
 const pages=[['stableford',observeSf,sfScenarios],['daily-handicap',observeDh,dhScenarios]];
 if(isLegacySkins(path.join(SITE,'skins.html')))pages.unshift(['skins',observeSkins,skinsScenarios]);

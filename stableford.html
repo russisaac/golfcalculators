@@ -6,21 +6,21 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Stableford Calculator | golfcalculators.com</title>
-<meta name="description" content="Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.">
+<title>Stableford Points Calculator – Handicap &amp; Countback Rules</title>
+<meta name="description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
 <link rel="canonical" href="https://golfcalculators.com/stableford">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="golfcalculators.com">
-<meta property="og:title" content="Stableford Calculator">
-<meta property="og:description" content="Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.">
+<meta property="og:title" content="Stableford Points Calculator – Handicap &amp; Countback Rules">
+<meta property="og:description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
 <meta property="og:url" content="https://golfcalculators.com/stableford">
 <meta property="og:image" content="https://golfcalculators.com/og/stableford.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Stableford Calculator">
-<meta name="twitter:description" content="Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.">
+<meta name="twitter:title" content="Stableford Points Calculator – Handicap &amp; Countback Rules">
+<meta name="twitter:description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
 <meta name="twitter:image" content="https://golfcalculators.com/og/stableford.png">
 <meta name="twitter:image:alt" content="Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com">
 <script>
@@ -55,13 +55,121 @@
   header a { display: inline-block; min-height: 44px; line-height: 44px; }
   .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
   .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
+  .site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
+  @media (max-width: 360px) { .site-nav { gap: 0 .7rem; } .site-nav a { font-size: .95rem; } }
+  .site-nav a { display: inline-block; min-height: 44px; line-height: 44px; text-decoration: none; color: var(--green); font-weight: 600; }
+  .site-nav a[aria-current="page"] { color: #0f172a; text-decoration: underline; text-underline-offset: 6px; }
+  .src { font-size: 0.85rem; color: #475569; margin: 0.5rem 0 1rem; }
+  .next-card { display: block; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin: 1.5rem 0; text-decoration: none; color: #0f172a; }
+  .next-card strong { display: block; color: var(--green); }
+  .next-card span { color: #475569; font-size: 0.9rem; }
+  .gc-learn { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; color: #334155; }
+  .gc-learn h2 { font-size: 1.3rem; color: #0f172a; margin: 1.75rem 0 0.6rem; }
+  .gc-learn h2:first-child { margin-top: 0; }
+  .gc-learn h3 { font-size: 1.05rem; color: #0f172a; margin: 1.25rem 0 0.4rem; }
+  .gc-learn p, .gc-learn li { margin: 0 0 0.75rem; }
+  .gc-learn-list { padding-left: 1.25rem; }
+  .gc-learn-result { font-weight: 700; color: #0f172a; }
+  .gc-learn-src { font-size: 0.85rem; color: #475569; }
+  .gc-learn a { color: var(--green); }
+  .gc-faq-item { border-top: 1px solid var(--border); padding-top: 0.75rem; }
 </style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/stableford#app",
+   "name": "Stableford Points Calculator",
+   "url": "https://golfcalculators.com/stableford",
+   "description": "Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en-AU"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/stableford#faq",
+   "url": "https://golfcalculators.com/stableford",
+   "inLanguage": "en-AU",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How do you calculate Stableford points with a handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How many shots do I get on each hole?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How does the Stableford countback work?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How does Stableford work over 9 holes?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is a good Stableford score?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/stableford#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Stableford Points Calculator",
+     "item": "https://golfcalculators.com/stableford"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
 </head>
 <body>
-<header><a href="/">← Golf Calculators</a></header>
+<header><nav class="site-nav" aria-label="Calculators"><a href="/">Home</a><a href="/skins">Skins</a><a href="/stableford" aria-current="page">Stableford</a><a href="/daily-handicap">Daily Hcp</a></nav></header>
 <main>
 <h1>Stableford Calculator</h1>
-<p class="lede">Enter gross scores and Stroke Index. Points are calculated automatically (2 points for par, +1 per stroke under, −1 per stroke over, minimum 0).</p>
+<p class="lede">Enter your Daily Handicap and gross scores to get Stableford points per hole, by stroke index.</p>
 <div class="section">
   <label for="hcp">Daily / Playing Handicap</label>
   <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2">
@@ -73,6 +181,30 @@
   <button onclick="calc()" style="margin-top:1rem">Calculate points</button>
 </div>
 <div id="out" class="section result" style="display:none"></div>
+<p class="src">Points: net par 2, net birdie 3, net bogey 1, worse 0 (Rules of Golf, Rule 21.1b). <a href="#how-h">How it's calculated</a></p>
+<a class="next-card" href="/skins"><strong>Next step: Skins calculator →</strong><span>Settle skins and see who pays whom for the same round.</span></a>
+<section class="gc-learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>On each hole your handicap strokes come off your score to give a net score, which is then compared with par: net double bogey or worse scores 0 points, net bogey 1, net par 2, net birdie 3 and net eagle 4 (<a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">Rules of Golf, Rule 21.1b</a>). Strokes go by stroke index (SI), hardest hole first.</p>
+  <h3>Worked example</h3>
+  <p>One player with a Daily Handicap of <span data-ex="hcp">20</span> plays the first 3 holes of the calculator's built-in card. A handicap of 20 gives one stroke on every hole, plus a second stroke on SI 1 and SI 2.</p>
+  <ul class="gc-learn-list">
+    <li>Hole 1 (par 4, SI 5): <span data-ex="st-1">1</span> stroke. A score of <span data-ex="sc-1">5</span> is net 4, a net par: <span data-ex="pt-1">2</span> points.</li>
+    <li>Hole 2 (par 4, SI 3): <span data-ex="st-2">1</span> stroke. A score of <span data-ex="sc-2">4</span> is net 3, a net birdie: <span data-ex="pt-2">3</span> points.</li>
+    <li>Hole 3 (par 3, SI 1): <span data-ex="st-3">2</span> strokes. A score of <span data-ex="sc-3">6</span> is net 4, a net bogey: <span data-ex="pt-3">1</span> point.</li>
+  </ul>
+  <p class="gc-learn-result">Total: <span data-ex="total">6</span> points from 3 holes.</p>
+  <p>Two points a hole for 18 holes is 36, which means you played to your handicap.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: points from the <a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">R&amp;A Rules of Golf, Rule 21.1b</a>. Strokes, plus handicaps and countback from Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §10C and §11.</p>
+  <p>Need your strokes? <a href="/daily-handicap">Work out your Daily Handicap first</a>. Playing for money too? <a href="/skins">Settle skins from the same round</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>How do you calculate Stableford points with a handicap?</h3><p>Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole.</p></div>
+  <div class="gc-faq-item"><h3>How many shots do I get on each hole?</h3><p>Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C).</p></div>
+  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11).</p></div>
+  <div class="gc-faq-item"><h3>How does Stableford work over 9 holes?</h3><p>Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).</p></div>
+  <div class="gc-faq-item"><h3>What is a good Stableford score?</h3><p>Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.</p></div>
+<!-- seo:content:end --></section>
 </main>
 <footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <script>
