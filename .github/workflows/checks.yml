@@ -13,6 +13,7 @@
 #   - axe WCAG 2.2 AA at 375 and 320 px on every page: 0 serious, 0 critical
 #   - no sideways scroll at 375 and 320 px
 #   - 0 input[type=number] on rebuilt pages (Stableford rebuilt in P4, no longer allowlisted)
+#   - Stableford 9-hole DH link beside each field; DH "(effective 2 Oct 2025)" on one line (375/320)
 #   - calculator first at 375x812 on skins, stableford, daily-handicap (H1 + first control in
 #     the first viewport, search content below it)
 #   - Lighthouse mobile on home, skins, stableford, privacy, daily-handicap:

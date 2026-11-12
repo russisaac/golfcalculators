@@ -29,13 +29,15 @@ Suites (`tests/suites/*.js`, each skips itself when not applicable):
 | skins-share-pin | Skins share payload for the standard example byte-identical to cbb93c8 (fixture in tests/baseline; skips on legacy Skins) |
 | seo-meta | P3 search: titles ≤ 60 / descriptions ≤ 155, unique, primary query kept; og: and twitter: title/description = title/description; canonical; one JSON-LD @graph (WebApplication, FAQPage = visible FAQ, BreadcrumbList), no ratings/reviews; 5–8 FAQs ≤ 60 words; "How it's calculated" + rules source; nav, body and next-step links; sitemap lastmod; calculator before any search content; `tools/seo/build.js --check` in sync (skips without JSON-LD) |
 | worked-examples | every `data-ex` number in the "How it's calculated" examples equals what that page's own calculator code produces (Skins engine, Stableford `calc()`, Daily Handicap `calculate()`, men and women) |
-| stableford-v2 | Stableford rebuild (P4): hand-calculated 4-player 18-hole round entered with the steppers; countback at each stage (last 9, 6, 3, hole 18, hole by hole, joint, 10th-tee start, three-way); 9-hole countback (front, back, 9-hole card); plus handicaps and DH 24+/40; pickup; duplicate-SI warning; quick-fill; saved courses; reload; New round; plus-handicap note; DH round trip; share text; engine = live page for ordinary rounds; 0 type=number (skips on the legacy page) |
+| stableford-v2 | Stableford rebuild (P4): 9-hole DH label and per-player DH link (and the ?p= return), remembered players/course on a later visit, 10th-tee "last six (holes 4–9)" wording and FAQ; hand-calculated 4-player 18-hole round entered with the steppers; countback at each stage (last 9, 6, 3, hole 18, hole by hole, joint, 10th-tee start, three-way); 9-hole countback (front, back, 9-hole card); plus handicaps and DH 24+/40; pickup; duplicate-SI warning; quick-fill; saved courses; reload; New round; plus-handicap note; DH round trip; share text; engine = live page for ordinary rounds; 0 type=number (skips on the legacy page) |
 | stableford-fixes | (legacy page only; skips on the P4 rebuild) Stableford plus-handicap note beside the field (aria-describedby, aria-live), 9-hole strokes by ranking the 18-hole stroke indexes; "+2" (or −2) is a plus handicap giving strokes back from SI 18; hand-written expected strokes (skips on the legacy page) |
 
 CI gates (`--ci`): axe serious/critical at 375 and 320 px on every page; no sideways scroll;
 no `input[type=number]` on rebuilt pages (Stableford is no longer allowlisted); calculator first at 375×812 on skins, stableford and
 daily-handicap (H1 and first control in the first viewport, search content below; screenshots
-`fold-<page>-375x812.png` and `full-<page>-375.png`); Lighthouse mobile Performance >= 95,
+`fold-<page>-375x812.png` and `full-<page>-375.png`); on 9 holes each Stableford player's
+"Work out 9-hole DH" link sits right under their handicap stepper (375 and 320); the Daily Handicap
+"(effective 2 Oct 2025)" phrase stays on one line without sideways scroll (375 and 320); Lighthouse mobile Performance >= 95,
 Accessibility >= 95, LCP <= 2.5 s and CLS <= 0.1 on home, skins, stableford, privacy,
 daily-handicap. Reports go to `tests/out/<label>/` (git-ignored) and are uploaded
 as the `lighthouse-reports` artifact.
