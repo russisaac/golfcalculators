@@ -6,11 +6,18 @@
   command = ""
 
 # CI-only files live in the repo but must not be published: the test runner
-# and suites (tests/, incl. its package.json and baseline copies) and the
-# GitHub workflow (.github/). Forced 404s; every other path is unchanged.
+# and suites (tests/, incl. its package.json and baseline copies), the
+# share-image generator (tools/) and the GitHub workflow (.github/).
+# Forced 404s; every other path is unchanged.
 # (tests/package.json is not at the repo root, so Netlify runs no npm install.)
 [[redirects]]
   from = "/tests/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/tools/*"
   to = "/404"
   status = 404
   force = true

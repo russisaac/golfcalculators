@@ -1,6 +1,6 @@
 // Minimal Netlify-like static server for local testing.
 // /skins -> skins.html, / -> index.html, /x.html also served, gzip like Netlify.
-// Mirrors netlify.toml: /tests/* and /.github/* (and other dot paths) are 404.
+// Mirrors netlify.toml: /tests/*, /tools/* and /.github/* (and other dot paths) are 404.
 // usage: node lib/serve.js [root] [port]
 const http=require('http'),fs=require('fs'),path=require('path'),zlib=require('zlib');
 const root=path.resolve(process.argv[2]||path.join(__dirname,'../..')),port=+(process.argv[3]||8787);
