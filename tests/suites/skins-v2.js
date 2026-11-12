@@ -82,14 +82,16 @@ const U='https://golfcalculators.com/skins';
   ok('next-step links to Daily Handicap and Stableford',!!d.querySelector('#scr-result .gc-next a[href="/daily-handicap"]')&&!!d.querySelector('#scr-result .gc-next a[href="/stableford"]'));
   // share: Web Share API
   let shared=null;w.navigator.share=o=>{shared=o;return Promise.resolve();};$('btn-share').click();
-  ok('Share uses navigator.share with text + link back to the site',shared&&shared.url==='https://golfcalculators.com/skins'&&/pays/.test(shared.text),shared&&shared.text);
+  globalThis.__skShared=()=>shared; // checked below, once the result link is ready (share-link-skins: the link is the text's last line)
 }
 // 4. Share fallback copy + New round keeps players
 (async()=>{ const h=boot(file,{url:U});const {$,d,w}=h;let copied=null;
   Object.defineProperty(w.navigator,'clipboard',{value:{writeText:t=>{copied=t;return Promise.resolve();}},configurable:true});
   delete w.navigator.share;
   w.GCSkinsUI.loadExample();$('btn-share').click();await new Promise(r=>setTimeout(r,20));
-  ok('no Web Share → copies text with link + "Copied" toast',copied&&/Alex pays Drew \$75\.00/.test(copied)&&/Settled at https:\/\/golfcalculators\.com\/skins$/.test(copied)&&/Copied/.test($('toast').textContent),copied&&copied.split('\n').join(' | '));
+  const sh=globalThis.__skShared();
+  ok('Share uses navigator.share: title + text whose last line is the result link (no separate url, as on Stableford)',sh&&sh.url===undefined&&/pays/.test(sh.text)&&/\nSettled at https:\/\/golfcalculators\.com\/skins#r=1z?\.[A-Za-z0-9_-]+$/.test(sh.text),sh&&sh.text);
+  ok('no Web Share → copies the same text with the result link + "Copied" toast',copied&&/Alex pays Drew \$75\.00/.test(copied)&&/\nSettled at https:\/\/golfcalculators\.com\/skins#r=1z?\.[A-Za-z0-9_-]+$/.test(copied)&&/Copied/.test($('toast').textContent),copied&&copied.split('\n').join(' | '));
   $('btn-new').click();
   const s=w.GCSkinsUI.state();
   ok('New round clears scores, keeps players + course',Object.keys(s.scores).length===0&&s.players.map(p=>p.name).join()==='Alex,Blake,Casey,Drew'&&!$('scr-hole').hidden&&$('hole-h').textContent==='Hole 1');

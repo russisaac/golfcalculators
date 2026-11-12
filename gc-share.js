@@ -79,10 +79,18 @@
     var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
     if (t) t.textContent = x[0];
     if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
     var h = document.documentElement.classList;
     h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
   }
   function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
-  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave,
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); }
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
     TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
 })();
