@@ -71,7 +71,7 @@ const saved=(players,extra={})=>JSON.stringify(Object.assign(E.defaultState(),{p
   const h=open({url:U+'?dh='+encodeURIComponent(v)+'&p=2',storage:{[KEY]:st}});const P=h.w.GCSkinsUI.state().players;
   ok('back in Skins with &p=2: Jo\'s 9-hole DH is set directly ('+v+'), 18-hole DH still 24, toast, note gone, query removed',P[2].hcp9===+v&&P[2].hcp===24&&h.$('ph2').value===v&&txt(h.$('hn2'))===''&&txt(h.$('toast'))==='Jo: 9-hole Daily Handicap '+v&&h.w.location.search==='',txt(h.$('toast')));
   const h2=open({url:U+'?dh=7&p=9',storage:{[KEY]:st}});ok('an out-of-range &p= changes nothing',h2.w.GCSkinsUI.state().players.every(p=>p.hcp9==null)&&h2.w.location.search==='');
-  const h3=open({url:U+'?dh=7&p=0',storage:{[KEY]:saved([{name:'Mel',hcp:12},{name:'Sam',hcp:4}])}});ok('a return to an 18-hole round switches it to the front 9 (the link only exists on 9 holes) and sets the 9-hole DH',h3.w.GCSkinsUI.state().holes==='front'&&h3.w.GCSkinsUI.state().players[0].hcp9===7&&h3.w.GCSkinsUI.state().players[0].hcp===12); }
+  const h3=open({url:U+'?dh=7&p=0',storage:{[KEY]:saved([{name:'Mel',hcp:12},{name:'Sam',hcp:4}])}});ok('an old link (no &holes=) onto an 18-hole round asks before switching (PO, skins-dh-return-ask): still 18 holes, nothing set yet',h3.w.GCSkinsUI.state().holes==='18'&&h3.w.GCSkinsUI.state().players[0].hcp9==null&&h3.w.GCSkinsUI.state().players[0].hcp===12&&!h3.$('dh-prompt').hidden); }
 
 // ---- copy ----
 { const h=open();const it=[...h.d.querySelectorAll('.gc-faq-item')].find(e=>/strokes given in net skins/.test(txt(e.querySelector('h3'))));

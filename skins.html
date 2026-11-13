@@ -203,6 +203,11 @@ a{color:var(--accent)}
   .gc-learn a{display:inline-block;min-height:24px}
   .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
   .sk-playoff{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:var(--s2);margin-top:var(--s2)}
+  /* DH return onto an 18-hole round: the same question card as Stableford */
+  .sk-prompt{background:var(--accent-soft);border:1px solid var(--accent-line)}
+  .sk-prompt p{margin:0 0 var(--s3)}
+  .sk-prompt .sk-ask{display:grid;grid-template-columns:1fr;gap:var(--s2)}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px} /* longer DH messages: wide, not a tall blob */
 </style>
 <!-- seo:jsonld:start -->
 <script type="application/ld+json">
@@ -319,6 +324,7 @@ a{color:var(--accent)}
 <section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
   <div class="sk-title"><h1 id="setup-h" tabindex="-1">Golf skins calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
   <div class="gc-stack">
+    <div class="gc-card sk-pad sk-prompt" id="dh-prompt" hidden></div>
     <div class="gc-card sk-pad sk-tight">
       <div class="sk-cardhead"><h2 id="players-h">Players</h2>
         <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">4</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
@@ -653,7 +659,38 @@ function renderSetup() {
   $('scoring-help').textContent = { full: 'Full handicap strokes, by stroke index.', offlow: 'Lowest handicap plays off scratch; others get the difference.', gross: 'Raw scores, no handicap strokes.' }[S.scoring];
   var t = thru();
   $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
+  renderPrompt();
 }
+// DH return (/skins?dh=7&holes=9&p=2). Same question, wording, choices and focus as Stableford (a parity test checks the text).
+var pendingDH = null;
+// pendingDH = { v: value, nine: is it a 9-hole DH, p: player index, asked: round question answered }
+function dhKind(nine) { return (nine ? '9-hole ' : '') + 'Daily Handicap'; }
+function renderPrompt() {
+  var el = $('dh-prompt');
+  if (pendingDH == null) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  var d = pendingDH, v = esc(fmtHcp(d.v)), who = esc(nameOf(S.players[d.p], d.p));
+  // PO: never switch a saved 18-hole round to 9 holes without asking (only a 9-hole DH onto an 18-hole round gets here)
+  el.innerHTML = '<h2 id="dhp-h">' + who + '\u2019s 9-hole Daily Handicap ' + v + ': switch this round to 9 holes?</h2>' +
+    '<p>This round is set to 18 holes. If you keep 18 holes, ' + v + ' is saved as ' + who + '\u2019s 9-hole Daily Handicap for 9-hole rounds, and this round still uses the 18-hole one.</p>' +
+    '<div class="sk-ask" role="group" aria-labelledby="dhp-h">' +
+    '<button type="button" class="gc-btn gc-btn-secondary" data-dhr="front">Switch to front 9</button>' +
+    '<button type="button" class="gc-btn gc-btn-secondary" data-dhr="back">Switch to back 9</button>' +
+    '<button type="button" class="gc-btn gc-btn-ghost" data-dhr="keep">Keep 18 holes</button></div>';
+}
+function dhRound(choice) {
+  if (choice === 'front' || choice === 'back') { S.holes = choice; var rg = range(); if (S.hole < rg[0] || S.hole > rg[1]) S.hole = rg[0]; S.playoff = null; save(); }
+  pendingDH.asked = true; dhApply();
+}
+function focusPrompt() { var h = $('dhp-h'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: false }); } }
+function dhSetValue() { // sets the returned value on the right one of the player's two handicaps; never changes the round
+  var d = pendingDH, p = S.players[d.p];
+  if (d.nine) p.hcp9 = d.v; else p.hcp = d.v;
+  save(); pendingDH = null;
+  if (d.nine !== isNine(S)) return nameOf(p, d.p) + ': ' + (d.nine ? '9' : '18') + '-hole DH ' + fmtHcp(d.v) + ' saved for ' + (d.nine ? '9' : '18') + '-hole rounds; this round uses ' + fmtHcp(hcpFor(S, p));
+  return nameOf(p, d.p) + ': ' + dhKind(d.nine) + ' ' + fmtHcp(d.v);
+}
+function dhApply() { var msg = dhSetValue(); renderSetup(); toast(msg); }
 function setRadio(name, v) { var els = document.querySelectorAll('input[name="' + name + '"]'); for (var i = 0; i < els.length; i++) els[i].checked = els[i].value === String(v); }
 function stakeValid() { var v = parseFloat(String(S.stake).replace(/[^0-9.]/g, '')); var ok = v > 0; $('stake-err').hidden = ok; $('stake').setAttribute('aria-invalid', ok ? 'false' : 'true'); return ok; }
 
@@ -797,6 +834,7 @@ document.addEventListener('click', function (ev) {
   var i = +b.getAttribute('data-i');
   if (b.hasAttribute('data-sc')) { setScore(i, shown(S.hole)[i] + +b.getAttribute('data-sc')); $('sc' + i).value = S.scores[S.hole][i]; return; }
   if (b.hasAttribute('data-h')) { setHcp(i, hcpFor(S, S.players[i]) + +b.getAttribute('data-h')); $('ph' + i).value = fmtHcp(hcpFor(S, S.players[i])); return; }
+  if (b.hasAttribute('data-dhr')) { dhRound(b.getAttribute('data-dhr')); return; }
   if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
   if (b.hasAttribute('data-si')) { var sv = Math.max(1, Math.min(18, (+S.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.si[S.hole - 1] = sv; $('si').value = sv; save(); renderHoleKeepFocus(b); return; }
   if (b.hasAttribute('data-allow')) { S.allowance = Math.max(50, Math.min(100, S.allowance + +b.getAttribute('data-allow'))); $('allowance').value = S.allowance + '%'; save(); return; }
@@ -847,13 +885,15 @@ document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev
 })();
 
 var dhSet = null;
-(function dhReturn() { // back from a player's 'Work out 9-hole DH' link: /skins?dh=7&p=2 sets that player's 9-hole DH
+(function dhReturn() { // back from a player's 'Work out 9-hole DH' link: /skins?dh=7&holes=9&p=2
   try {
-    var q = new URLSearchParams(location.search), v = q.get('dh'), pi = q.get('p');
+    var q = new URLSearchParams(location.search), v = q.get('dh'), hq = q.get('holes'), pi = q.get('p');
+    // holes: which DH the calculator worked out. Old links have no holes= and only came from 9-hole rounds: a 9-hole DH.
+    // No p= (not a player's own link): ignored, as before.
     if (v != null && /^[+\-\u2212]?\d{1,2}$/.test(v.trim()) && pi != null && /^\d$/.test(pi) && +pi < S.players.length) {
-      var p = S.players[+pi], val = Math.max(-10, Math.min(54, parseHcp(v)));
-      if (!isNine(S)) S.holes = 'front'; // the link only exists on 9-hole rounds; keep it a 9-hole round
-      p.hcp9 = val; S.screen = 'setup'; save(); dhSet = nameOf(p, +pi) + ': 9-hole Daily Handicap ' + fmtHcp(val);
+      pendingDH = { v: Math.max(-10, Math.min(54, parseHcp(v))), nine: hq !== '18', p: +pi, asked: false };
+      S.screen = 'setup';
+      if (!(pendingDH.nine && !isNine(S))) dhSet = dhSetValue(); // no round question: set it now (an 18-hole DH never switches the round)
     }
     if (v != null && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
   } catch (e) {}
@@ -861,6 +901,7 @@ var dhSet = null;
 window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, reset: function () { S = defaultState(); save(); show('setup'); } };
 show(S.screen || 'setup');
 if (dhSet) toast(dhSet);
+if (pendingDH) focusPrompt();
 })();
 </script>
 </body>
