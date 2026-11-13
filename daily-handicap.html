@@ -6,21 +6,21 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Golf Australia Daily Handicap Calculator (2026 formula) | golfcalculators.com</title>
-<meta name="description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<title>Daily Handicap Calculator Australia (Golf Australia 2026)</title>
+<meta name="description" content="Work out your Golf Australia Daily Handicap from your GA Handicap, slope and scratch rating, using the current 0.93 and Consistency Factor formula.">
 <link rel="canonical" href="https://golfcalculators.com/daily-handicap">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="golfcalculators.com">
-<meta property="og:title" content="Golf Australia Daily Handicap Calculator (2026 formula)">
-<meta property="og:description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<meta property="og:title" content="Daily Handicap Calculator Australia (Golf Australia 2026)">
+<meta property="og:description" content="Work out your Golf Australia Daily Handicap from your GA Handicap, slope and scratch rating, using the current 0.93 and Consistency Factor formula.">
 <meta property="og:url" content="https://golfcalculators.com/daily-handicap">
 <meta property="og:image" content="https://golfcalculators.com/og/daily-handicap.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Daily Handicap Calculator: Golf Australia 2026 formula, with 0.93 and the Consistency Factor. golfcalculators.com">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Golf Australia Daily Handicap Calculator (2026 formula)">
-<meta name="twitter:description" content="Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.">
+<meta name="twitter:title" content="Daily Handicap Calculator Australia (Golf Australia 2026)">
+<meta name="twitter:description" content="Work out your Golf Australia Daily Handicap from your GA Handicap, slope and scratch rating, using the current 0.93 and Consistency Factor formula.">
 <meta name="twitter:image" content="https://golfcalculators.com/og/daily-handicap.png">
 <meta name="twitter:image:alt" content="Daily Handicap Calculator: Golf Australia 2026 formula, with 0.93 and the Consistency Factor. golfcalculators.com">
 <style>
@@ -49,13 +49,137 @@
   @media (max-width: 480px) { .big { font-size: 2.4rem; } }
   .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
   .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
+  .site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
+  @media (max-width: 360px) { .site-nav { gap: 0 .7rem; } .site-nav a { font-size: .95rem; } }
+  .site-nav a { display: inline-block; min-height: 44px; line-height: 44px; text-decoration: none; color: var(--green); font-weight: 600; }
+  .site-nav a[aria-current="page"] { color: #0f172a; text-decoration: underline; text-underline-offset: 6px; }
+  .src { font-size: 0.85rem; color: #475569; margin: 0.5rem 0 1rem; }
+  .next-card { display: block; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin: 1.5rem 0; text-decoration: none; color: #0f172a; }
+  .next-card strong { display: block; color: var(--green); }
+  .next-card span { color: #475569; font-size: 0.9rem; }
+  .gc-learn { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; color: #334155; }
+  .gc-learn h2 { font-size: 1.3rem; color: #0f172a; margin: 1.75rem 0 0.6rem; }
+  .gc-learn h2:first-child { margin-top: 0; }
+  .gc-learn h3 { font-size: 1.05rem; color: #0f172a; margin: 1.25rem 0 0.4rem; }
+  .gc-learn p, .gc-learn li { margin: 0 0 0.75rem; }
+  .gc-learn-list { padding-left: 1.25rem; }
+  .gc-learn-result { font-weight: 700; color: #0f172a; }
+  .gc-learn-src { font-size: 0.85rem; color: #475569; }
+  .gc-learn a { color: var(--green); }
+  .gc-faq-item { border-top: 1px solid var(--border); padding-top: 0.75rem; }
 </style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/daily-handicap#app",
+   "name": "Daily Handicap Calculator",
+   "url": "https://golfcalculators.com/daily-handicap",
+   "description": "Work out your Golf Australia Daily Handicap from your GA Handicap, slope and scratch rating, using the current 0.93 and Consistency Factor formula.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en-AU"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/daily-handicap#faq",
+   "url": "https://golfcalculators.com/daily-handicap",
+   "inLanguage": "en-AU",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What is a Daily Handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "It is the number of strokes you receive for one round on a particular course and set of tees. It comes from your GA Handicap, the tees' Slope Rating and Scratch Rating, and Par. Your GA Handicap stays the same, but your Daily Handicap changes with the course and tees."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How is a Daily Handicap calculated in 2026?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "((GA Handicap × Slope Rating ÷ 113) + (Scratch Rating − Par)) × 0.93 × Consistency Factor, rounded to the nearest whole number (Golf Australia WHS reference guide, Edition January 2026, §3H). The 0.93 is called the Multiplier."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the Consistency Factor?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "It is part of the Daily Handicap formula: 0.9986 for men and boys and 1.0483 for women and girls. Golf Australia says it reflects that men and boys tend to score less consistently, and it improves equity in single-gender and gender-neutral events (§3H)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the 0.93 Multiplier?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A balancing factor. Skilled golfers are generally more consistent than less-skilled golfers, so without the Multiplier higher handicaps would have a strong advantage in handicap competitions (Golf Australia, §3H)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do I work out a 9-hole Daily Handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Halve your GA Handicap and use the 9-hole ratings: (((GA Handicap ÷ 2) × 9-hole Slope Rating ÷ 113) + (9-hole Scratch Rating − 9-hole Par)) × 0.93 × Consistency Factor. It is usually about half your 18-hole Daily Handicap (§3H). Choose 9 holes in the calculator."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Where do I find the Slope Rating and Scratch Rating?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "They are set for each set of tees, usually printed on the scorecard or on the club's Daily Handicap chart near the first tee. Use the ratings for the tees you are playing (and for 9 holes, the 9-hole ratings). If in doubt, ask the pro shop."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How does rounding work?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The result is rounded to the nearest whole number, and .5 rounds up: 10.5 becomes 11. For plus handicaps .5 rounds towards scratch: +0.5 is scratch and +1.5 is +1, but +1.501 is +2 (Golf Australia, §3H)."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/daily-handicap#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Daily Handicap Calculator",
+     "item": "https://golfcalculators.com/daily-handicap"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
 </head>
 <body>
-<header><a href="/">← Golf Calculators</a></header>
+<header><nav class="site-nav" aria-label="Calculators"><a href="/">Home</a><a href="/skins">Skins</a><a href="/stableford">Stableford</a><a href="/daily-handicap" aria-current="page">Daily Hcp</a></nav></header>
 <main>
 <h1>Golf Australia Daily Handicap</h1>
-<p class="lede">Calculate your Daily Handicap using the current Golf Australia formula (effective 2 Oct 2025). Works for 18 or 9 holes.</p>
+<p class="lede">Calculate your Daily Handicap using the current Golf Australia formula (effective <a href="https://www.golfaustralia.com.au/news/australian-rules-of-handicapping-updated-with-launch-of-golf-australias-new-digital-platform-620524" rel="noopener">2 Oct 2025</a>). Works for 18 or 9 holes.</p>
 
 <div class="section">
   <h2>Your details</h2>
@@ -107,22 +231,35 @@
   <p class="how" style="margin:0 0 .25rem">Your Daily Handicap</p>
   <p class="big" id="dailyOut">—</p>
   <p class="how" id="howOut"></p>
+  <p class="how">Formula: Golf Australia WHS reference guide, Edition January 2026, §3H. <a href="#how-h">How it's calculated</a></p>
 </div>
 
-<div class="section">
-  <h2>FAQs</h2>
-  <dl class="faq">
-    <dt>What is the 0.93?</dt>
-    <dd>0.93 is Golf Australia's standard Daily Handicap multiplier, applied to every player's Playing Handicap calculation since the 2 October 2025 changes.</dd>
-    <dt>What is the Consistency Factor?</dt>
-    <dd>0.9986 for Men/Boys and 1.0483 for Women/Girls. It was introduced on 2 October 2025.</dd>
-    <dt>How does the 9-hole version work?</dt>
-    <dd>The GA Handicap is halved inside the formula and the 9-hole Slope, Scratch Rating and Par are used.</dd>
-    <dt>How is this different from a GA Handicap?</dt>
-    <dd>Your GA Handicap is the index. The Daily Handicap is the number of strokes you receive for a specific course and set of tees on the day.</dd>
-  </dl>
-  <p class="trust"><a href="/skins">Playing skins today? Settle up here</a></p>
-</div>
+<a class="next-card" href="/stableford"><strong>Next step: Stableford calculator →</strong><span>Turn today's Daily Handicap into Stableford points.</span></a>
+<section class="gc-learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Golf Australia's formula for an 18-hole Daily Handicap is ((GA Handicap × Slope Rating ÷ 113) + (Scratch Rating − Par)) × 0.93 × Consistency Factor, rounded to the nearest whole number. The Consistency Factor is 0.9986 for men and boys and 1.0483 for women and girls.</p>
+  <h3>Worked example (illustrative numbers)</h3>
+  <p>These tee ratings are made up to show the maths, so use the ratings on your own scorecard. GA Handicap <span data-ex="ga">14.2</span>, Slope Rating <span data-ex="slope">128</span>, Scratch Rating <span data-ex="scratch">71</span>, Par <span data-ex="par">72</span>.</p>
+  <ol class="gc-learn-list">
+    <li>14.2 × 128 ÷ 113 = <span data-ex="step-1">16.085</span></li>
+    <li>Scratch Rating − Par = 71 − 72 = <span data-ex="step-2">−1</span>, so 16.085 − 1 = <span data-ex="step-3">15.085</span></li>
+    <li>× 0.93 = <span data-ex="step-4">14.029</span></li>
+    <li>Men and boys: × 0.9986 = <span data-ex="raw-men">14.009</span>, which rounds to <strong data-ex="dh-men">14</strong></li>
+    <li>Women and girls: × 1.0483 = <span data-ex="raw-women">14.707</span>, which rounds to <strong data-ex="dh-women">15</strong></li>
+  </ol>
+  <p>The calculator keeps full precision until the final rounding. The steps above are shown to 3 decimal places.</p>
+  <p class="gc-learn-src" id="rules-source">Source: Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §3H (Daily Handicap formulas and rounding).</p>
+  <p>Got your strokes? <a href="/stableford">Count your Stableford points</a>, or <a href="/skins">settle skins with your group</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>What is a Daily Handicap?</h3><p>It is the number of strokes you receive for one round on a particular course and set of tees. It comes from your GA Handicap, the tees' Slope Rating and Scratch Rating, and Par. Your GA Handicap stays the same, but your Daily Handicap changes with the course and tees.</p></div>
+  <div class="gc-faq-item"><h3>How is a Daily Handicap calculated in 2026?</h3><p>((GA Handicap × Slope Rating ÷ 113) + (Scratch Rating − Par)) × 0.93 × Consistency Factor, rounded to the nearest whole number (Golf Australia WHS reference guide, Edition January 2026, §3H). The 0.93 is called the Multiplier.</p></div>
+  <div class="gc-faq-item"><h3>What is the Consistency Factor?</h3><p>It is part of the Daily Handicap formula: 0.9986 for men and boys and 1.0483 for women and girls. Golf Australia says it reflects that men and boys tend to score less consistently, and it improves equity in single-gender and gender-neutral events (§3H).</p></div>
+  <div class="gc-faq-item"><h3>What is the 0.93 Multiplier?</h3><p>A balancing factor. Skilled golfers are generally more consistent than less-skilled golfers, so without the Multiplier higher handicaps would have a strong advantage in handicap competitions (Golf Australia, §3H).</p></div>
+  <div class="gc-faq-item"><h3>How do I work out a 9-hole Daily Handicap?</h3><p>Halve your GA Handicap and use the 9-hole ratings: (((GA Handicap ÷ 2) × 9-hole Slope Rating ÷ 113) + (9-hole Scratch Rating − 9-hole Par)) × 0.93 × Consistency Factor. It is usually about half your 18-hole Daily Handicap (§3H). Choose 9 holes in the calculator.</p></div>
+  <div class="gc-faq-item"><h3>Where do I find the Slope Rating and Scratch Rating?</h3><p>They are set for each set of tees, usually printed on the scorecard or on the club's Daily Handicap chart near the first tee. Use the ratings for the tees you are playing (and for 9 holes, the 9-hole ratings). If in doubt, ask the pro shop.</p></div>
+  <div class="gc-faq-item"><h3>How does rounding work?</h3><p>The result is rounded to the nearest whole number, and .5 rounds up: 10.5 becomes 11. For plus handicaps .5 rounds towards scratch: +0.5 is scratch and +1.5 is +1, but +1.501 is +2 (Golf Australia, §3H).</p></div>
+<!-- seo:content:end --></section>
 </main>
 <footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 

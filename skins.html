@@ -6,21 +6,21 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Golf Skins Calculator — Who Pays Whom | golfcalculators.com</title>
-<meta name="description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<title>Golf Skins Calculator – Carryovers &amp; Who Pays Whom</title>
+<meta name="description" content="Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.">
 <link rel="canonical" href="https://golfcalculators.com/skins">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="golfcalculators.com">
-<meta property="og:title" content="Golf Skins Calculator — Who Pays Whom">
-<meta property="og:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<meta property="og:title" content="Golf Skins Calculator – Carryovers &amp; Who Pays Whom">
+<meta property="og:description" content="Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.">
 <meta property="og:url" content="https://golfcalculators.com/skins">
 <meta property="og:image" content="https://golfcalculators.com/og/skins.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Golf Skins Calculator: Carryovers, net or gross, and who pays whom. golfcalculators.com">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Golf Skins Calculator — Who Pays Whom">
-<meta name="twitter:description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
+<meta name="twitter:title" content="Golf Skins Calculator – Carryovers &amp; Who Pays Whom">
+<meta name="twitter:description" content="Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.">
 <meta name="twitter:image" content="https://golfcalculators.com/og/skins.png">
 <meta name="twitter:image:alt" content="Golf Skins Calculator: Carryovers, net or gross, and who pays whom. golfcalculators.com">
 <meta name="theme-color" content="#166534">
@@ -182,8 +182,116 @@ a{color:var(--accent)}
   .sk-ledger .h{font-weight:700;color:var(--muted)}
   .sk-ledger .win{font-weight:600}
   .sk-note{background:var(--warn-soft);color:var(--warn);border-radius:var(--r-sm);padding:var(--s2) var(--s3);font-size:var(--fs-sm)}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn a{display:inline-block;min-height:24px}
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
   .sk-playoff{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:var(--s2);margin-top:var(--s2)}
 </style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/skins#app",
+   "name": "Golf Skins Calculator",
+   "url": "https://golfcalculators.com/skins",
+   "description": "Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en-AU"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/skins#faq",
+   "url": "https://golfcalculators.com/skins",
+   "inLanguage": "en-AU",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How do carryovers work in a skins game?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "If two or more players tie for the lowest score on a hole, nobody wins that skin and it carries to the next hole, which is then worth two skins. Carries keep adding up until one player wins a hole outright. You can switch carryovers off under More options."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Should we play net or gross skins?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Gross skins compare actual strokes, which suits players of similar ability. Net skins take handicap strokes off first, by stroke index, so higher handicaps can win holes. Off the low gives each player the difference between their handicap and the lowest in the group. Agree on one before you tee off."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What happens to skins still carried after the 18th?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Your group decides before the round. Common choices are that nobody wins them, or that a playoff, such as a chip-off or an extra hole, decides who takes them all. Both are under More options, and the calculator asks for the playoff winner when one is needed."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How much should a skin be worth?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How are skins payouts split?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Each player's balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How are handicap strokes given in net skins?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Each player gets one stroke on every hole whose stroke index is at or below their Daily Handicap, and a second stroke on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes the handicap is halved."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/skins#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Golf Skins Calculator",
+     "item": "https://golfcalculators.com/skins"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
 </head>
 <body data-gc="skins-v2">
 <header class="gc-header"><div class="gc-header-in">
@@ -199,7 +307,7 @@ a{color:var(--accent)}
 
 <!-- SETUP -->
 <section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
-  <div class="sk-title"><h1 id="setup-h" tabindex="-1">Skins calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
+  <div class="sk-title"><h1 id="setup-h" tabindex="-1">Golf skins calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
   <div class="gc-stack">
     <div class="gc-card sk-pad sk-tight">
       <div class="sk-cardhead"><h2 id="players-h">Players</h2>
@@ -295,6 +403,7 @@ a{color:var(--accent)}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
   <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0. Your players and scores are saved on this device only.</p>
+  <p class="gc-muted" style="margin-top:var(--s2)">Scoring: common club format (skins have no governing rulebook). <a href="#how-h">How it's calculated</a></p>
   <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
   <div class="gc-next">
     <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Work out everyone's strokes for today's course.</span></a>
@@ -305,6 +414,30 @@ a{color:var(--accent)}
 <div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
   <a href="/daily-handicap"><strong>Need handicaps? Daily Handicap →</strong><span>Golf Australia formula, 18 or 9 holes.</span></a>
 </div>
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Skins has no governing rulebook, so this calculator uses the common club format. Each hole is worth one skin and the lowest score wins it outright. If the lowest score is tied, the skin carries to the next hole. Each skin is worth the stake from every other player.</p>
+  <h3>Worked example</h3>
+  <p>Four players play for $5 a skin, net, with full handicaps and carryovers on. Their Daily Handicaps are Alex <span data-ex="play-0">0</span>, Blake <span data-ex="play-1">4</span>, Casey <span data-ex="play-2">8</span> and Drew <span data-ex="play-3">12</span>. Strokes go by stroke index (SI), so Drew gets one stroke on SI 1–12, Casey on SI 1–8 and Blake on SI 1–4.</p>
+  <ul class="gc-learn-list">
+    <li>Hole 1 (par 4, SI 5): the nets are Alex <span data-ex="h1-net-0">4</span>, Blake <span data-ex="h1-net-1">5</span>, Casey <span data-ex="h1-net-2">3</span> and Drew <span data-ex="h1-net-3">4</span>. Casey wins <span data-ex="h1-value">1</span> skin.</li>
+    <li>Holes 2–4: two or more players tie for the low net on each, so <span data-ex="h5-carry">3</span> skins carry.</li>
+    <li>Hole 5 (par 4, SI 9) is the carryover hole. Drew scores <span data-ex="h5-gross-3">3</span>, gets a stroke and nets <span data-ex="h5-net-3">2</span>, the only low net. He wins <span data-ex="h5-value">4</span> skins: hole 5 plus the 3 carried.</li>
+  </ul>
+  <p>After 18 holes Casey has <span data-ex="skins-2">2</span> skins and Drew <span data-ex="skins-3">13</span>. <span data-ex="left">3</span> skins are still carried after the last hole, so nobody wins them. Each balance is $5 × (4 × the player's skins − <span data-ex="total">15</span> skins won):</p>
+  <p class="gc-learn-result">Alex <span data-ex="bal-0">−$75.00</span> · Blake <span data-ex="bal-1">−$75.00</span> · Casey <span data-ex="bal-2">−$35.00</span> · Drew <span data-ex="bal-3">+$185.00</span></p>
+  <p>Alex pays Drew <span data-ex="pay-0">$75.00</span>, Blake pays Drew <span data-ex="pay-1">$75.00</span> and Casey pays Drew <span data-ex="pay-2">$35.00</span>. Tap <strong>Load example</strong> at the top to see every hole.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: no governing body publishes skins rules, so this is the common club format. As with any competition, your group decides before the round how tied holes and leftover skins are settled (<a href="https://www.randa.org/en/rog/committee-procedures/5" rel="noopener">R&amp;A Rules of Golf, Committee Procedures 5A(6)</a>).</p>
+  <p>Playing net? <a href="/daily-handicap">Work out each player's Daily Handicap first</a>, then <a href="/stableford">count Stableford points from the same round</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>How do carryovers work in a skins game?</h3><p>If two or more players tie for the lowest score on a hole, nobody wins that skin and it carries to the next hole, which is then worth two skins. Carries keep adding up until one player wins a hole outright. You can switch carryovers off under More options.</p></div>
+  <div class="gc-faq-item"><h3>Should we play net or gross skins?</h3><p>Gross skins compare actual strokes, which suits players of similar ability. Net skins take handicap strokes off first, by stroke index, so higher handicaps can win holes. Off the low gives each player the difference between their handicap and the lowest in the group. Agree on one before you tee off.</p></div>
+  <div class="gc-faq-item"><h3>What happens to skins still carried after the 18th?</h3><p>Your group decides before the round. Common choices are that nobody wins them, or that a playoff, such as a chip-off or an extra hole, decides who takes them all. Both are under More options, and the calculator asks for the playoff winner when one is needed.</p></div>
+  <div class="gc-faq-item"><h3>How much should a skin be worth?</h3><p>Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.</p></div>
+  <div class="gc-faq-item"><h3>How are skins payouts split?</h3><p>Each player's balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.</p></div>
+  <div class="gc-faq-item"><h3>How are handicap strokes given in net skins?</h3><p>Each player gets one stroke on every hole whose stroke index is at or below their Daily Handicap, and a second stroke on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes the handicap is halved.</p></div>
+<!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
 <footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
@@ -455,6 +588,7 @@ function show(screen, focus) {
   S.screen = screen; save();
   ['setup', 'hole', 'result'].forEach(function (s) { $('scr-' + s).hidden = s !== screen; });
   $('setup-next').hidden = screen !== 'setup';
+  $('learn').hidden = screen === 'hole';
   if (screen === 'setup') renderSetup();
   if (screen === 'hole') renderHole();
   if (screen === 'result') renderResult();

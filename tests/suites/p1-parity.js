@@ -1,5 +1,5 @@
 // P1 "calculator behaviour unchanged": run identical scenarios on the live
-// baseline (live12/) and on site/, and require identical observable output.
+// baseline (tests/baseline = live c54e467) and on this checkout, and require identical observable output.
 const {SITE,BASE,boot,ok,report,path,fs}=require('../lib/harness');
 const txt=el=>el?el.textContent.replace(/\s+/g,' ').trim():null;
 const vals=d=>[...d.querySelectorAll('main input, main select')].map(e=>e.id+'='+(e.type==='checkbox'?e.checked:e.value)).join('|');
@@ -41,12 +41,20 @@ const dhScenarios={
   invalid(h){h.set('ga','abc');h.set('slope','300');h.set('scratch','x');h.set('par','72');},
 };
 const observeDh=(file,name)=>{const h=boot(file,{url:'https://golfcalculators.com/daily-handicap'});dhScenarios[name](h);
-  return {main:txt(h.d.querySelector('main')),vals:vals(h.d),ls:h.w.localStorage.getItem('golfcalculators_daily_hcp')};};
+  // calculator observables only (result, working, every error and its visibility); static copy may change (P3).
+  const shown=id=>{const e=h.$(id);return e?e.style.display+'|'+txt(e):null;};
+  return {result:h.$('result').style.display,daily:txt(h.$('dailyOut')),how:txt(h.$('howOut')),errs:['gaErr','slopeErr','scratchErr','parErr'].map(shown),
+    labels:['slopeLabel','scratchLabel','parLabel'].map(id=>txt(h.$(id))),vals:vals(h.d),ls:h.w.localStorage.getItem('golfcalculators_daily_hcp')};};
 
 const pages=[['stableford',observeSf,sfScenarios],['daily-handicap',observeDh,dhScenarios]];
 if(isLegacySkins(path.join(SITE,'skins.html')))pages.unshift(['skins',observeSkins,skinsScenarios]);
 else ok('skins: rebuilt page detected (data-gc="skins-v2"); legacy parity skipped, engine cross-check runs in skins-v2 suite',true);
+// Intentional P3 behaviour fixes on Stableford (9-hole SI ranking, "+" = plus handicap): those two
+// scenarios are expected to differ from live and are pinned by the stableford-fixes suite instead.
+const sfFixed=/function siRank\(/.test(fs.readFileSync(path.join(SITE,'stableford.html'),'utf8'));
+const CHANGED={stableford:sfFixed?['plus','nine']:[]};
 for(const [pg,obs,sc] of pages)for(const name of Object.keys(sc)){
+  if((CHANGED[pg]||[]).includes(name)){ok(`${pg}: ${name} intentionally changed (see stableford-fixes)`,true);continue;}
   let a,b,err='';try{a=JSON.stringify(obs(path.join(BASE,pg),name));b=JSON.stringify(obs(path.join(SITE,pg+'.html'),name));}catch(e){err=e.message;}
   let info=err;if(!err&&a!==b){let i=0;while(a[i]===b[i])i++;info=`differs at ${i}: live="${a.slice(i-40,i+60)}" site="${b.slice(i-40,i+60)}"`;}
   ok(`${pg} unchanged vs live: ${name}`,!err&&a===b,info);
