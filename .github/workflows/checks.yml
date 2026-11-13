@@ -1,0 +1,121 @@
+# PR checks for golfcalculators.com (priorities-v7 P1). Free: GitHub-hosted
+# ubuntu runner on a public repo. The test runner lives in tests/, which is not
+# published (see netlify.toml), and neither is .github/.
+#
+# Gates (any failure turns the check red):
+#   - jsdom suites: skins-regression (-75/-75/-35/+185), p1-parity, p1-trust,
+#     ga-gate, skins-v2 (a suite that does not apply to the branch skips itself)
+#   - axe WCAG 2.2 AA at 375 and 320 px on every page: 0 serious, 0 critical
+#   - no sideways scroll at 375 and 320 px
+#   - 0 input[type=number] on rebuilt pages (legacy Stableford allowlisted until P4)
+#   - Lighthouse mobile on home, skins, stableford, privacy, daily-handicap:
+#     Performance >= 95, Accessibility >= 95, LCP <= 2.5 s, CLS <= 0.1
+# Browser checks run against the PR's Netlify Deploy Preview when it is ready,
+# otherwise against a local server with Netlify-style pretty URLs.
+name: checks
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Optional URL to test (e.g. https://deploy-preview-3--golfcalculators.netlify.app). Blank = local server."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  statuses: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PORT: "8787"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Install test dependencies
+        working-directory: tests
+        run: npm ci --no-audit --no-fund
+
+      - name: jsdom suites
+        run: tests/run
+
+      # Netlify posts a commit status "netlify/<site>/deploy-preview" on the PR
+      # head with the preview URL. Wait up to 10 min for it; else test locally.
+      - name: Find Netlify Deploy Preview
+        id: preview
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          INPUT_URL: ${{ inputs.preview_url }}
+        run: |
+          url="${INPUT_URL:-}"
+          if [ -z "$url" ] && [ -n "${SHA:-}" ]; then
+            for i in $(seq 1 40); do
+              st=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${{ github.repository }}/commits/$SHA/statuses?per_page=100" || echo '[]')
+              line=$(echo "$st" | jq -r '[.[] | select(.context | endswith("/deploy-preview"))][0] | "\(.state) \(.target_url)"')
+              state=${line%% *}; target=${line#* }
+              echo "attempt $i: deploy-preview status: ${state:-none}"
+              if [ "$state" = "success" ]; then url="$target"; break; fi
+              if [ "$state" = "failure" ] || [ "$state" = "error" ]; then echo "::warning::Deploy Preview failed; testing a local server instead"; break; fi
+              sleep 15
+            done
+          fi
+          if [ -n "$url" ] && curl -fsS -o /dev/null "$url/skins"; then
+            echo "url=${url%/}" >> "$GITHUB_OUTPUT"; echo "Testing Deploy Preview: $url"
+          else
+            echo "url=" >> "$GITHUB_OUTPUT"; echo "No Deploy Preview available: testing a local pretty-URL server"
+          fi
+
+      - name: Serve repo root with pretty URLs (as Netlify)
+        if: steps.preview.outputs.url == ''
+        run: |
+          node tests/lib/serve.js . "$PORT" > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs -o /dev/null "http://localhost:$PORT/skins" && break; sleep 1; done
+
+      - name: Published paths
+        env:
+          BASE: ${{ steps.preview.outputs.url || format('http://localhost:{0}', env.PORT) }}
+        run: |
+          for p in / /skins /stableford /daily-handicap /privacy /favicon.ico /sitemap.xml /robots.txt /tests/run /tests/package.json /.github/workflows/checks.yml; do
+            printf '%s %s\n' "$(curl -s -o /dev/null -w '%{http_code}' "$BASE$p")" "$p"
+          done
+
+      - name: axe + sideways scroll + type=number + Lighthouse budgets
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+          BASE: ${{ steps.preview.outputs.url || format('http://localhost:{0}', env.PORT) }}
+        run: node tests/lib/browser-checks.js --ci --url="$BASE" --out=tests/out/ci
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: |
+            tests/out/ci/lh-*.json
+            tests/out/ci/summary.json
+            tests/out/ci/*.png
+          if-no-files-found: warn
+          retention-days: 14

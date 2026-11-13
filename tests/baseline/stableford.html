@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stableford Calculator | golfcalculators.com</title>
+<meta name="description" content="Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.">
+<link rel="canonical" href="https://golfcalculators.com/stableford">
+<meta property="og:title" content="Stableford Calculator">
+<meta property="og:url" content="https://golfcalculators.com/stableford">
+<meta property="og:type" content="website">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DH32H3GWKE');
+</script>
+<style>
+  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
+  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
+  header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
+  header a { text-decoration: none; color: var(--green); font-weight: 600; }
+  main { max-width: 680px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+  h1 { font-size: 1.75rem; margin: 0 0 0.4rem; }
+  .lede { color: #475569; margin: 0 0 1.5rem; }
+  .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 500; font-size: 0.875rem; }
+  input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 44px; }
+  button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
+  .result { background: #f0fdf4; border-color: #86efac; font-size: 1.4rem; font-weight: 600; text-align: center; padding: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
+  input[type=number] { width: 60px; text-align: center; }
+</style>
+</head>
+<body>
+<header><a href="/">← Golf Calculators</a></header>
+<main>
+<h1>Stableford Calculator</h1>
+<p class="lede">Enter gross scores and Stroke Index. Points are calculated automatically (2 points for par, +1 per stroke under, −1 per stroke over, minimum 0).</p>
+<div class="section">
+  <label>Daily / Playing Handicap</label>
+  <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2">
+  <label>Holes</label>
+  <select id="holes"><option value="18">18</option><option value="9">9</option></select>
+</div>
+<div class="section">
+  <div id="table"></div>
+  <button onclick="calc()" style="margin-top:1rem">Calculate points</button>
+</div>
+<div id="out" class="section result" style="display:none"></div>
+</main>
+<script>
+const par = [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
+const si  = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
+function build() {
+  const n = +document.getElementById('holes').value;
+  let h = '<table><tr><th>Hole</th><th>Par</th><th>SI</th><th>Score</th><th>Pts</th></tr>';
+  for (let i = 1; i <= n; i++) {
+    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
+  }
+  h += '</table>';
+  document.getElementById('table').innerHTML = h;
+}
+function strokesOn(hcp, holeSI, totalHoles) {
+  const r = Math.round(hcp);
+  const full = Math.floor(r / totalHoles);
+  const rem = r % totalHoles;
+  return full + (holeSI <= rem ? 1 : 0);
+}
+function calc() {
+  const hcp = parseFloat(document.getElementById('hcp').value) || 0;
+  const n = +document.getElementById('holes').value;
+  let total = 0;
+  for (let i = 1; i <= n; i++) {
+    const gross = +document.getElementById('s'+i).value;
+    if (!gross) { document.getElementById('p'+i).textContent = '—'; continue; }
+    const strokes = strokesOn(hcp, si[i-1], n);
+    const net = gross - strokes;
+    const pts = Math.max(0, 2 + (par[i-1] - net));
+    document.getElementById('p'+i).textContent = pts;
+    total += pts;
+  }
+  const out = document.getElementById('out');
+  out.style.display = 'block';
+  out.innerHTML = `Total Stableford points: ${total}`;
+  out.scrollIntoView({behavior:'smooth'});
+}
+document.getElementById('holes').addEventListener('change', build);
+build();
+</script>
+</body>
+</html>
