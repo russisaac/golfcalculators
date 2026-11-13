@@ -1,7 +1,7 @@
 # Tests (not published)
 
 Everything in `tests/` is excluded from the live site by forced 404 rules in
-`netlify.toml` (as is `.github/`). The publish directory is still the repo root.
+`netlify.toml` (as are `tools/` and `.github/`). The publish directory is still the repo root.
 
 ```
 cd tests && npm ci          # once
@@ -20,6 +20,7 @@ Suites (`tests/suites/*.js`, each skips itself when not applicable):
 | p1-parity | calculator behaviour identical to the live source (`tests/baseline` = main @ c54e467) |
 | p1-trust | /privacy wording + contact, footer link, favicon, sitemap, robots, GA tag |
 | ga-gate | GA4 loads only on golfcalculators.com / www (skips on branches without the gate) |
+| og-tags | every page's static OG/Twitter tags, og:url = canonical, each og:image 200 image/png 1200×630 ≤ 300 KB (local server, or `OG_BASE=<url>`) |
 | skins-v2 | Skins rebuild: engine cross-check vs legacy, flow, escaping, share, storage, SI dupes (skips on legacy Skins) |
 
 CI gates (`--ci`): axe serious/critical at 375 and 320 px on every page; Lighthouse

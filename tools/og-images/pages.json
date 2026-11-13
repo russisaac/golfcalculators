@@ -1,0 +1,62 @@
+[
+  {
+    "page": "home",
+    "file": "index.html",
+    "url": "https://golfcalculators.com/",
+    "kicker": "Free golf calculators",
+    "title": "Golf Calculators",
+    "value": "Skins, Stableford and Daily Handicap, built for your phone.",
+    "ogTitle": "Golf Calculators",
+    "ogDescription": "Free golf calculators. Settle skins cleanly. Daily Handicap for Golf Australia.",
+    "alt": "Golf Calculators: Skins, Stableford and Daily Handicap, built for your phone. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
+    "page": "skins",
+    "file": "skins.html",
+    "url": "https://golfcalculators.com/skins",
+    "kicker": "Free golf calculator",
+    "title": "Golf Skins Calculator",
+    "value": "Carryovers, net or gross, and who pays whom.",
+    "ogTitle": "Golf Skins Calculator — Who Pays Whom",
+    "ogDescription": "Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.",
+    "alt": "Golf Skins Calculator: Carryovers, net or gross, and who pays whom. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
+    "page": "stableford",
+    "file": "stableford.html",
+    "url": "https://golfcalculators.com/stableford",
+    "kicker": "Free golf calculator",
+    "title": "Stableford Calculator",
+    "value": "Net points per hole and a running total, by Stroke Index.",
+    "ogTitle": "Stableford Calculator",
+    "ogDescription": "Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.",
+    "alt": "Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
+    "page": "daily-handicap",
+    "file": "daily-handicap.html",
+    "url": "https://golfcalculators.com/daily-handicap",
+    "kicker": "Free golf calculator",
+    "title": "Daily Handicap Calculator",
+    "value": "Golf Australia 2026 formula, with 0.93 and the Consistency Factor.",
+    "ogTitle": "Golf Australia Daily Handicap Calculator (2026 formula)",
+    "ogDescription": "Calculate your Golf Australia Daily Handicap for 2026. Uses the current formula with 0.93 and Consistency Factor.",
+    "alt": "Daily Handicap Calculator: Golf Australia 2026 formula, with 0.93 and the Consistency Factor. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
+    "page": "privacy",
+    "file": "privacy.html",
+    "url": "https://golfcalculators.com/privacy",
+    "kicker": "golfcalculators.com",
+    "title": "Privacy",
+    "value": "How we use Google Analytics, and what stays on your device.",
+    "ogTitle": "Privacy | golfcalculators.com",
+    "ogDescription": "How golfcalculators.com uses Google Analytics and what stays on your device.",
+    "alt": "Privacy: How we use Google Analytics, and what stays on your device. golfcalculators.com",
+    "tagline": ""
+  }
+]
