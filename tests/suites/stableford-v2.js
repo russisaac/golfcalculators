@@ -92,14 +92,16 @@ const click=(h,sel)=>{const b=h.d.querySelector(sel);if(!b)throw new Error('no '
  ok('why line for a plus handicap: "H9 Par 5, SI 17: 5 + 1 = net 6, net bogey · 1 pt"',!!al&&txt(al.querySelectorAll('li')[8])==='H9 Par 5, SI 17: 5 + 1 = net 6, net bogey · 1 pt',al&&txt(al.querySelectorAll('li')[8]));
  const jo=why.find(dt=>/Jo/.test(txt(dt.querySelector('summary'))));
  ok('why line for DH 24 on SI 1: "H3 Par 3, SI 1: 5 − 2 = net 3, net par · 2 pts"',txt(jo.querySelectorAll('li')[2])==='H3 Par 3, SI 1: 5 − 2 = net 3, net par · 2 pts',txt(jo.querySelectorAll('li')[2]));
- // share
+ // share (the result link is prepared when the result renders, so the tap shares at once)
+ const stored=h.w.localStorage.getItem('gc_stableford_v1');
+ setTimeout(()=>{
  let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};click(h,'#btn-share');
  const lines=(shared&&shared.text||'').split('\n');
- ok('share: one tap calls navigator.share',!!shared&&shared.title==='Stableford result');
- ok('share text ≤ 6 lines and ends with https://golfcalculators.com/stableford',lines.length<=6&&lines[lines.length-1]===URL,lines.length+' lines');
- ok('share text has places, points and the countback',lines[1]==='1st Mel 37 pts (countback: 20 v 18 on holes 10–18)'&&lines[2]==='2nd Sam 37 pts'&&lines[4]==='4th Al 32 pts',lines.join(' / '));
+ ok('share: one tap calls navigator.share (synchronously, inside the tap)',!!shared&&shared.title==='Stableford result');
+ ok('share text ≤ 6 lines and ends with the result link https://golfcalculators.com/stableford#r=1… (share-link PR)',lines.length<=6&&lines[lines.length-1].startsWith(URL+'#r=1'),lines.length+' lines');
+ ok('share text has places, points and the countback, in plain ASCII (PO: GSM-7)',lines[0]==='Stableford - 18 holes'&&lines[1]==='1st Mel 37 pts (countback: 20 v 18 on holes 10-18)'&&lines[2]==='2nd Sam 37 pts'&&lines[4]==='4th Al 32 pts',lines.join(' / '));
  // reload restores state
- const stored=h.w.localStorage.getItem('gc_stableford_v1');const h2=open({storage:{gc_stableford_v1:stored}});
+ const h2=open({storage:{gc_stableford_v1:stored}});
  ok('reload restores players, scores and the leaderboard screen',!h2.$('scr-result').hidden&&txt(h2.$('cb-line'))==='Mel wins on countback: 20 v 18 on holes 10–18'&&h2.w.GCStablefordUI.state().players.map(p=>p.name).join()==='Mel,Sam,Jo,Al');
  // new round keeps players and course
  h2.w.GCStablefordUI.state().course.name='Kept Course';click(h2,'#btn-new');const st2=h2.w.GCStablefordUI.state();
@@ -108,7 +110,8 @@ const click=(h,sel)=>{const b=h.d.querySelector(sel);if(!b)throw new Error('no '
  const h3=open({storage:{gc_stableford_v1:stored}});let copied=null;
  Object.defineProperty(h3.w.navigator,'clipboard',{value:{writeText:t=>{copied=t;return Promise.resolve();}},configurable:true});delete h3.w.navigator.share;
  click(h3,'#btn-share');
- setTimeout(()=>{ok('no navigator.share: copies the same text and shows a "Copied" toast',copied===lines.join('\n')&&txt(h3.$('toast'))==='Copied'&&h3.$('toast').classList.contains('show'));finish();},20);
+ setTimeout(()=>{ok('no navigator.share: copies the same text and shows a "Copied" toast',copied===lines.join('\n')&&txt(h3.$('toast'))==='Copied'&&h3.$('toast').classList.contains('show'));finish();},40);
+ },30);
 }
 
 // ---- countback at each stage (points per hole, hcp 0, built from par) ----
@@ -140,7 +143,7 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('identical cards: "Tied after countback (joint)", both =1st',x.line==='Tied after countback (joint)'&&x.r.board.every(b=>G.placeLabel(b)==='=1st'),x.line);
  x=round(mod(two(18),{1:1,2:1,3:1,4:1,14:3,15:3,16:3,17:3}),two(18),{st:{tenth:true}});
  ok('whole field off the 10th: last 9 = holes 1–9, stated as "on the last nine (holes 1–9)"',x.first.name==='B'&&x.line==='B wins on countback: 18 v 14 on the last nine (holes 1–9)',x.line);
- ok('whole field off the 10th: share text names the stage too',G.shareText(x.st,x.r).split('\n')[1]==='1st B 36 pts (countback: 18 v 14 on the last nine (holes 1–9))',G.shareText(x.st,x.r).split('\n')[1]);
+ ok('whole field off the 10th: share text names the stage too',G.shareText(x.st,x.r).split('\n')[1]==='1st B 36 pts (countback: 18 v 14 on the last nine (holes 1-9))',G.shareText(x.st,x.r).split('\n')[1]);
  x=round(mod(two(18),{1:3,4:1}),two(18),{st:{tenth:true}}); // holes 1–9 level (18–18); hole 4 is in the last six played
  ok('whole field off the 10th, last 9 level: "last six (holes 4–9)" decides it (PO: 4–9, not 3–9)',x.first.name==='B'&&x.line==='B wins on countback: 12 v 11 on the last six (holes 4–9)',x.line);
  x=round(mod(two(18),{4:1,7:3}),two(18),{st:{tenth:true}}); // 1–9 and 4–9 level, 7–9 decides

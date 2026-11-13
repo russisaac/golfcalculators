@@ -20,7 +20,7 @@ const SITE=path.resolve(process.env.SITE||path.join(__dirname,'../..'));
 const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
-let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false;
+let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false,hasShare=false;
 const legacyNumberOK=name=>!isV2&&/^skins/.test(name); // type=number allowlist: only the legacy Skins page (Stableford rebuilt in P4)
 const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
 (async()=>{
@@ -54,6 +54,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     console.log(`${gate(bad)}${CI&&strictBad&&!bad?' (WARN)':''}  ${name} @${w}: axe ${v.length} (serious/critical ${serious.length})${v.length?' '+v.map(x=>`${x.impact}:${x.id}(${x.nodes})`).join('; '):''} · sideways scroll ${hs}${hs?` (page ${m.docScroll}px in ${m.vw}px${m.innerScroll.length?', inner scroller '+m.innerScroll.join(','):''})`:''} · controls ${m.controls}, ≥44px ${m.pct44}%, <24px ${m.under24.length} · type=number ${m.typeNumber}${m.typeNumber&&!tnBad?' (legacy allowlist)':''}${errs.length?' · JS errors '+errs.join('|'):''}`);
     await p.context().close();
   }
+  hasShare=await (async()=>{const p=await page(375);await p.goto(base+'/stableford');const r=await p.evaluate(()=>!!window.GCShare);await p.context().close();return r;})();
   isV2=await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>document.body.dataset.gc==='skins-v2');await p.context().close();return r;})();
   const midRound=async p=>{await p.evaluate(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();for(let h=7;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole');});await p.click('button[data-sc="-1"][data-i="3"]');};
   const maxData=async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.players=[...Array(8)].map((_,i)=>({name:'Bartholomew-Fitzgerald'+i,hcp:i===0?-10:54-i}));s.scores={};s.hole=18;GCSkinsUI.show('hole');});};
@@ -105,7 +106,32 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('stableford result podium (example)',w,'/stableford',result,`stableford-4-podium-${w}.png`);
       await check('stableford result, countback ties',w,'/stableford',tie,`stableford-5-countback-${w}.png`);
       await check('stableford result full page, long names, why open',w,'/stableford',resultLong,w===375?'stableford-6-result-375-full.png':null);
+      if(hasShare){ // share-link-stableford: the read-only viewer opened from a result link, and the error card
+        const viewer=async p=>{const url=await p.evaluate(async L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L[i]);U.show('result');return (await U.link()).url;},LONG);
+          await p.evaluate(()=>localStorage.clear());await p.goto(url,{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.opened());};
+        await check('stableford shared result (viewer), 4 long names',w,'/stableford',viewer,`stableford-7-shared-viewer-${w}.png`);
+        await check('stableford shared result (viewer) full page',w,'/stableford',viewer,w===375?'stableford-7b-shared-viewer-375-full.png':null);
+        await check('stableford shared link that cannot be opened (error card)',w,'/stableford#r=1z.AAAA',async p=>{await p.evaluate(()=>GCStablefordUI.opened());},`stableford-8-shared-error-${w}.png`);
+      }
     }
+  }
+  if(isSf&&hasShare){ // share-link-stableford in a real browser: CompressionStream link, viewer on the first screen, storage untouched, own round back
+    for(const [w,hgt] of [[375,812],[320,568]]){
+      let p=await page(w,hgt);await p.goto(base+'/stableford',{waitUntil:'load'});
+      const own=await p.evaluate(async()=>{const U=GCStablefordUI;U.loadExample();const url=(await U.link()).url;const s=U.state();s.players[0].name='Me';s.screen='setup';U.set(s);return {url,saved:localStorage.getItem('gc_stableford_v1')};});
+      const p0=p;p=await p0.context().newPage();await p0.close(); // a fresh page load of the link (not a same-document hash change)
+      await p.addInitScript(()=>{window.__hist=[];for(const fn of ['pushState','replaceState']){const o=History.prototype[fn];History.prototype[fn]=function(...a){const before=location.hash,view=document.documentElement.classList.contains('gc-view');const r=o.apply(this,a);window.__hist.push({fn,before,after:location.hash,view});return r;};}});
+      await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.opened());
+      const r=await p.evaluate(()=>{const pod=document.querySelector('.sf-podium').getBoundingClientRect(),ban=document.getElementById('gc-shared').getBoundingClientRect();
+        return {viewing:GCStablefordUI.viewing(),podBottom:Math.round(pod.bottom),banTop:Math.round(ban.top),vh:innerHeight,saved:localStorage.getItem('gc_stableford_v1'),t:document.getElementById('gc-shared-t').textContent};});
+      await p.click('#gc-own');
+      const back=await p.evaluate(()=>({viewing:GCStablefordUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
+      const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
+      const firstScreen=w===375?r.podBottom<=r.vh:true;
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>300||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
+      if(bad)fail=1;rows.push({name:`stableford share link ${w}`,width:w,link:own.url.length,r,back});
+      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium on the first screen (bottom ${r.podBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
+      await p.context().close();}
   }
   if(isSf){ // PO 12 Nov: on 9 holes each player's "Work out 9-hole DH" link sits right under their handicap stepper (one tap away)
     for(const w of [375,320]){
@@ -225,7 +251,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   for(const [n,u] of pages.filter(p=>['skins','stableford','daily-handicap'].includes(p[0]))){
     const p=await page(375,812);await p.goto(base+u,{waitUntil:'load'});await p.waitForTimeout(250);
     const r=await p.evaluate(()=>{const vis=e=>e&&e.offsetParent&&getComputedStyle(e).visibility!=='hidden';
-      const h1=document.querySelector('h1');const ctl=[...document.querySelectorAll('main input:not([type=hidden]),main select,main button,main textarea')].find(vis);
+      const h1=[...document.querySelectorAll('h1')].find(e=>e.getBoundingClientRect().height>0)||document.querySelector('h1');const ctl=[...document.querySelectorAll('main input:not([type=hidden]),main select,main button,main textarea')].find(vis);
       const learn=document.querySelector('.gc-learn');const R=e=>e?e.getBoundingClientRect():null;const a=R(h1),c=R(ctl),l=R(learn);
       return {h1:a?Math.round(a.bottom):-1,ctl:ctl?(ctl.id||ctl.tagName.toLowerCase()):'none',ctlBottom:c?Math.round(c.bottom):-1,learnTop:l?Math.round(l.top+scrollY):null,vh:innerHeight};});
     await p.screenshot({path:path.join(OUT,`fold-${n}-375x812.png`)});
@@ -236,8 +262,10 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     await p.context().close();}
   await b.close();
   const lh=[];
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['stableford','/stableford'],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
-    if(!pages.some(p=>p[0]===n))continue;
+  // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
+  const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
+    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;
     let runs=[runLh(0)];if(!budget(runs[0]))runs.push(runLh(1),runLh(2));
