@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Stableford Calculator | golfcalculators.com</title>
 <meta name="description" content="Free Stableford calculator. Enter gross scores and Stroke Index to get net points and a running total.">
 <link rel="canonical" href="https://golfcalculators.com/stableford">
@@ -32,6 +35,9 @@
   table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
   input[type=number] { width: 60px; text-align: center; }
+  header a { display: inline-block; min-height: 44px; line-height: 44px; }
+  .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
+  .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
 </style>
 </head>
 <body>
@@ -40,9 +46,9 @@
 <h1>Stableford Calculator</h1>
 <p class="lede">Enter gross scores and Stroke Index. Points are calculated automatically (2 points for par, +1 per stroke under, −1 per stroke over, minimum 0).</p>
 <div class="section">
-  <label>Daily / Playing Handicap</label>
+  <label for="hcp">Daily / Playing Handicap</label>
   <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2">
-  <label>Holes</label>
+  <label for="holes">Holes</label>
   <select id="holes"><option value="18">18</option><option value="9">9</option></select>
 </div>
 <div class="section">
@@ -51,6 +57,7 @@
 </div>
 <div id="out" class="section result" style="display:none"></div>
 </main>
+<footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <script>
 const par = [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
 const si  = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
@@ -58,7 +65,7 @@ function build() {
   const n = +document.getElementById('holes').value;
   let h = '<table><tr><th>Hole</th><th>Par</th><th>SI</th><th>Score</th><th>Pts</th></tr>';
   for (let i = 1; i <= n; i++) {
-    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
+    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" aria-label="Hole ${i} score" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
   }
   h += '</table>';
   document.getElementById('table').innerHTML = h;

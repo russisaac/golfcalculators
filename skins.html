@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Golf Skins Calculator — Who Pays Whom | golfcalculators.com</title>
 <meta name="description" content="Free golf skins calculator with carryovers and correct net scoring. Settle cleanly and share who pays whom.">
 <link rel="canonical" href="https://golfcalculators.com/skins">
@@ -44,7 +47,12 @@
   .trust { font-size: 0.8rem; color: #64748b; margin-top: 0.5rem; }
   .copied { color: var(--green); font-size: 0.85rem; margin-left: 0.5rem; }
   .sticky-bar { position: sticky; bottom: 0; background: white; border-top: 1px solid var(--border); padding: 0.6rem 1rem 5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; z-index: 10; font-size: 0.9rem; }
+  #carryovers { width: 24px; height: 24px; margin: 0; }
+  button { min-height: 44px; }
+  header a { display: inline-block; min-height: 44px; line-height: 44px; }
   .actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
+  .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
 </style>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE"></script>
@@ -66,13 +74,13 @@
   <h2>1. The game</h2>
   <div class="row">
     <div>
-      <label>Players</label>
+      <label for="numPlayers">Players</label>
       <select id="numPlayers">
         <option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
       </select>
     </div>
     <div>
-      <label>Holes</label>
+      <label for="holesMode">Holes</label>
       <select id="holesMode" onchange="onHolesChange()">
         <option value="18">18</option>
         <option value="front">Front 9</option>
@@ -80,7 +88,7 @@
       </select>
     </div>
     <div>
-      <label>Stake per skin ($)</label>
+      <label for="stake">Stake per skin ($)</label>
       <input type="number" id="stake" value="5" min="0.01" step="0.01" style="width:90px">
       <div id="stakeError" class="error" style="display:none"></div>
     </div>
@@ -88,19 +96,19 @@
       <label style="display:flex;align-items:center;gap:0.4rem;font-weight:500"><input type="checkbox" id="carryovers" checked> Carryovers</label>
     </div>
     <div>
-      <label>End-of-round carryover</label>
+      <label for="endRule">End-of-round carryover</label>
       <select id="endRule">
         <option value="nobody">Nobody wins them</option>
         <option value="playoff">Playoff winner</option>
       </select>
     </div>
     <div id="playoffWrap" style="display:none">
-      <label>Playoff winner</label>
+      <label for="playoffWinner">Playoff winner</label>
       <select id="playoffWinner"></select>
       <div id="settleError" class="error" style="display:none"></div>
     </div>
     <div>
-      <label>Score entry</label>
+      <label for="scoreMode">Score entry</label>
       <select id="scoreMode">
         <option value="gross">Gross + Stroke Index</option>
         <option value="net">Direct net scores</option>
@@ -108,14 +116,14 @@
       </select>
     </div>
     <div id="strokesSettings" style="display:none">
-      <label>Strokes</label>
+      <label for="strokesMode">Strokes</label>
       <select id="strokesMode">
         <option value="full">Full handicaps</option>
         <option value="offlow">Off the lowest</option>
       </select>
     </div>
     <div id="allowanceWrap" style="display:none">
-      <label>Allowance %</label>
+      <label for="allowance">Allowance %</label>
       <input type="number" id="allowance" value="100" min="50" max="100" step="5" style="width:70px">
     </div>
   </div>
@@ -139,8 +147,9 @@
 <div id="running" class="section running" style="display:none"></div>
 <div id="results" class="section result" style="display:none"></div>
 </main>
+<footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 
-<div class="sticky-bar" id="stickyBar" style="display:none">
+<div class="sticky-bar" id="stickyBar" role="region" aria-label="Round status" style="display:none">
   <div id="stickyText">Thru 0 · Carry: 0</div>
   <button onclick="settleUp()">Settle up</button>
 </div>
@@ -264,8 +273,8 @@ function updatePlayers(doSave = true, fresh = false) {
 
   let html = '';
   for (let i = 1; i <= n; i++) {
-    html += `<div><label>Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState();refreshHeaders()">`;
-    if (showNet) html += `<label>Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
+    html += `<div><label for="p${i}">Player ${i}</label><input type="text" id="p${i}" value="Player ${i}" oninput="saveState();refreshHeaders()">`;
+    if (showNet) html += `<label for="hcp${i}">Daily / Playing Handicap</label><input type="text" id="hcp${i}" value="0" placeholder="e.g. 12 or +2" style="width:100px" onblur="this.value = formatHcp(parseHcp(this.value))" oninput="saveState()"><p class="trust" style="margin:0">Use your Daily Handicap from the Golf Australia app, or your Course/Playing Handicap.</p>`;
     html += `</div>`;
   }
   document.getElementById('playerInputs').innerHTML = html;
@@ -330,9 +339,9 @@ function buildScoreTable(n, mode) {
   html += '<th>Result</th></tr>';
   for (let h = range.start; h <= range.end; h++) {
     html += `<tr><td>${h}</td>`;
-    if (mode === 'gross') html += `<td><input type="number" id="si${h}" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px" oninput="saveState();validateSI()"></td>`;
+    if (mode === 'gross') html += `<td><input type="number" id="si${h}" aria-label="Hole ${h} stroke index" value="${strokeIndexes[h-1]}" min="1" max="18" style="width:42px" oninput="saveState();validateSI()"></td>`;
     for (let i = 1; i <= n; i++) {
-      html += `<td><input type="number" id="h${h}p${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"><span class="stroke-dot" id="dot${h}p${i}"></span></td>`;
+      html += `<td><input type="number" id="h${h}p${i}" aria-label="Hole ${h} score, player ${i}" min="1" max="15" inputmode="numeric" oninput="onScoreInput(this, ${h}, ${i})"><span class="stroke-dot" id="dot${h}p${i}"></span></td>`;
     }
     html += `<td id="res${h}">—</td></tr>`;
   }

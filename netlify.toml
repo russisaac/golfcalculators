@@ -1,0 +1,6 @@
+# golfcalculators.com: plain static site, no build step.
+# Matches the current Netlify site settings (no build command, publish the
+# repo root). Netlify serves skins.html at /skins, privacy.html at /privacy, etc.
+[build]
+  publish = "."
+  command = ""
