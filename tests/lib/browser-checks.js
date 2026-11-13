@@ -69,6 +69,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('skins result full page',w,'/skins',async p=>{await p.evaluate(()=>GCSkinsUI.loadExample());},w===375?'skins-4-result-375-full.png':null);
       await check('skins max data: 8 players, long names, hole 18',w,'/skins',maxData,w===320?'skins-5-maxdata-hole-320.png':null);
       await check('skins max data: setup 8 players',w,'/skins',maxSetup,null);
+      await check('skins setup, front 9: 9-hole DH labels, links and check notes (8 long names)',w,'/skins',async p=>{await maxSetup(p);await p.evaluate(()=>{const s=GCSkinsUI.state();s.holes='front';s.players.forEach(x=>{delete x.hcp9;});GCSkinsUI.show('setup');});},`skins-1b-setup-9holes-${w}.png`);
       await check('skins max data: result 8 players',w,'/skins',maxResult,w===320?'skins-6-maxdata-result-320-full.png':null);
     } else if(pages.some(p=>p[0]==='skins')){
       await check('skins (legacy)',w,'/skins',null,w===375?'skins-legacy-375.png':null);
@@ -151,6 +152,48 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       const bad=r.bad.length>0;if(bad)fail=1;rows.push({name:`stableford setup never covered ${w}x${hgt} ${mode}`,width:w,cover:r});
       console.log(`${gate(bad)}  stableford setup, ${mode==='fresh'?'fresh 18 holes':'4 long names, front 9'}: Start bar never covers ${T.length} controls at any scroll position @${w}x${hgt} (${r.n} points over ${r.max}px)${bad?' · covered: '+r.bad.join(', ')+' first '+r.first:''}`);
       await p.context().close();}}
+  }
+  if(isV2){ // PO 12 Nov (skins-9hole-dh): Skins setup Start is in the flow too; the same scroll sweep at 375x812 and 320x568,
+    // fresh, with 8 long names, and with 8 long names on the front 9 (each player's 9-hole DH link and check note showing)
+    const LONG8=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn','Konstantinos Papadopoulos','Guinevere Featherstonehaugh','Oluwaseun Adeyemi-Clarke','Wilhelmina Vanderbilt'];
+    const T=['#pn0','#ph3','#ph7','#stake','input[name=holes][value="18"]+span','input[name=holes][value=front]+span','input[name=holes][value=back]+span','input[name=scoring][value=full]+span','input[name=scoring][value=offlow]+span','input[name=scoring][value=gross]+span','details.sk-more summary','#dhl7','#btn-start'];
+    for(const [w,hgt] of [[375,812],[320,568]]){for(const mode of ['fresh','8long','8long-front9']){
+      const p=await page(w,hgt);await p.goto(base+'/skins',{waitUntil:'load'});
+      if(mode!=='fresh')await p.evaluate(([L,f9])=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:i*3}));if(f9)s.holes='front';GCSkinsUI.show('setup');scrollTo(0,0);},[LONG8,mode==='8long-front9']);
+      const r=await p.evaluate(async T=>{const max=document.documentElement.scrollHeight-innerHeight,bad=[];let n=0;const seen=new Set();
+        for(let y=0;y<=max+8;y+=8){scrollTo(0,Math.min(y,max));await new Promise(r=>requestAnimationFrame(()=>r()));
+          for(const q of T){const e=document.querySelector(q);if(!e||!e.offsetParent)continue;seen.add(q);const R=e.getBoundingClientRect();
+            const pts=[[R.left+R.width/2,R.top+1],[R.left+R.width/2,R.bottom-1],[R.left+4,R.top+R.height/2],[R.right-4,R.top+R.height/2]].filter(([,yy])=>yy>=0&&yy<innerHeight);
+            for(const [x,yy] of pts){n++;const t=document.elementFromPoint(x,yy);if(!t)continue;const own=t===e||e.contains(t)||(e.closest('label')&&t.closest('label')===e.closest('label'));
+              if(!own){const cover=t.closest('.sk-actions');if(cover&&!cover.contains(e)){bad.push(q+'@y'+y);break;}}}}}
+        scrollTo(0,0);const sb=Math.round(document.getElementById('btn-start').getBoundingClientRect().bottom);
+        return {n,controls:seen.size,bad:[...new Set(bad.map(b=>b.split('@')[0]))],first:bad[0]||null,max,startBottom:sb,vh:innerHeight};},T);
+      const firstScreen=w===375&&mode==='fresh';const bad=r.bad.length>0||(firstScreen&&r.startBottom>r.vh);if(bad)fail=1;rows.push({name:`skins setup never covered ${w}x${hgt} ${mode}`,width:w,cover:r});
+      console.log(`${gate(bad)}  skins setup, ${mode==='fresh'?'fresh':mode==='8long'?'8 long names':'8 long names, front 9'}: Start bar never covers ${r.controls} controls at any scroll position @${w}x${hgt} (${r.n} points over ${r.max}px)${firstScreen?` · Start on the first screen (bottom ${r.startBottom}px of ${r.vh})`:''}${r.bad.length?' · covered: '+r.bad.join(', ')+' first '+r.first:''}`);
+      await p.context().close();}}
+    for(const w of [375,320]){ // each Skins player's 9-hole DH link sits right under their stepper
+      const p=await page(w);await p.goto(base+'/skins',{waitUntil:'load'});
+      await p.evaluate(L=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:i*3}));s.holes='front';GCSkinsUI.show('setup');},LONG8);
+      const r=await p.evaluate(()=>[...Array(8).keys()].map(i=>{const st=document.getElementById('ph'+i).closest('.gc-stepper').getBoundingClientRect(),a=document.getElementById('dhl'+i);if(!a)return {i,ok:false};const l=a.getBoundingClientRect();
+        const gap=Math.round(l.top-st.bottom),ov=Math.min(l.right,st.right)-Math.max(l.left,st.left);return {i,gap,h:Math.round(l.height),ok:gap>=-4&&gap<=12&&ov>=40&&l.height>=44&&l.right<=innerWidth};}));
+      const bad=r.some(x=>!x.ok);if(bad)fail=1;rows.push({name:`skins 9-hole DH link placement ${w}`,width:w,placement:r});
+      console.log(`${gate(bad)}  skins 9-hole DH link right under each of 8 steppers @${w}: gaps ${[...new Set(r.map(x=>x.gap))].join('/')}px, ${[...new Set(r.map(x=>x.h))].join('/')}px tall`);
+      await p.context().close();}
+    // PO 12 Nov: the Skins handicap field is plain text (no inputmode) so + and − can be typed; +2, -2 and −2 all
+    // mean plus 2 with Stableford's inline note (aria-live, aria-describedby). Typed with the real keyboard.
+    const W2='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index';
+    for(const w of [375,320]){
+      const p=await page(w);await p.goto(base+'/skins',{waitUntil:'load'});const got=[];
+      for(const v of ['+2','-2','\u22122']){await p.click('#ph1');await p.keyboard.press('Control+A');await p.keyboard.press('Backspace');await p.keyboard.type(v);
+        got.push(await p.evaluate(()=>{const e=document.getElementById('ph1'),n=document.getElementById('pl1'),R=n.getBoundingClientRect();
+          return {note:n.textContent,live:n.getAttribute('aria-live'),desc:e.getAttribute('aria-describedby'),im:e.hasAttribute('inputmode'),type:e.type,shown:R.height>0&&R.right<=innerWidth,hcp:GCSkinsUI.state().players[1].hcp};}));
+        await p.keyboard.press('Tab');got[got.length-1].after=await p.$eval('#ph1',e=>e.value);}
+      const bad=got.some(g=>g.note!==W2||g.live!=='polite'||!/\bpl1\b/.test(g.desc)||g.im||g.type!=='text'||!g.shown||g.hcp!==-2||g.after!=='+2');if(bad)fail=1;
+      rows.push({name:`skins plus handicap typed ${w}`,width:w,typed:got});
+      console.log(`${gate(bad)}  skins handicap field @${w}: type=text, no inputmode; typed +2 / -2 / −2 → plus 2 (+2 on leaving), note "${got[0].note}" visible, aria-live polite, described by pl1${bad?' · '+JSON.stringify(got):''}`);
+      await p.context().close();}
+    for(const w of [375,320])await check('skins setup plus note (front 9)',w,'/skins',async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.holes='front';s.players[0].name='Mel';s.players[1].name='Sam';s.players[1].hcp=-4;GCSkinsUI.show('setup');});
+      await p.click('#ph0');await p.keyboard.press('Control+A');await p.keyboard.type('\u22122');await p.keyboard.press('Tab');await p.evaluate(()=>scrollTo(0,document.getElementById('players').getBoundingClientRect().top+scrollY-60));},`skins-plus-note-${w}.png`);
   }
   if(pages.some(p=>p[0]==='daily-handicap')){ // PO 12 Nov: "(effective 2 Oct 2025)" never wraps mid-phrase, and never causes sideways scroll
     for(const w of [375,320]){

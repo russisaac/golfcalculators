@@ -128,11 +128,20 @@ a{color:var(--accent)}
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
   .sk-screen[hidden]{display:none}
+  /* Setup: Start sits in the flow right after the setup card, as on Stableford (PO, 12 Nov), so it never covers
+     the players, holes or scoring controls at any scroll position. */
+  .sk-actions.sk-start{position:static;background:none}
   .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the next-step card showed on the hole and result screens */
   html{scroll-padding-top:56px;scroll-padding-bottom:96px}
   .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
   .sk-player+.sk-player{margin-top:var(--s2)}
   .sk-player .gc-input{min-width:0}
+  .sk-dhlink{grid-column:1/-1;justify-self:end;display:inline-flex;align-items:center;min-height:44px;margin-top:calc(-1 * var(--s1));font-size:var(--fs-sm);font-weight:600}
+  .sk-hcpnote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#7c2d12;background:#fff7ed;border:1px solid #fdba74;border-radius:var(--r-sm);padding:var(--s1) var(--s2)}
+  .sk-hcpnote:empty{display:none}
+  .sk-plusnote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#14532d;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:var(--s1) var(--s3)}
+  .sk-plusnote:empty{display:none}
+  #players.nine .sk-player+.sk-player{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)} /* link and note clearly belong to the player above */
   .sk-cardhead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
   .sk-colhead{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);margin:var(--s1) 0}
   .sk-colhead span:last-child{width:132px;text-align:center}
@@ -266,7 +275,7 @@ a{color:var(--accent)}
      "name": "How are handicap strokes given in net skins?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, enter the 18-hole Daily Handicap (from the Daily Handicap calculator) and it is halved."
+      "text": "Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one."
      }
     }
    ]
@@ -313,8 +322,8 @@ a{color:var(--accent)}
     <div class="gc-card sk-pad sk-tight">
       <div class="sk-cardhead"><h2 id="players-h">Players</h2>
         <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">4</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
-      <div class="sk-colhead" id="colhead" aria-hidden="true"><span>Name</span><span>Daily handicap</span></div>
-      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" data-i="1" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 2" value=""><span class="gc-stepper" role="group" aria-label="Player 2 daily handicap"><button type="button" data-h="-1" data-i="1" aria-label="Lower handicap for Player 2">−</button><input id="ph1" data-i="1" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 2 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="1" aria-label="Raise handicap for Player 2">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" data-i="2" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 3" value=""><span class="gc-stepper" role="group" aria-label="Player 3 daily handicap"><button type="button" data-h="-1" data-i="2" aria-label="Lower handicap for Player 3">−</button><input id="ph2" data-i="2" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 3 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="2" aria-label="Raise handicap for Player 3">+</button></span></div><div class="sk-player"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" data-i="3" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 4" value=""><span class="gc-stepper" role="group" aria-label="Player 4 daily handicap"><button type="button" data-h="-1" data-i="3" aria-label="Lower handicap for Player 4">−</button><input id="ph3" data-i="3" type="text" inputmode="numeric" autocomplete="off" aria-label="Player 4 daily handicap (+ for plus)" value="0"><button type="button" data-h="1" data-i="3" aria-label="Raise handicap for Player 4">+</button></span></div></div>
+      <div class="sk-colhead" id="colhead" aria-hidden="true"><span>Name</span><span id="hcp-col">Daily handicap</span></div>
+      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" aria-describedby="pl0" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span><p class="sk-plusnote" id="pl0" aria-live="polite"></p></div><div class="sk-player"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" data-i="1" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 2" value=""><span class="gc-stepper" role="group" aria-label="Player 2 daily handicap"><button type="button" data-h="-1" data-i="1" aria-label="Lower handicap for Player 2">−</button><input id="ph1" data-i="1" type="text" autocomplete="off" aria-label="Player 2 daily handicap (+ for plus)" aria-describedby="pl1" value="0"><button type="button" data-h="1" data-i="1" aria-label="Raise handicap for Player 2">+</button></span><p class="sk-plusnote" id="pl1" aria-live="polite"></p></div><div class="sk-player"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" data-i="2" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 3" value=""><span class="gc-stepper" role="group" aria-label="Player 3 daily handicap"><button type="button" data-h="-1" data-i="2" aria-label="Lower handicap for Player 3">−</button><input id="ph2" data-i="2" type="text" autocomplete="off" aria-label="Player 3 daily handicap (+ for plus)" aria-describedby="pl2" value="0"><button type="button" data-h="1" data-i="2" aria-label="Raise handicap for Player 3">+</button></span><p class="sk-plusnote" id="pl2" aria-live="polite"></p></div><div class="sk-player"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" data-i="3" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 4" value=""><span class="gc-stepper" role="group" aria-label="Player 4 daily handicap"><button type="button" data-h="-1" data-i="3" aria-label="Lower handicap for Player 4">−</button><input id="ph3" data-i="3" type="text" autocomplete="off" aria-label="Player 4 daily handicap (+ for plus)" aria-describedby="pl3" value="0"><button type="button" data-h="1" data-i="3" aria-label="Raise handicap for Player 4">+</button></span><p class="sk-plusnote" id="pl3" aria-live="polite"></p></div></div>
     </div>
     <div class="gc-card sk-pad sk-game">
       <h2 class="sr-only">Game</h2>
@@ -348,7 +357,7 @@ a{color:var(--accent)}
       </details>
     </div>
   </div>
-  <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <div class="sk-actions sk-start"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
   <p class="gc-muted">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
 </section>
 
@@ -437,7 +446,7 @@ a{color:var(--accent)}
   <div class="gc-faq-item"><h3>What happens to skins still carried after the 18th?</h3><p>Your group decides before the round. Common choices are that nobody wins them, or that a playoff, such as a chip-off or an extra hole, decides who takes them all. Both are under More options, and the calculator asks for the playoff winner when one is needed.</p></div>
   <div class="gc-faq-item"><h3>How much should a skin be worth?</h3><p>Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.</p></div>
   <div class="gc-faq-item"><h3>How are skins payouts split?</h3><p>Each player's balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.</p></div>
-  <div class="gc-faq-item"><h3>How are handicap strokes given in net skins?</h3><p>Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, enter the 18-hole Daily Handicap (from the <a href="/daily-handicap">Daily Handicap calculator</a>) and it is halved.</p></div>
+  <div class="gc-faq-item"><h3>How are handicap strokes given in net skins?</h3><p>Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the <a href="/daily-handicap">Daily Handicap calculator</a>), not half the 18-hole one.</p></div>
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
@@ -465,18 +474,32 @@ function parseHcp(v) {
   return /^[+\-−]/.test(s) ? -n : n;
 }
 function fmtHcp(h) { return h < 0 ? '+' + Math.abs(h) : String(h); }
+function plusNote(h) { // same PO wording as Stableford's handicap fields
+  if (!(h < 0)) return '';
+  var n = String(Math.abs(h)), k = Math.round(Math.abs(h));
+  return k === 0 ? 'Plus ' + n + ' (+' + n + '): rounds to 0, so no strokes given back'
+    : 'Plus ' + n + ' (+' + n + '): gives back ' + k + ' stroke' + (k === 1 ? '' : 's') + ', starting at the highest stroke index';
+}
 function money(x) { return '$' + Math.abs(x).toFixed(2); }
 function signed(x) { var c = cents(x); return (c < 0 ? '−' : c > 0 ? '+' : '') + money(c); }
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function nameOf(p, i) { return (p && String(p.name || '').trim()) || ('Player ' + (i + 1)); }
 
+// Handicaps. 18 holes use the 18-hole Daily Handicap (p.hcp). 9 holes use the player's own 9-hole Daily Handicap
+// (p.hcp9): under GA it is its own number, not half the 18-hole one. A player with no 9-hole DH yet (null, incl.
+// players saved before this change, when Skins halved) gets half the 18-hole DH as a prefill, flagged on setup to check.
+function isNine(st) { return st.holes === 'front' || st.holes === 'back'; }
+function hcp9Of(p) { return p.hcp9 != null && p.hcp9 !== '' ? parseHcp(p.hcp9) : rh(parseHcp(p.hcp) / 2); }
+function hcpFor(st, p) { return isNine(st) ? hcp9Of(p) : parseHcp(p.hcp); }
+function needsCheck9(st, p) { return isNine(st) && (p.hcp9 == null || p.hcp9 === '') && parseHcp(p.hcp) !== 0; }
+function check9Note(p) { return 'Half of 18-hole DH ' + fmtHcp(parseHcp(p.hcp)) + ': please check'; } // one line at 320 px
 function compute(st) {
   var n = st.players.length, names = st.players.map(nameOf);
   var stake = parseFloat(String(st.stake).replace(/[^0-9.]/g, ''));
   var rg = holeRange(st.holes), a = rg[0], b = rg[1], total = b - a + 1;
   var allow = Math.min(100, Math.max(50, +st.allowance || 100)) / 100;
   var net = st.scoring !== 'gross', offlow = st.scoring === 'offlow';
-  var playing = st.players.map(function (p) { if (!net) return 0; var raw = parseHcp(p.hcp); return rh((total === 9 ? rh(raw / 2) : raw) * allow); });
+  var playing = st.players.map(function (p) { if (!net) return 0; return rh(hcpFor(st, p) * allow); });
   var minP = Math.min.apply(null, playing);
   var holeSis = []; for (var x = a; x <= b; x++) holeSis.push(+st.si[x - 1]);
   var skins = names.map(function () { return 0; }), carry = 0, played = 0, ledger = [];
@@ -546,7 +569,7 @@ function shareText(st, r) {
   return lines.join('\n');
 }
 window.GCSkins = { compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
-  parseHcp: parseHcp, fmtHcp: fmtHcp, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
+  parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote, hcpFor: hcpFor, hcp9Of: hcp9Of, needsCheck9: needsCheck9, check9Note: check9Note, isNine: isNine, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
 
 /* ---------- UI ---------- */
 var KEY = 'gc_skins_v2', LEGACY = 'golfcalculators_skins_v2', URL = 'https://golfcalculators.com/skins';
@@ -561,7 +584,8 @@ function load() {
       var o = JSON.parse(raw);
       if (o && o.v === 1 && Array.isArray(o.players) && o.players.length >= MIN_PLAYERS) {
         for (var k in s) if (o[k] !== undefined) s[k] = o[k];
-        s.players = o.players.slice(0, MAX_PLAYERS).map(function (p) { return { name: String(p.name || '').slice(0, 24), hcp: Math.max(-10, Math.min(54, Math.round(+p.hcp || 0))) }; });
+        s.players = o.players.slice(0, MAX_PLAYERS).map(function (p) { var c = function (v) { return Math.max(-10, Math.min(54, Math.round(+v || 0))); };
+          return { name: String(p.name || '').slice(0, 24), hcp: c(p.hcp), hcp9: p.hcp9 == null || p.hcp9 === '' ? null : c(p.hcp9) }; }); // no hcp9 = saved before 9-hole DHs: prefill + check note
         if (!Array.isArray(s.par) || s.par.length !== 18) s.par = DEF_PAR.slice();
         if (!Array.isArray(s.si) || s.si.length !== 18) s.si = DEF_SI.slice();
         if (typeof s.scores !== 'object' || !s.scores) s.scores = {};
@@ -571,7 +595,7 @@ function load() {
     var lg = localStorage.getItem(LEGACY); // remember players from the previous Skins page
     if (lg) {
       var l = JSON.parse(lg), ps = [];
-      (l.names || []).forEach(function (nm, i) { ps.push({ name: /^Player \d+$/.test(nm) ? '' : String(nm || '').slice(0, 24), hcp: Math.round(parseHcp((l.hcps || [])[i])) || 0 }); });
+      (l.names || []).forEach(function (nm, i) { ps.push({ name: /^Player \d+$/.test(nm) ? '' : String(nm || '').slice(0, 24), hcp: Math.round(parseHcp((l.hcps || [])[i])) || 0, hcp9: null }); });
       if (ps.length >= MIN_PLAYERS) s.players = ps.slice(0, MAX_PLAYERS);
     }
   } catch (e) {}
@@ -598,15 +622,20 @@ function show(screen, focus) {
 
 /* Setup */
 function renderPlayers() {
-  var gross = S.scoring === 'gross', n = S.players.length;
+  var gross = S.scoring === 'gross', n = S.players.length, nine = isNine(S), lbl = nine ? '9-hole Daily Handicap' : 'daily handicap';
+  $('hcp-col').textContent = nine ? '9-hole Daily Handicap' : 'Daily handicap';
+  $('players').classList.toggle('nine', nine && !gross);
   $('players').innerHTML = S.players.map(function (p, i) {
     var nm = esc(nameOf(p, i));
     return '<div class="sk-player">' +
       '<label class="sr-only" for="pn' + i + '">Player ' + (i + 1) + ' name</label>' +
       '<input class="gc-input" id="pn' + i + '" data-i="' + i + '" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player ' + (i + 1) + '" value="' + esc(p.name || '') + '">' +
-      (gross ? '' : '<span class="gc-stepper" role="group" aria-label="' + nm + ' daily handicap"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
-      '<input id="ph' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' daily handicap (+ for plus)" value="' + esc(fmtHcp(p.hcp)) + '">' +
-      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span>') +
+      (gross ? '' : '<span class="gc-stepper" role="group" aria-label="' + nm + ' ' + lbl + '"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
+      '<input id="ph' + i + '" data-i="' + i + '" type="text" autocomplete="off" aria-label="' + nm + ' ' + lbl + ' (+ for plus)" aria-describedby="pl' + i + (nine ? ' hn' + i : '') + '" value="' + esc(fmtHcp(hcpFor(S, p))) + '">' +
+      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span>' +
+      (nine ? '<a class="sk-dhlink" id="dhl' + i + '" href="/daily-handicap?from=skins&amp;holes=9&amp;p=' + i + '" aria-label="Work out ' + nm + '\u2019s 9-hole Daily Handicap">Work out 9-hole DH →</a>' +
+        '<p class="sk-hcpnote" id="hn' + i + '" aria-live="polite">' + (needsCheck9(S, p) ? esc(check9Note(p)) : '') + '</p>' : '') +
+      '<p class="sk-plusnote" id="pl' + i + '" aria-live="polite">' + esc(plusNote(hcpFor(S, p))) + '</p>') +
       '</div>';
   }).join('');
   $('pcount').value = n; $('pcount').textContent = n;
@@ -756,17 +785,23 @@ function newRound() {
   S.scores = {}; S.playoff = null; S.hole = range()[0]; save(); show('hole', true);
 }
 
+function setHcp(i, v) { // writes the value the field shows: 9-hole DH on a 9-hole round, else the 18-hole DH (each kept separately)
+  var p = S.players[i]; v = Math.max(-10, Math.min(54, v));
+  if (isNine(S)) p.hcp9 = v; else p.hcp = v;
+  save(); var el = $('ph' + i); if (el && document.activeElement !== el) el.value = fmtHcp(v); var nt = $('hn' + i); if (nt) nt.textContent = needsCheck9(S, p) ? check9Note(p) : ''; setPlusNote(i);
+}
+function setPlusNote(i) { var el = $('pl' + i); if (el) el.textContent = plusNote(hcpFor(S, S.players[i])); }
 /* Events */
 document.addEventListener('click', function (ev) {
   var b = ev.target.closest('button'); if (!b) return;
   var i = +b.getAttribute('data-i');
   if (b.hasAttribute('data-sc')) { setScore(i, shown(S.hole)[i] + +b.getAttribute('data-sc')); $('sc' + i).value = S.scores[S.hole][i]; return; }
-  if (b.hasAttribute('data-h')) { var p = S.players[i]; p.hcp = Math.max(-10, Math.min(54, (+p.hcp || 0) + +b.getAttribute('data-h'))); $('ph' + i).value = fmtHcp(p.hcp); save(); return; }
+  if (b.hasAttribute('data-h')) { setHcp(i, hcpFor(S, S.players[i]) + +b.getAttribute('data-h')); $('ph' + i).value = fmtHcp(hcpFor(S, S.players[i])); return; }
   if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
   if (b.hasAttribute('data-si')) { var sv = Math.max(1, Math.min(18, (+S.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.si[S.hole - 1] = sv; $('si').value = sv; save(); renderHoleKeepFocus(b); return; }
   if (b.hasAttribute('data-allow')) { S.allowance = Math.max(50, Math.min(100, S.allowance + +b.getAttribute('data-allow'))); $('allowance').value = S.allowance + '%'; save(); return; }
   switch (b.id) {
-    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0 }); for (var hh in S.scores) S.scores[hh].push(null); S.playoff = null; save(); renderSetup(); } break;
+    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0, hcp9: null }); for (var hh in S.scores) S.scores[hh].push(null); S.playoff = null; save(); renderSetup(); } break;
     case 'btn-less': if (S.players.length > MIN_PLAYERS) { S.players.pop(); for (var hl in S.scores) S.scores[hl].pop(); S.playoff = null; save(); renderSetup(); } break;
     case 'btn-example': loadExample(); break;
     case 'btn-start': if (!stakeValid()) { $('stake').focus(); break; } var rg = range(), h1 = rg[0]; while (h1 < rg[1] && recorded(h1)) h1++; S.hole = h1; show('hole', true); break;
@@ -783,7 +818,7 @@ function renderHoleKeepFocus(btn) { var sel = btn && btn.getAttribute('data-si')
 document.addEventListener('input', function (ev) {
   var t = ev.target, i = +t.getAttribute('data-i');
   if (/^pn\d/.test(t.id)) { S.players[i].name = t.value.slice(0, 24); save(); }
-  else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) { S.players[i].hcp = Math.max(-10, Math.min(54, parseHcp(v))); save(); } }
+  else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) setHcp(i, parseHcp(v)); else setPlusNote(i); } // + - − all mean plus
   else if (/^sc\d/.test(t.id)) { var n = parseInt(t.value, 10); if (n >= 1 && n <= 15) setScore(i, n); }
   else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); siWarn(); } }
   else if (t.id === 'stake') { S.stake = t.value.trim(); save(); }
@@ -799,7 +834,7 @@ document.addEventListener('change', function (ev) {
 });
 document.addEventListener('focusout', function (ev) {
   var t = ev.target, i = +t.getAttribute('data-i');
-  if (/^ph\d/.test(t.id)) t.value = fmtHcp(S.players[i].hcp);
+  if (/^ph\d/.test(t.id)) { t.value = fmtHcp(hcpFor(S, S.players[i])); setPlusNote(i); }
   else if (/^sc\d/.test(t.id)) t.value = shown(S.hole)[i];
   else if (t.id === 'si') t.value = S.si[S.hole - 1];
   else if (t.id === 'stake') stakeValid();
@@ -811,8 +846,21 @@ document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev
   el.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dy) < 40) go(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
 })();
 
+var dhSet = null;
+(function dhReturn() { // back from a player's 'Work out 9-hole DH' link: /skins?dh=7&p=2 sets that player's 9-hole DH
+  try {
+    var q = new URLSearchParams(location.search), v = q.get('dh'), pi = q.get('p');
+    if (v != null && /^[+\-\u2212]?\d{1,2}$/.test(v.trim()) && pi != null && /^\d$/.test(pi) && +pi < S.players.length) {
+      var p = S.players[+pi], val = Math.max(-10, Math.min(54, parseHcp(v)));
+      if (!isNine(S)) S.holes = 'front'; // the link only exists on 9-hole rounds; keep it a 9-hole round
+      p.hcp9 = val; S.screen = 'setup'; save(); dhSet = nameOf(p, +pi) + ': 9-hole Daily Handicap ' + fmtHcp(val);
+    }
+    if (v != null && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  } catch (e) {}
+})();
 window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, reset: function () { S = defaultState(); save(); show('setup'); } };
 show(S.screen || 'setup');
+if (dhSet) toast(dhSet);
 })();
 </script>
 </body>
