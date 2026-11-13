@@ -64,9 +64,9 @@ const saved=(players,extra={})=>JSON.stringify(Object.assign(E.defaultState(),{p
   ok('DH page from a Skins player\'s 9-hole link opens on 9 holes',d.$('holes').value==='9');
   d.set('ga','14.2');d.set('slope','128');d.set('scratch','35.5');d.set('par','36');
   const back=d.$('sfBack').getAttribute('href'),v=decodeURIComponent((back.match(/dh=([^&]+)/)||[])[1]||'');
-  ok('…and links back to Skins with the value and the player ('+back+')',!d.$('sfBack').hidden&&/^\/skins\?dh=[^&]+&p=2$/.test(back)&&txt(d.$('sfBackT'))==='Use '+v+' in Skins →'&&/Back to your Skins round, set for that player\./.test(txt(d.$('sfBack'))),back);
+  ok('…and links back to Skins with the value and the player ('+back+')',!d.$('sfBack').hidden&&/^\/skins\?dh=[^&]+&holes=9&p=2$/.test(back)&&txt(d.$('sfBackT'))==='Use '+v+' in Skins →'&&/Back to your Skins round, set for that player\./.test(txt(d.$('sfBack'))),back);
   const d2=boot(path.join(SITE,'daily-handicap.html'),{url:'https://golfcalculators.com/daily-handicap?from=stableford'});d2.set('ga','14.2');d2.set('slope','128');d2.set('scratch','71');d2.set('par','72');
-  ok('Stableford return unchanged (/stableford?dh=14, "Use 14 in Stableford →")',d2.$('sfBack').getAttribute('href')==='/stableford?dh=14'&&txt(d2.$('sfBackT'))==='Use 14 in Stableford →');
+  ok('Stableford return (/stableford?dh=14&holes=18, "Use 14 in Stableford →")',d2.$('sfBack').getAttribute('href')==='/stableford?dh=14&holes=18'&&txt(d2.$('sfBackT'))==='Use 14 in Stableford →');
   const st=saved([{name:'Mel',hcp:12},{name:'Sam',hcp:4},{name:'Jo',hcp:24},{name:'Al',hcp:-2}],{holes:'front'});
   const h=open({url:U+'?dh='+encodeURIComponent(v)+'&p=2',storage:{[KEY]:st}});const P=h.w.GCSkinsUI.state().players;
   ok('back in Skins with &p=2: Jo\'s 9-hole DH is set directly ('+v+'), 18-hole DH still 24, toast, note gone, query removed',P[2].hcp9===+v&&P[2].hcp===24&&h.$('ph2').value===v&&txt(h.$('hn2'))===''&&txt(h.$('toast'))==='Jo: 9-hole Daily Handicap '+v&&h.w.location.search==='',txt(h.$('toast')));
