@@ -94,7 +94,7 @@ later(async()=>{const ex=E.exampleState(),link=linkOf(E.toPayload(ex)),reads=[];
   ok('an undecided playoff: read-only wording, no picker, Share result disabled',/The playoff winner has not been entered yet\./.test(txt(hn.$('hero')))&&hn.w.getComputedStyle(hn.$('playoff')).display==='none'&&hn.$('gc-reshare').disabled);
   // 8 long names: compact payment lines in the viewer (4+ payments) so Start your own round stays on the first screen
   const h8=open({url:linkOf(E.toPayload(long8()))});await h8.w.GCSkinsUI.opened();
-  ok('8 long names (4+ payments): the viewer hero uses compact payment lines (.sk-many; fold measured in the browser checks)',h8.$('hero').classList.contains('sk-many')&&h8.d.querySelectorAll('#hero .sk-pay').length>=4&&/\.gc-view \.sk-many \.sk-pay\{display:block;font-size:var\(--fs-md\)/.test(src));
+  ok('8 long names (4+ payments): the viewer hero uses compact payment lines (.sk-many; fold measured in the browser checks)',h8.$('hero').classList.contains('sk-many')&&h8.d.querySelectorAll('#hero .sk-pay').length>=4&&/\n  \.sk-many \.sk-pay\{display:block;font-size:var\(--fs-md\)/.test(src));
   // XSS + bidi
   const x=E.exampleState();x.players[0].name='<img src=x onerror="window.pwned=1">';x.players[1].name='\u202Eevil\u2066';
   const hx=open({url:linkOf(E.toPayload(x))});await hx.w.GCSkinsUI.opened();

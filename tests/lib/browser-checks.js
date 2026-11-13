@@ -179,6 +179,26 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       console.log(`${gate(bad)}  skins share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, result and Start your own round on the first screen (bottoms ${r.heroBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}`);
       await p.context().close();}
   }
+  const hasSkCompact=isV2&&await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>[...document.styleSheets].some(ss=>{try{return [...ss.cssRules].some(r=>r.selectorText==='.sk-many .sk-pay');}catch(e){return false;}}));await p.context().close();return r;})();
+  if(hasSkCompact){ // skins-result-compact (PO, 12 Nov): on your own Skins result, Share result is on the first screen at 375x812
+    const own=[['example',async p=>p.evaluate(()=>GCSkinsUI.loadExample())],
+      ['8 long names',async p=>p.evaluate(L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map((n,i)=>({name:n,hcp:i*3,hcp9:null}));for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>3+((x*7+i*3)%5));U.set(s);U.show('result');},SKLONG8)],
+      ['8 long names, 7 payments',async p=>p.evaluate(L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map(n=>({name:n,hcp:0,hcp9:null}));s.endRule='nobody';for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>x<=7?(i===7?3:5):x<=16?4:(i===x%8?3:5));U.set(s);U.show('result');},SKLONG8)],
+      ['4 long names, 3 payments (big lines)',async p=>p.evaluate(L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.slice(0,4).map(n=>({name:n,hcp:0,hcp9:null}));s.endRule='nobody';for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>i===0?3:5);U.set(s);U.show('result');},SKLONG8)]];
+    for(const [label,mk] of own){
+      const p=await page(375,812);await p.goto(base+'/skins',{waitUntil:'load'});await mk(p);await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const b=document.getElementById('btn-share').getBoundingClientRect(),h=document.getElementById('hero').getBoundingClientRect();
+        return {heroBottom:Math.round(h.bottom),top:Math.round(b.top),bottom:Math.round(b.bottom),vh:innerHeight,pays:document.querySelectorAll('#hero .sk-pay').length,compact:document.getElementById('hero').classList.contains('sk-many'),enabled:!document.getElementById('btn-share').disabled,viewing:GCSkinsUI.viewing()};});
+      const shot=`fold-own-skins-${label.replace(/[^a-z0-9]+/gi,'-').toLowerCase().replace(/-$/,'')}-375x812.png`;await p.screenshot({path:path.join(OUT,shot)});
+      const bad=!(r.enabled&&!r.viewing&&r.bottom>0&&r.bottom<=r.vh&&r.top>=r.heroBottom);
+      if(bad)fail=1;rows.push({name:`skins own result fold ${label}`,width:375,r});
+      console.log(`${gate(bad)}  skins own result fold @375x812 (${label}: ${r.pays||'no'} payment lines${r.compact?', compact':''}): Share result on the first screen: result bottom ${r.heroBottom}px, button ${r.top}-${r.bottom}px of ${r.vh}px`);
+      await p.context().close();}
+    for(const w of [375,320]){ // axe + screenshots of the compact own result
+      await check('skins own result, 8 long names, compact payment lines',w,'/skins',own[1][1],`skins-9-own-compact-${w}.png`);
+      await check('skins own result, 8 long names, 7 payments',w,'/skins',own[2][1],w===375?'skins-9b-own-compact-7pay-375.png':null);
+    }
+  }
   if(hasShare){ // PO 12 Nov, both tools: in the shared viewer, Start your own round is on the first screen at 375x812 with the longest data
     const cases=[];
     if(isSf)cases.push(['stableford','4 long names, 40-char course',async p=>p.evaluate(async L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L[i]);s.course.name='Royal Sydney Golf Club - Composite (Blue)';U.show('result');return (await U.link()).url;},['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'])]);
