@@ -37,7 +37,10 @@ no `input[type=number]` on rebuilt pages (Stableford is no longer allowlisted); 
 daily-handicap (H1 and first control in the first viewport, search content below; screenshots
 `fold-<page>-375x812.png` and `full-<page>-375.png`); on 9 holes each Stableford player's
 "Work out 9-hole DH" link sits right under their handicap stepper (375 and 320); the Daily Handicap
-"(effective 2 Oct 2025)" phrase stays on one line without sideways scroll (375 and 320); Lighthouse mobile Performance >= 95,
+"(effective 2 Oct 2025)" phrase stays on one line without sideways scroll (375 and 320); the Stableford
+setup Start bar never covers the hole-count radios, 10th-tee switch, Edit course or the last 9-hole
+DH link at any scroll position (375×812 and 320×568, fresh and 4 long names on the front 9); every
+course-card par/SI value field is at least 44×44 (375 and 320); Lighthouse mobile Performance >= 95,
 Accessibility >= 95, LCP <= 2.5 s and CLS <= 0.1 on home, skins, stableford, privacy,
 daily-handicap. Reports go to `tests/out/<label>/` (git-ignored) and are uploaded
 as the `lighthouse-reports` artifact.

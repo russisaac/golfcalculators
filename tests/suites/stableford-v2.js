@@ -147,9 +147,13 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('whole field off the 10th: then "the last three (holes 7–9)"',x.first.name==='A'&&x.line==='A wins on countback: 7 v 6 on the last three (holes 7–9)',x.line);
  { const h=open({storage:{gc_stableford_v1:JSON.stringify(Object.assign(G.defaultState(),{tenth:true}))}});
    ok('setup help for a 10th-tee start: "Countback: the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from hole 9."',txt(h.$('round-help'))==='Countback: the last nine (holes 1–9), then the last six (holes 4–9), then the last three (holes 7–9), then hole by hole from hole 9.',txt(h.$('round-help')));
-   const faq=[...h.d.querySelectorAll('.gc-faq-item')].find(e=>/countback work/.test(e.textContent));
+   const faq=[...h.d.querySelectorAll('.gc-faq-item')].find(e=>/whole field started on the 10th tee\?/.test(txt(e.querySelector('h3'))));
+   const faqD=[...h.d.querySelectorAll('.gc-faq-item')].find(e=>/countback work/.test(e.textContent));
+   const defStages=G.cbStages(G.holesInPlay(G.defaultState())).slice(0,3).map(hs=>hs[0]+'–'+hs[hs.length-1]);
+   ok('countback FAQ: the default last 9 / 6 / 3 are holes '+defStages.join(', ')+' (as the calculator), and a shotgun start uses the same holes',!!faqD&&/last 9 holes \(10–18\), then the last 6 \(13–18\), then the last 3 \(16–18\)/.test(txt(faqD))&&defStages.join()==='10–18,13–18,16–18'&&/After a shotgun start it uses the same holes, whichever hole each player started on/.test(txt(faqD)),txt(faqD));
+   ok('10th-tee FAQ says it is only for a whole field off the 10th, not a shotgun',!!faq&&/only when everyone teed off on the 10th, not to a shotgun start/.test(txt(faq)));
    const tenthStages=G.cbStages(G.holesInPlay(Object.assign(G.defaultState(),{tenth:true}))).slice(0,3).map(hs=>G.cbRange(hs,G.holesInPlay(Object.assign(G.defaultState(),{tenth:true})))).map(t=>t.replace(/^the /,''));
-   ok('countback FAQ covers a whole field off the 10th with the same stages as the calculator ('+tenthStages.join(', ')+')',!!faq&&/whole field started on the 10th tee/.test(txt(faq))&&tenthStages.every(t=>txt(faq).includes(t)),tenthStages.join(' | ')); }
+   ok('10th-tee FAQ uses the same stages as the calculator ('+tenthStages.join(', ')+')',!!faq&&tenthStages.every(t=>txt(faq).includes(t)),tenthStages.join(' | ')); }
  ok('10th-tee start: stages 1–9, 4–9, 7–9, then hole 9',G.cbStages(G.holesInPlay(x.st)).slice(0,4).map(s=>s[0]+'-'+s[s.length-1]).join()==='1-9,4-9,7-9,9-9');
  // three-way tie: places 1-3 all on countback
  const st=G.defaultState();st.players=[{name:'A',hcp:0},{name:'B',hcp:0},{name:'C',hcp:0}];
@@ -211,7 +215,9 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('duplicate SI: both holes marked invalid',h.$('cs1').getAttribute('aria-invalid')==='true'&&h.$('cs2').getAttribute('aria-invalid')==='true'&&h.$('cs3').getAttribute('aria-invalid')==='false');
  h.set('cname','Royal Test');click(h,'#btn-csave');ok('cannot save a course with an invalid SI',/Fix the stroke index first/.test(txt(h.$('fill-err')))&&!h.w.localStorage.getItem('gc_courses_v1'));
  click(h,'#btn-cdone');ok('setup warns about the SI problem before the round',!h.$('setup-si').hidden&&/SI 2 is on holes 1 and 2/.test(txt(h.$('setup-si'))));
- click(h,'#btn-start');ok('hole screen warns about the duplicate SI',!h.$('si-warn').hidden&&txt(h.$('si-warn'))==='SI 2 is also on hole 2. Each hole needs a different stroke index, so check the card.');
+ const setupMsg=txt(h.$('setup-si'));ok('setup message in full',setupMsg==='SI 2 is on holes 1 and 2. Missing: SI 1. Each stroke index 1–18 goes on one hole only, so check the card. Fix it in Edit course.',setupMsg);
+ click(h,'#btn-start');ok('hole screen (hole 1, one of the duplicates): the warning is exactly the setup message, and the SI field is marked invalid',!h.$('si-warn').hidden&&txt(h.$('si-warn'))===setupMsg&&h.$('si').getAttribute('aria-invalid')==='true',txt(h.$('si-warn')));
+ h.w.GCStablefordUI.go(1);h.w.GCStablefordUI.go(1);ok('hole screen (hole 3, not a duplicate): the same message, SI field not marked invalid',h.w.GCStablefordUI.state().hole===3&&txt(h.$('si-warn'))===setupMsg&&h.$('si').getAttribute('aria-invalid')==='false',h.w.GCStablefordUI.state().hole+' '+txt(h.$('si-warn')));
  h.w.GCStablefordUI.show('result');ok('result notes the duplicate SI',!h.$('si-note').hidden&&/SI 2 is on holes 1 and 2/.test(txt(h.$('si-note'))));
  h.w.GCStablefordUI.show('course');click(h,'button[data-cs="-1"][data-h="1"]');ok('fixing it clears the message',h.$('si-err').hidden);
  click(h,'#btn-csave');ok('course saved by name',JSON.parse(h.w.localStorage.getItem('gc_courses_v1'))[0].name==='Royal Test');
@@ -285,6 +291,11 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  ok('later visit: setup prefilled with 3 remembered players (names and handicaps)',!g('scr-setup').hidden&&txt(g('pcount'))==='3'&&['pn0','pn1','pn2'].map(i=>g(i).value).join()==='Mel,Sam,Jo'&&['ph0','ph1','ph2'].map(i=>g(i).value).join()==='12,+2,24',['pn0','pn1','pn2','ph0','ph1','ph2'].map(i=>g(i)&&g(i).value).join());
  ok('later visit: the +2 note is shown again for the remembered plus handicap',txt(g('hn1'))==='Plus 2 (+2): gives back 2 strokes, starting at the highest stroke index');
  ok('later visit: the remembered course card prefills (name, par 71)',txt(g('course-name'))==='Long Reef'&&txt(g('course-sum'))==='18 holes · par 71',txt(g('course-name'))+' / '+txt(g('course-sum')));}
+
+// ---- next-step card only on setup and result (p4b: gc.css display:grid beat [hidden]; the browser check measures it) ----
+{const h=open({storage:{}});ok('page CSS hides a [hidden] next-step card (gc.css sets display:grid)',/\.gc-next\[hidden\]\{display:none\}/.test(src));
+ click(h,'#btn-start');ok('next-step card flagged hidden on the hole screen',h.$('setup-next').hidden);h.w.GCStablefordUI.show('course',true);ok('…and on the course card',h.$('setup-next').hidden);
+ h.w.GCStablefordUI.loadExample();ok('…and shown on the result, after the podium (PO)',!h.$('setup-next').hidden&&!!h.$('scr-result').compareDocumentPosition(h.$('setup-next'))&&(h.$('scr-result').compareDocumentPosition(h.$('setup-next'))&4)>0);}
 
 // ---- 1-player round and empty states ----
 {const h=open();click(h,'#btn-start');click(h,'#btn-board');ok('leaderboard before any full hole is honest',/Stableford/.test(txt(h.$('hero'))));

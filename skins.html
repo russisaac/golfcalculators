@@ -128,6 +128,7 @@ a{color:var(--accent)}
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
   .sk-screen[hidden]{display:none}
+  .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the next-step card showed on the hole and result screens */
   html{scroll-padding-top:56px;scroll-padding-bottom:96px}
   .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
   .sk-player+.sk-player{margin-top:var(--s2)}

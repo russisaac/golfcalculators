@@ -112,6 +112,46 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       console.log(`${gate(bad)}  stableford 9-hole DH link right under each stepper @${w}: ${r.map(x=>`P${x.i+1} gap ${x.gap}px, ${x.h}px tall`).join('; ')}`);
       await p.context().close();}
   }
+  { // p4b + PO 12 Nov: the next-step card is shown on Stableford setup and after the podium (result), and really hidden
+    // (display:none, 0 px) on the hole-entry and course screens; Skins shows it on setup only. gc.css .gc-next{display:grid}
+    // used to win over [hidden].
+    const cases=[];
+    if(isSf)cases.push(['stableford setup','/stableford',()=>GCStablefordUI.show('setup'),true],['stableford result (podium)','/stableford',()=>GCStablefordUI.loadExample(),true],
+      ['stableford hole entry','/stableford',()=>{GCStablefordUI.loadExample();GCStablefordUI.show('hole',true);},false],['stableford course card','/stableford',()=>GCStablefordUI.show('course',true),false]);
+    if(isV2)cases.push(['skins setup','/skins',()=>GCSkinsUI.show('setup'),true],['skins hole entry','/skins',()=>{GCSkinsUI.loadExample();GCSkinsUI.show('hole');},false],['skins result','/skins',()=>GCSkinsUI.loadExample(),false]);
+    for(const [n,u,fn,want] of cases){const p=await page(375);await p.goto(base+u,{waitUntil:'load'});await p.evaluate(fn);
+      const r=await p.evaluate(()=>{const e=document.getElementById('setup-next');return {hidden:e.hidden,display:getComputedStyle(e).display,h:Math.round(e.getBoundingClientRect().height)};});
+      const bad=want?!(!r.hidden&&r.display!=='none'&&r.h>=44):!(r.hidden&&r.display==='none'&&r.h===0);if(bad)fail=1;rows.push({name:`${n} next-step card`,width:375,next:r,want});
+      if(n==='stableford result (podium)'){await p.evaluate(()=>document.getElementById('setup-next').scrollIntoView({block:'end'}));await p.screenshot({path:path.join(OUT,'stableford-result-next-step-375.png')});}
+      console.log(`${gate(bad)}  ${n}: next-step card ${want?'shown':'not shown'} (hidden ${r.hidden}, display ${r.display}, ${r.h}px)`);await p.context().close();}
+  }
+  if(isSf){ // PO 12 Nov (p4b): every course-card par and SI value field has a hit area of at least 44x44 px, with no sideways scroll
+    for(const w of [375,320]){
+      const p=await page(w);await p.goto(base+'/stableford',{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.show('course',true));
+      const r=await p.evaluate(()=>{const f=[...document.querySelectorAll('#holes input')];const small=f.filter(e=>{const R=e.getBoundingClientRect();return R.width<44||R.height<44;}).map(e=>e.id);
+        const R=f[0].getBoundingClientRect();return {n:f.length,small,w:Math.round(R.width),h:Math.round(R.height),sw:document.documentElement.scrollWidth,vw:innerWidth};});
+      const bad=!(r.n===36&&!r.small.length&&r.sw<=r.vw);if(bad)fail=1;rows.push({name:`stableford course value fields ${w}`,width:w,fields:r});
+      console.log(`${gate(bad)}  stableford course card: all ${r.n} par/SI value fields >= 44x44 (${r.w}x${r.h}) @${w}, page ${r.sw}px wide${r.small.length?' · small: '+r.small.join(','):''}`);
+      await p.context().close();}
+  }
+  if(isSf){ // PO 12 Nov (p4b): at every scroll position, the Start bar (.sk-actions) may not cover the hole-count radios,
+    // the 10th-tee switch, Edit course or the last player's 9-hole DH link on setup (fresh 18 holes, and 4 long names on the front 9).
+    // Passing under the sticky site header at the top while scrolling is normal and not counted.
+    const T=['input[name=round][value="18"]+span','input[name=round][value=front]+span','input[name=round][value=back]+span','#tenth-wrap','#btn-course','#dhl3','#btn-start'];
+    for(const [w,hgt] of [[375,812],[320,568]]){for(const mode of ['fresh','front9']){
+      const p=await page(w,hgt);await p.goto(base+'/stableford',{waitUntil:'load'});
+      if(mode==='front9')await p.evaluate(()=>{const s=GCStablefordUI.state();s.players=[{name:'Bartholomew-Fitzgerald',hcp:6},{name:'Maximiliana Oyelaran',hcp:1},{name:'Christopher-Montague',hcp:12},{name:'Anastasiya Wolfensohn',hcp:-1}];s.round='front';GCStablefordUI.show('setup');});
+      const r=await p.evaluate(async T=>{const max=document.documentElement.scrollHeight-innerHeight,bad=[];let n=0;
+        for(let y=0;y<=max+8;y+=8){scrollTo(0,Math.min(y,max));await new Promise(r=>requestAnimationFrame(()=>r()));
+          for(const q of T){const e=document.querySelector(q);if(!e||!e.offsetParent)continue;const R=e.getBoundingClientRect();
+            const pts=[[R.left+R.width/2,R.top+1],[R.left+R.width/2,R.bottom-1],[R.left+4,R.top+R.height/2],[R.right-4,R.top+R.height/2]].filter(([,yy])=>yy>=0&&yy<innerHeight);
+            for(const [x,yy] of pts){n++;const t=document.elementFromPoint(x,yy);if(!t)continue;const own=t===e||e.contains(t)||(e.closest('label')&&t.closest('label')===e.closest('label'));
+              if(!own){const cover=t.closest('.sk-actions');if(cover&&!cover.contains(e)){bad.push(q+'@y'+y+' by '+(cover.className||cover.tagName));break;}}}}}
+        return {n,bad:[...new Set(bad.map(b=>b.split('@')[0]))],first:bad[0]||null,max};},T);
+      const bad=r.bad.length>0;if(bad)fail=1;rows.push({name:`stableford setup never covered ${w}x${hgt} ${mode}`,width:w,cover:r});
+      console.log(`${gate(bad)}  stableford setup, ${mode==='fresh'?'fresh 18 holes':'4 long names, front 9'}: Start bar never covers ${T.length} controls at any scroll position @${w}x${hgt} (${r.n} points over ${r.max}px)${bad?' · covered: '+r.bad.join(', ')+' first '+r.first:''}`);
+      await p.context().close();}}
+  }
   if(pages.some(p=>p[0]==='daily-handicap')){ // PO 12 Nov: "(effective 2 Oct 2025)" never wraps mid-phrase, and never causes sideways scroll
     for(const w of [375,320]){
       const p=await page(w);await p.goto(base+'/daily-handicap',{waitUntil:'load'});
