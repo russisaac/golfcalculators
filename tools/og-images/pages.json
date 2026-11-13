@@ -29,10 +29,10 @@
     "url": "https://golfcalculators.com/stableford",
     "kicker": "Free golf calculator",
     "title": "Stableford Calculator",
-    "value": "Net points per hole and a running total, by Stroke Index.",
-    "ogTitle": "Stableford Points Calculator – Handicap & Countback Rules",
-    "ogDescription": "Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.",
-    "alt": "Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com",
+    "value": "Points by handicap, a podium leaderboard and the countback.",
+    "ogTitle": "Stableford Calculator – Points with Handicap & Countback",
+    "ogDescription": "Free Stableford points calculator for 1–4 players, 18 or 9 holes: points per hole with handicap, a podium leaderboard and the Australian countback.",
+    "alt": "Stableford Calculator: Points by handicap, a podium leaderboard and the countback. golfcalculators.com",
     "tagline": "Free · No sign-up"
   },
   {

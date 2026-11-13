@@ -6,23 +6,23 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<title>Stableford Points Calculator – Handicap &amp; Countback Rules</title>
-<meta name="description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
+<title>Stableford Calculator – Points with Handicap &amp; Countback</title>
+<meta name="description" content="Free Stableford points calculator for 1–4 players, 18 or 9 holes: points per hole with handicap, a podium leaderboard and the Australian countback.">
 <link rel="canonical" href="https://golfcalculators.com/stableford">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="golfcalculators.com">
-<meta property="og:title" content="Stableford Points Calculator – Handicap &amp; Countback Rules">
-<meta property="og:description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
+<meta property="og:title" content="Stableford Calculator – Points with Handicap &amp; Countback">
+<meta property="og:description" content="Free Stableford points calculator for 1–4 players, 18 or 9 holes: points per hole with handicap, a podium leaderboard and the Australian countback.">
 <meta property="og:url" content="https://golfcalculators.com/stableford">
 <meta property="og:image" content="https://golfcalculators.com/og/stableford.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com">
+<meta property="og:image:alt" content="Stableford Calculator: Points by handicap, a podium leaderboard and the countback. golfcalculators.com">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Stableford Points Calculator – Handicap &amp; Countback Rules">
-<meta name="twitter:description" content="Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.">
+<meta name="twitter:title" content="Stableford Calculator – Points with Handicap &amp; Countback">
+<meta name="twitter:description" content="Free Stableford points calculator for 1–4 players, 18 or 9 holes: points per hole with handicap, a podium leaderboard and the Australian countback.">
 <meta name="twitter:image" content="https://golfcalculators.com/og/stableford.png">
-<meta name="twitter:image:alt" content="Stableford Calculator: Net points per hole and a running total, by Stroke Index. golfcalculators.com">
+<meta name="twitter:image:alt" content="Stableford Calculator: Points by handicap, a podium leaderboard and the countback. golfcalculators.com">
 <script>
   // GA4 (G-DH32H3GWKE) on the production hostnames only: previews and localhost send nothing.
   window.dataLayer = window.dataLayer || [];
@@ -36,46 +36,220 @@
     gtag('config', 'G-DH32H3GWKE');
   }
 </script>
+<meta name="theme-color" content="#166534">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). test/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+</style>
 <style>
-  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
-  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; line-height: 1.55; }
-  header { background: white; border-bottom: 1px solid var(--border); padding: 0.75rem 1.5rem; }
-  header a { text-decoration: none; color: var(--green); font-weight: 600; }
-  main { max-width: 680px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
-  h1 { font-size: 1.75rem; margin: 0 0 0.4rem; }
-  .lede { color: #475569; margin: 0 0 1.5rem; }
-  .section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
-  label { display: block; margin: 0.5rem 0 0.25rem; font-weight: 500; font-size: 0.875rem; }
-  input, select, button { font-size: 1rem; padding: 0.5rem 0.65rem; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 44px; }
-  button { background: var(--green); color: white; border: none; cursor: pointer; font-weight: 600; }
-  .result { background: #f0fdf4; border-color: #86efac; font-size: 1.4rem; font-weight: 600; text-align: center; padding: 1.5rem; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-  th, td { border: 1px solid var(--border); padding: 0.3rem; text-align: center; }
-  input[type=number] { width: 60px; text-align: center; }
-  header a { display: inline-block; min-height: 44px; line-height: 44px; }
-  .site-footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
-  .site-footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
-  .hcp-note { margin: .4rem 0 0; font-size: .95rem; font-weight: 600; color: #14532d; }
-  .hcp-note:empty { display: none; }
-  .hcp-note:not(:empty) { background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; padding: .35rem .6rem; }
-  .site-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1rem; }
-  @media (max-width: 360px) { .site-nav { gap: 0 .7rem; } .site-nav a { font-size: .95rem; } }
-  .site-nav a { display: inline-block; min-height: 44px; line-height: 44px; text-decoration: none; color: var(--green); font-weight: 600; }
-  .site-nav a[aria-current="page"] { color: #0f172a; text-decoration: underline; text-underline-offset: 6px; }
-  .src { font-size: 0.85rem; color: #475569; margin: 0.5rem 0 1rem; }
-  .next-card { display: block; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin: 1.5rem 0; text-decoration: none; color: #0f172a; }
-  .next-card strong { display: block; color: var(--green); }
-  .next-card span { color: #475569; font-size: 0.9rem; }
-  .gc-learn { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; color: #334155; }
-  .gc-learn h2 { font-size: 1.3rem; color: #0f172a; margin: 1.75rem 0 0.6rem; }
-  .gc-learn h2:first-child { margin-top: 0; }
-  .gc-learn h3 { font-size: 1.05rem; color: #0f172a; margin: 1.25rem 0 0.4rem; }
-  .gc-learn p, .gc-learn li { margin: 0 0 0.75rem; }
-  .gc-learn-list { padding-left: 1.25rem; }
-  .gc-learn-result { font-weight: 700; color: #0f172a; }
-  .gc-learn-src { font-size: 0.85rem; color: #475569; }
-  .gc-learn a { color: var(--green); }
-  .gc-faq-item { border-top: 1px solid var(--border); padding-top: 0.75rem; }
+  .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .sk-screen[hidden]{display:none}
+  html{scroll-padding-top:56px;scroll-padding-bottom:96px}
+  .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
+  .sk-player+.sk-player{margin-top:var(--s2)}
+  .sk-player .gc-input{min-width:0}
+  .sk-cardhead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sk-colhead{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted);margin:var(--s1) 0}
+  .sk-colhead span:last-child{width:132px;text-align:center}
+  .sk-tight .gc-stepper button{width:44px}
+  .sk-tight .gc-stepper input,.sk-tight .gc-stepper output{width:44px}
+  .gc-stepper output{display:flex;align-items:center;justify-content:center;width:52px;height:var(--tap);font-size:var(--fs-lg);font-weight:700}
+  .sk-game{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s2) var(--s3);align-items:center}
+  .sk-game>.gc-label{margin:0}
+  .sk-game .sk-full{grid-column:1/-1}
+  .gc-card.sk-pad{padding:var(--s3)}
+  .sk-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+  .sk-money{display:flex;align-items:center;gap:var(--s1);font-weight:700}
+  .sk-money input{width:96px;text-align:right}
+  details.sk-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer}
+  .sk-switch{display:flex;align-items:center;gap:var(--s3);min-height:44px;cursor:pointer}
+  .sk-switch input{flex:none;width:24px;height:24px;margin:0;accent-color:var(--accent)}
+  .sk-actions{position:sticky;bottom:0;background:linear-gradient(rgba(246,248,247,0),var(--bg) 24%);padding:var(--s3) 0 var(--s3);margin-top:var(--s3);display:grid;gap:var(--s2);z-index:5}
+  .sk-actions-2{grid-template-columns:1fr 1fr}
+  .sk-holehead{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sk-holeno{font-size:var(--fs-xl);font-weight:800;line-height:1.1}
+  .sk-course{display:grid;grid-template-columns:1fr auto;gap:var(--s3);align-items:end;margin-top:var(--s3)}
+  .sk-course .gc-seg{min-width:0}
+  .sk-strip{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s3) var(--s4)}
+  .sk-strip strong{display:block;font-size:var(--fs-md)}
+  .sk-strip span{font-size:var(--fs-sm);color:var(--ink-2)}
+  .sk-score{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s2) 0}
+  .sk-score+.sk-score{border-top:1px solid var(--line)}
+  .sk-who{flex:1;min-width:0}
+  .sk-who b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sk-who small{font-size:var(--fs-sm);color:var(--muted)}
+  .sk-score.is-win .sk-who b{color:var(--accent)}
+  .sk-progress{display:flex;gap:2px;margin-top:var(--s3)}
+  .sk-progress i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .sk-progress i.done{background:var(--accent-line)}
+  .sk-progress i.cur{background:var(--accent)}
+  .sk-totals{display:grid;grid-template-columns:1fr auto auto;gap:var(--s1) var(--s3);font-size:var(--fs-md);margin-top:var(--s3)}
+  .sk-totals .neg{color:var(--danger);font-weight:700;text-align:right}
+  .sk-totals .pos{color:var(--accent);font-weight:700;text-align:right}
+  .sk-totals .zero{text-align:right;font-weight:700}
+  .sk-totals .sk-sk{color:var(--muted);text-align:right}
+  .sk-pay{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);font-size:var(--fs-lg);font-weight:800;line-height:1.25;margin-top:var(--s2)}
+  .sk-pay span:first-child{min-width:0;overflow-wrap:anywhere}
+  .sk-pay span:last-child{flex:none}
+  .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
+  .sk-ledger{list-style:none;margin:0;padding:0}
+  .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
+  .sk-ledger li+li{border-top:1px solid var(--line)}
+  .sk-ledger .h{font-weight:700;color:var(--muted)}
+  .sk-ledger .win{font-weight:600}
+  .sk-note{background:var(--warn-soft);color:var(--warn);border-radius:var(--r-sm);padding:var(--s2) var(--s3);font-size:var(--fs-sm)}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn a{display:inline-block;min-height:24px}
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
+  .sk-playoff{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:var(--s2);margin-top:var(--s2)}
+  /* Stableford v2 (P4): only what Skins slice 1 does not already have */
+  .sf-hcpnote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#14532d;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:var(--s1) var(--s3)}
+  .sf-hcpnote:empty{display:none}
+  .sf-dhlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600}
+  .sf-dhlink[hidden]{display:none}
+  .sf-dhrow{grid-column:1/-1;justify-self:end;margin-top:calc(-1 * var(--s1));font-size:var(--fs-sm)}
+  .sf-prompt{background:var(--accent-soft);border:1px solid var(--accent-line)}
+  .sf-prompt .sk-playoff{margin-top:var(--s2)}
+  .sf-coursesum{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .sf-coursesum b{display:block;overflow-wrap:anywhere}
+  .gc-input.sf-select{appearance:auto;padding-right:var(--s2)}
+  .sf-holes{list-style:none;margin:0;padding:0}
+  .sf-holes li{display:grid;grid-template-columns:28px 1fr 1fr;gap:var(--s2);align-items:center;padding:var(--s1) 0}
+  .sf-holes li+li{border-top:1px solid var(--line)}
+  .sf-holes .n{font-weight:700;color:var(--muted);text-align:center}
+  .sf-holes .gc-stepper{justify-self:end}
+  .sf-holes .gc-stepper button{width:44px}
+  .sf-holes .gc-stepper input{width:34px;font-size:var(--fs-md)}
+  .sf-holes li.bad .si{border-color:var(--danger);box-shadow:0 0 0 2px #fecaca}
+  .sf-holeshead{display:grid;grid-template-columns:28px 1fr 1fr;gap:var(--s2);font-size:var(--fs-sm);color:var(--muted);font-weight:600}
+  .sf-holeshead span{text-align:center}
+  .sf-fill{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2)}
+  .sf-fill .gc-label{grid-column:1/-1;margin:0}
+  .sf-err{color:var(--danger);font-size:var(--fs-sm);font-weight:600}
+  .sf-err:empty{display:none}
+  .sf-row{padding:var(--s2) 0}
+  .sf-row+.sf-row{border-top:1px solid var(--line)}
+  .sf-row1{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2)}
+  .sf-row1 b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sf-row1 span{flex:none;font-size:var(--fs-sm);color:var(--muted);font-weight:600}
+  .sf-row2{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);margin-top:var(--s1)}
+  .sf-row2 small{flex:1;min-width:0;font-size:var(--fs-sm);color:var(--muted)}
+  .sf-pu{min-height:44px;min-width:56px;padding:0 var(--s2);font-size:var(--fs-sm);border-radius:var(--r-sm);border:1px solid #cbd5e1;background:var(--card);color:var(--ink-2);font-weight:600;cursor:pointer}
+  .sf-pu[aria-pressed="true"]{background:var(--warn-soft);border-color:#f59e0b;color:var(--warn)}
+  .sf-row.is-pu .gc-stepper input{color:var(--muted)}
+  .sk-strip p+p{margin-top:var(--s1)}
+  .sf-podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:var(--s2);margin-top:var(--s3)}
+  .sf-step{background:#0f4d2a;border-radius:var(--r-sm) var(--r-sm) 0 0;padding:var(--s2) var(--s1) var(--s3);text-align:center;min-width:0}
+  .sf-step .pl{font-size:var(--fs-sm);font-weight:700}
+  .sf-step .nm{display:block;font-weight:800;line-height:1.2;overflow-wrap:anywhere;margin-top:var(--s1)}
+  .sf-step .pt{display:block;font-size:var(--fs-lg);font-weight:800;margin-top:var(--s1)}
+  .sf-step.p1{background:#0a3a1f;box-shadow:inset 0 3px 0 #facc15;padding-top:var(--s5);padding-bottom:var(--s6)}
+  .sf-step.p1 .pt{font-size:var(--fs-xl)}
+  .sf-step.p3{padding-bottom:var(--s2)}
+  .sf-step .pt{white-space:nowrap}
+  @media (max-width:360px){.sf-step.p1 .pt{font-size:26px}.sf-step .pt{font-size:20px}}
+  .sf-rest{list-style:none;margin:var(--s3) 0 0;padding:0;font-weight:600}
+  .sf-rest li{display:flex;justify-content:space-between;gap:var(--s2)}
+  .sf-rest li span:first-child{min-width:0;overflow-wrap:anywhere}
+  .sf-cb{margin-top:var(--s3);font-weight:700;background:#0f4d2a;border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+  details.sf-why{border-top:1px solid var(--line)}
+  details.sf-why:first-of-type{border-top:0}
+  details.sf-why summary{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:var(--s2);font-weight:700;cursor:pointer}
+  details.sf-why summary span:first-child{min-width:0;overflow-wrap:anywhere}
+  details.sf-why summary span:last-child{flex:none;color:var(--accent)}
+  .sf-why .sk-ledger li{grid-template-columns:44px 1fr}
+  .gc-learn a{display:inline;min-height:0} /* prose links: WCAG 2.5.8 inline exception */
+  @media (max-width:340px){.gc-main{padding-left:var(--s3);padding-right:var(--s3)}.gc-card.sk-pad{padding:var(--s2)}}
 </style>
 <!-- seo:jsonld:start -->
 <script type="application/ld+json">
@@ -87,7 +261,7 @@
    "@id": "https://golfcalculators.com/stableford#app",
    "name": "Stableford Points Calculator",
    "url": "https://golfcalculators.com/stableford",
-   "description": "Free Stableford points calculator. Enter your Daily Handicap and scores to get points per hole by stroke index, plus how the Australian countback works.",
+   "description": "Free Stableford points calculator for 1–4 players, 18 or 9 holes: points per hole with handicap, a podium leaderboard and the Australian countback.",
    "applicationCategory": "SportsApplication",
    "operatingSystem": "Any",
    "offers": {
@@ -124,7 +298,7 @@
      "name": "How does the Stableford countback work?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11)."
+      "text": "Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11)."
      }
     },
     {
@@ -141,6 +315,14 @@
      "acceptedAnswer": {
       "@type": "Answer",
       "text": "Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What if players are still tied after the countback?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11)."
      }
     }
    ]
@@ -168,30 +350,143 @@
 </script>
 <!-- seo:jsonld:end -->
 </head>
-<body>
-<header><nav class="site-nav" aria-label="Calculators"><a href="/">Home</a><a href="/skins">Skins</a><a href="/stableford" aria-current="page">Stableford</a><a href="/daily-handicap">Daily Hcp</a></nav></header>
-<main>
-<h1>Stableford Calculator</h1>
-<p class="lede">Enter your Daily Handicap and gross scores to get Stableford points per hole, by stroke index.</p>
-<div class="section">
-  <label for="hcp">Daily / Playing Handicap</label>
-  <input type="text" id="hcp" value="12" placeholder="e.g. 12 or +2" aria-describedby="hcpNote">
-  <p id="hcpNote" class="hcp-note" aria-live="polite"></p>
-  <label for="holes">Holes</label>
-  <select id="holes"><option value="18">18</option><option value="9">9</option></select>
+<body data-gc="stableford-v2">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford" aria-current="page">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+
+<main class="gc-main">
+
+<!-- SETUP -->
+<section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
+  <div class="sk-title"><h1 id="setup-h" tabindex="-1">Stableford calculator</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-example">Load example</button></div>
+  <div class="gc-stack">
+    <div class="gc-card sk-pad sf-prompt" id="dh-prompt" hidden></div>
+    <div class="gc-card sk-pad sk-tight">
+      <div class="sk-cardhead"><h2 id="players-h">Players</h2>
+        <span class="gc-stepper" role="group" aria-label="Number of players"><button type="button" id="btn-less" aria-label="Remove the last player">−</button><output id="pcount" aria-live="polite">1</output><button type="button" id="btn-add" aria-label="Add a player">+</button></span></div>
+      <div class="sk-colhead" aria-hidden="true"><span>Name</span><span id="hcp-col">Daily handicap</span></div>
+      <div id="players"><div class="sk-player"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" data-i="0" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player 1" value=""><span class="gc-stepper" role="group" aria-label="Player 1 daily handicap"><button type="button" data-h="-1" data-i="0" aria-label="Lower handicap for Player 1">−</button><input id="ph0" data-i="0" type="text" autocomplete="off" aria-label="Player 1 daily handicap (+ for plus)" aria-describedby="hn0" value="0"><button type="button" data-h="1" data-i="0" aria-label="Raise handicap for Player 1">+</button></span><p class="sf-hcpnote" id="hn0" aria-live="polite"></p></div></div>
+      <a class="sf-dhlink" id="dh-link" href="/daily-handicap?from=stableford">Work out my DH →</a>
+    </div>
+    <div class="gc-card sk-pad">
+      <h2 class="sr-only">Course and round</h2>
+      <div class="sf-coursesum"><div><span class="gc-label" style="margin:0">Course</span><b id="course-name">Standard card (edit to match yours)</b><span class="gc-muted" id="course-sum">18 holes · par 72</span></div>
+        <button type="button" class="gc-btn gc-btn-secondary" id="btn-course">Edit course</button></div>
+      <div id="saved-wrap" style="margin-top:var(--s3)" hidden><label class="gc-label" for="saved">Saved courses</label>
+        <select class="gc-input sf-select" id="saved"></select></div>
+      <div id="round-wrap" style="margin-top:var(--s3)"><span class="gc-label" id="round-l">Holes</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="round-l">
+          <label><input type="radio" name="round" value="18" checked><span>18</span></label>
+          <label><input type="radio" name="round" value="front"><span>Front 9</span></label>
+          <label><input type="radio" name="round" value="back"><span>Back 9</span></label>
+        </div></div>
+      <p class="gc-muted" id="round-help" style="margin-top:var(--s2)">Countback: holes 10–18, then holes 13–18, then holes 16–18, then hole by hole from hole 18.</p>
+      <label class="sk-switch" id="tenth-wrap" style="margin-top:var(--s1)"><input type="checkbox" id="tenth"> Whole field started on the 10th tee (countback uses holes 1–9)</label>
+    </div>
+  </div>
+  <p class="sk-note" id="setup-si" style="margin-top:var(--s3)" hidden></p>
+  <div class="sk-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <p class="gc-muted">Set up once, then score hole by hole. Points, the leaderboard and the countback update as you go. Saved on this device only.</p>
+</section>
+
+<!-- COURSE -->
+<section class="sk-screen" id="scr-course" aria-labelledby="course-h" hidden>
+  <div class="sk-title"><h1 id="course-h" tabindex="-1">Course card</h1><button type="button" class="gc-btn gc-btn-ghost" id="btn-cdone-top" data-done="1">Done</button></div>
+  <div class="gc-stack">
+    <div class="gc-card sk-pad gc-stack">
+      <div><label class="gc-label" for="cname">Course name</label>
+        <input class="gc-input" id="cname" type="text" autocomplete="off" autocapitalize="words" maxlength="40" placeholder="e.g. Royal Pines"></div>
+      <div><span class="gc-label" id="choles-l">Holes on the card</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="choles-l">
+          <label><input type="radio" name="choles" value="18" checked><span>18 holes</span></label>
+          <label><input type="radio" name="choles" value="9"><span>9 holes</span></label>
+        </div></div>
+      <div class="sf-fill"><label class="gc-label" for="fill-par">Quick-fill par (paste from the card)</label>
+        <input class="gc-input" id="fill-par" type="text" autocomplete="off" placeholder="4 4 3 5 4 4 3 4 5 …" aria-describedby="fill-err">
+        <button type="button" class="gc-btn gc-btn-secondary" id="btn-fill-par">Fill</button></div>
+      <div class="sf-fill"><label class="gc-label" for="fill-si">Quick-fill stroke index</label>
+        <input class="gc-input" id="fill-si" type="text" autocomplete="off" placeholder="5 3 1 7 9 11 13 15 17 …" aria-describedby="fill-err">
+        <button type="button" class="gc-btn gc-btn-secondary" id="btn-fill-si">Fill</button></div>
+      <p class="sf-err" id="fill-err" role="status" aria-live="polite"></p>
+    </div>
+    <div class="gc-card sk-pad">
+      <div class="sf-holeshead" aria-hidden="true"><span>#</span><span>Par</span><span>Stroke index</span></div>
+      <ol class="sf-holes" id="holes"></ol>
+      <p class="sk-note" id="si-err" role="alert" style="margin-top:var(--s2)" hidden></p>
+      <p class="gc-muted" style="margin-top:var(--s2)">Par <span id="par-total"></span>. Each stroke index from 1 to <span id="si-max">18</span> is used once.</p>
+    </div>
+  </div>
+  <div class="sk-actions sk-actions-2" style="position:static;background:none">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-csave">Save course</button>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-cdone">Done</button>
+  </div>
+</section>
+
+<!-- HOLE -->
+<section class="sk-screen" id="scr-hole" aria-labelledby="hole-h" hidden>
+  <div class="gc-card">
+    <div class="sk-holehead">
+      <h1 id="hole-h" tabindex="-1" class="sk-holeno">Hole 1</h1>
+      <span class="gc-muted" id="hole-of"></span>
+    </div>
+    <div class="sk-course">
+      <div><span class="gc-label" id="par-l">Par</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="par-l" id="par-seg">
+          <label><input type="radio" name="par" value="3"><span>3</span></label>
+          <label><input type="radio" name="par" value="4"><span>4</span></label>
+          <label><input type="radio" name="par" value="5"><span>5</span></label>
+        </div></div>
+      <div><span class="gc-label" id="si-l">Stroke index</span>
+        <span class="gc-stepper" role="group" aria-labelledby="si-l"><button type="button" data-si="-1" aria-label="Lower stroke index">−</button><input id="si" type="text" inputmode="numeric" aria-label="Stroke index" autocomplete="off"><button type="button" data-si="1" aria-label="Raise stroke index">+</button></span></div>
+    </div>
+    <p class="sk-note" id="si-warn" role="alert" style="margin-top:var(--s3)" hidden></p>
+    <div class="sk-progress" id="progress" aria-hidden="true"></div>
+  </div>
+  <div class="sk-strip" id="strip" role="status" aria-live="polite" style="margin-top:var(--s3)"></div>
+  <div class="gc-card sk-pad sk-tight" style="margin-top:var(--s3)" id="scores"></div>
+  <div class="sk-actions sk-actions-2">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-prev">← Back</button>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-next">Next hole →</button>
+  </div>
+  <div class="sk-actions-2" style="display:grid;gap:var(--s2)">
+    <button type="button" class="gc-btn gc-btn-ghost" id="btn-setup">Players &amp; course</button>
+    <button type="button" class="gc-btn gc-btn-ghost" id="btn-board">Leaderboard</button>
+  </div>
+</section>
+
+<!-- RESULT -->
+<section class="sk-screen" id="scr-result" aria-labelledby="result-h" hidden>
+  <h1 id="result-h" class="sr-only" tabindex="-1">Stableford leaderboard</h1>
+  <div class="gc-hero" id="hero"></div>
+  <div class="sk-actions" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
+  <p class="gc-muted" style="margin-top:var(--s2)" id="result-src">Points: R&amp;A Rules of Golf, Rule 21.1b. Ties: Australian Countback Method, Golf Australia <cite>WHS Official reference guide for Australian administrators</cite>, Edition January 2026, §11. <a href="#how-h">How it's calculated</a></p>
+  <div class="gc-card" style="margin-top:var(--s3)">
+    <h2>Why: hole by hole</h2>
+    <p class="sk-note" id="si-note" style="margin-top:var(--s2)" hidden></p>
+    <div id="why"></div>
+  </div>
+  <div class="sk-actions sk-actions-2" style="position:static;background:none">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
+  </div>
+  <p class="gc-muted">New round keeps your players and course and clears the scores.</p>
+</section>
+
+<div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
+  <a class="next-card" href="/skins"><strong>Next step: Skins calculator →</strong><span>Settle skins and see who pays whom for the same round.</span></a>
 </div>
-<div class="section">
-  <div id="table"></div>
-  <button onclick="calc()" style="margin-top:1rem">Calculate points</button>
-</div>
-<div id="out" class="section result" style="display:none"></div>
-<p class="src">Points: net par 2, net birdie 3, net bogey 1, worse 0 (Rules of Golf, Rule 21.1b). <a href="#how-h">How it's calculated</a></p>
-<a class="next-card" href="/skins"><strong>Next step: Skins calculator →</strong><span>Settle skins and see who pays whom for the same round.</span></a>
-<section class="gc-learn" aria-labelledby="how-h"><!-- seo:content:start -->
+
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
   <h2 id="how-h">How it's calculated</h2>
-  <p>On each hole your handicap strokes come off your score to give a net score, which is then compared with par: net double bogey or worse scores 0 points, net bogey 1, net par 2, net birdie 3 and net eagle 4 (<a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">Rules of Golf, Rule 21.1b</a>). Strokes go by stroke index (SI), hardest hole first.</p>
+  <p>On each hole your handicap strokes come off your score to give a net score, which is then compared with par: net double bogey or worse scores 0 points, net bogey 1, net par 2, net birdie 3 and net eagle 4 (<a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">Rules of Golf, Rule 21.1b</a>). Strokes go by stroke index (SI), hardest hole first. Ties on the leaderboard are split with the Australian Countback Method: the last 9 holes, then the last 6, the last 3 and then hole by hole.</p>
   <h3>Worked example</h3>
-  <p>One player with a Daily Handicap of <span data-ex="hcp">20</span> plays the first 3 holes of the calculator's built-in card. A handicap of 20 gives one stroke on every hole, plus a second stroke on SI 1 and SI 2.</p>
+  <p>One player with a Daily Handicap of <span data-ex="hcp">20</span> plays the first 3 holes of the calculator's standard card. A handicap of 20 gives one stroke on every hole, plus a second stroke on SI 1 and SI 2.</p>
   <ul class="gc-learn-list">
     <li>Hole 1 (par 4, SI 5): <span data-ex="st-1">1</span> stroke. A score of <span data-ex="sc-1">5</span> is net 4, a net par: <span data-ex="pt-1">2</span> points.</li>
     <li>Hole 2 (par 4, SI 3): <span data-ex="st-2">1</span> stroke. A score of <span data-ex="sc-2">4</span> is net 3, a net birdie: <span data-ex="pt-2">3</span> points.</li>
@@ -199,88 +494,511 @@
   </ul>
   <p class="gc-learn-result">Total: <span data-ex="total">6</span> points from 3 holes.</p>
   <p>Two points a hole for 18 holes is 36, which means you played to your handicap.</p>
-  <p class="gc-learn-src" id="rules-source">Rules source: points from the <a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">R&amp;A Rules of Golf, Rule 21.1b</a>. Strokes, plus handicaps and countback from Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §10C and §11.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: points from the <a href="https://www.randa.org/en/rog/the-rules-of-golf/rule-21" rel="noopener">R&amp;A Rules of Golf, Rule 21.1b</a>. Strokes, 9-hole rounds, plus handicaps and countback from Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §3H(iii), §10C and §11.</p>
   <p>Need your strokes? <a href="/daily-handicap">Work out your Daily Handicap first</a>. Playing for money too? <a href="/skins">Settle skins from the same round</a>.</p>
 
   <h2 id="faq-h">Frequently asked questions</h2>
   <div class="gc-faq-item"><h3>How do you calculate Stableford points with a handicap?</h3><p>Take your handicap strokes off your score on each hole to get a net score, then compare it with par: net double bogey or worse 0 points, net bogey 1, net par 2, net birdie 3, net eagle 4 (Rules of Golf, Rule 21.1b). Add up the points for every hole.</p></div>
   <div class="gc-faq-item"><h3>How many shots do I get on each hole?</h3><p>Use your Daily Handicap and the stroke index on the card. You get one shot on each hole whose stroke index is at or below your Daily Handicap. Over 18, you get one on every hole plus a second from stroke index 1. A plus handicap gives shots back from stroke index 18 (Golf Australia, §10C).</p></div>
-  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default, the Australian Countback Method, compares Stableford points for the last 9 holes, then the last 6, then the last 3, then hole by hole from the 18th. After a shotgun start those are holes 10–18, 13–18 and 16–18 (Golf Australia WHS reference guide, January 2026, §11).</p></div>
+  <div class="gc-faq-item"><h3>How does the Stableford countback work?</h3><p>Golf Australia's default Australian Countback Method compares points over the last 9, then 6, then 3 holes, then hole by hole: holes 10–18, 13–18, 16–18 on a shotgun start. If the whole field started on the 10th tee: the last nine (holes 1–9), last six (holes 4–9), last three (holes 7–9), then from hole 9 (GA guide, January 2026, §11).</p></div>
   <div class="gc-faq-item"><h3>How does Stableford work over 9 holes?</h3><p>Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).</p></div>
   <div class="gc-faq-item"><h3>What is a good Stableford score?</h3><p>Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.</p></div>
+  <div class="gc-faq-item"><h3>What if players are still tied after the countback?</h3><p>If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11).</p></div>
 <!-- seo:content:end --></section>
 </main>
-<footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <script>
-const par = [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
-const si  = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
-function build() {
-  const n = +document.getElementById('holes').value;
-  let h = '<table><tr><th>Hole</th><th>Par</th><th>SI</th><th>Score</th><th>Pts</th></tr>';
-  for (let i = 1; i <= n; i++) {
-    h += `<tr><td>${i}</td><td>${par[i-1]}</td><td>${si[i-1]}</td><td><input type="number" id="s${i}" aria-label="Hole ${i} score" min="1" max="15"></td><td id="p${i}">—</td></tr>`;
-  }
-  h += '</table>';
-  document.getElementById('table').innerHTML = h;
-}
-// Strokes on one hole. holeRank = the hole's stroke-index rank among the holes played
-// (over 18 that is the SI itself; over 9 the 18-hole SIs ranked 1-9). A negative hcp is a
-// plus handicap: strokes are given back from the highest rank (SI 18 first), GA WHS guide §10C.
-function strokesOn(hcp, holeRank, totalHoles) {
-  const r = hcp < 0 ? -Math.round(-hcp) : Math.round(hcp);
-  const a = Math.abs(r);
-  const full = Math.floor(a / totalHoles);
-  const rem = a % totalHoles;
-  if (r >= 0) return full + (holeRank <= rem ? 1 : 0);
-  return -(full + (holeRank > totalHoles - rem ? 1 : 0));
-}
-// "+2" (or "-2") is a plus handicap and returns -2; "12" returns 12; anything else 0.
-function parseHcp(v) {
-  const t = String(v).trim().replace(/\u2212/g, '-');
-  const n = parseFloat(t.replace(/^[+-]/, ''));
+(function () {
+'use strict';
+/* ---------- Engine (pure) ----------
+   Points: R&A Rules of Golf, Rule 21.1b (net par 2, net birdie 3, net bogey 1, worse 0).
+   Strokes: by stroke index, hardest first; over 9 holes of an 18-hole card the 18-hole SIs are
+   ranked 1-9 (GA WHS guide Jan 2026 §3H(iii)); plus handicaps give strokes back from the highest
+   SI (§10C). Ties: Australian Countback Method (§11). */
+var DEF_PAR = [4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5];
+var DEF_SI  = [5,3,1,7,9,11,13,15,17,2,4,6,8,10,12,14,16,18];
+var DEF_PAR9 = [4,4,3,5,4,4,3,4,5], DEF_SI9 = [3,2,1,4,5,6,7,8,9];
+var MAX_PLAYERS = 4, MIN_PLAYERS = 1, HMIN = -10, HMAX = 54;
+var URL = 'https://golfcalculators.com/stableford';
+
+function parseHcp(v) { // "+2", "-2" and "−2" are plus handicaps (returns -2); "12" is 12; else 0
+  var t = String(v == null ? '' : v).trim().replace(/\u2212/g, '-');
+  var n = parseFloat(t.replace(/^[+-]/, ''));
   if (!isFinite(n)) return 0;
   return /^[+-]/.test(t) ? -Math.abs(n) : n;
 }
-// Rank of hole i (1-based) by 18-hole SI among holes 1..n.
-function siRank(i, n) {
-  let k = 1;
-  for (let j = 1; j <= n; j++) if (si[j-1] < si[i-1]) k++;
-  return k;
+function fmtHcp(h) { return h < 0 ? '+' + Math.abs(h) : String(h); }
+function roundHcp(h) { return h < 0 ? -Math.round(-h) : Math.round(h); }
+function plusNote(h) { // PO wording (P3), shared by every handicap field
+  if (!(h < 0)) return '';
+  var n = String(Math.abs(h)), k = Math.round(Math.abs(h));
+  return k === 0 ? 'Plus ' + n + ' (+' + n + '): rounds to 0, so no strokes given back'
+    : 'Plus ' + n + ' (+' + n + '): gives back ' + k + ' stroke' + (k === 1 ? '' : 's') + ', starting at the highest stroke index';
 }
-function calc() {
-  const hcp = parseHcp(document.getElementById('hcp').value);
-  const n = +document.getElementById('holes').value;
-  let total = 0;
-  for (let i = 1; i <= n; i++) {
-    const gross = +document.getElementById('s'+i).value;
-    if (!gross) { document.getElementById('p'+i).textContent = '—'; continue; }
-    const strokes = strokesOn(hcp, siRank(i, n), n);
-    const net = gross - strokes;
-    const pts = Math.max(0, 2 + (par[i-1] - net));
-    document.getElementById('p'+i).textContent = pts;
-    total += pts;
+// Strokes on one hole: rank = the hole's SI rank among the holes played (1 = hardest), n = holes played.
+function strokesOn(hcp, rank, n) {
+  var r = roundHcp(hcp), a = Math.abs(r), full = Math.floor(a / n), rem = a % n;
+  if (r >= 0) return full + (rank <= rem ? 1 : 0);
+  return -(full + (rank > n - rem ? 1 : 0));
+}
+function points(par, net) { return Math.max(0, 2 + par - net); }
+function netLabel(par, net) {
+  var d = par - net;
+  if (d >= 4) return 'net condor';
+  return { 3: 'net albatross', 2: 'net eagle', 1: 'net birdie', 0: 'net par', '-1': 'net bogey', '-2': 'net double bogey' }[d] || 'net ' + (-d) + ' over';
+}
+function holesInPlay(st) { // play order
+  var c = st.course, out = [], i;
+  if (+c.holes === 9) { for (i = 1; i <= 9; i++) out.push(i); return out; }
+  if (st.round === 'front') { for (i = 1; i <= 9; i++) out.push(i); return out; }
+  if (st.round === 'back') { for (i = 10; i <= 18; i++) out.push(i); return out; }
+  if (st.tenth) { for (i = 10; i <= 18; i++) out.push(i); for (i = 1; i <= 9; i++) out.push(i); return out; }
+  for (i = 1; i <= 18; i++) out.push(i); return out;
+}
+function ranks(st, holes) { // SI rank among the holes in play; duplicate SIs fall back to hole order
+  var sorted = holes.slice().sort(function (a, b) { return (+st.course.si[a - 1]) - (+st.course.si[b - 1]) || a - b; });
+  var r = {}; sorted.forEach(function (h, k) { r[h] = k + 1; }); return r;
+}
+function siProblems(course) { // {dupes:[{si,holes}], missing:[], out:[{hole,si}]}
+  var n = +course.holes === 9 ? 9 : 18, seen = {}, dupes = [], missing = [], out = [];
+  for (var h = 1; h <= n; h++) { var v = +course.si[h - 1]; if (!(v >= 1 && v <= n)) out.push({ hole: h, si: v }); else (seen[v] = seen[v] || []).push(h); }
+  for (var k = 1; k <= n; k++) { if (!seen[k]) missing.push(k); else if (seen[k].length > 1) dupes.push({ si: k, holes: seen[k] }); }
+  return { dupes: dupes, missing: missing, out: out, ok: !dupes.length && !missing.length && !out.length };
+}
+function siMessage(p, n) {
+  if (p.ok) return '';
+  var bits = [];
+  p.dupes.forEach(function (d) { bits.push('SI ' + d.si + ' is on holes ' + d.holes.join(' and ')); });
+  p.out.forEach(function (o) { bits.push('hole ' + o.hole + ' has SI ' + o.si + ' (use 1–' + n + ')'); });
+  var msg = bits.join('; ');
+  msg = msg.charAt(0).toUpperCase() + msg.slice(1);
+  if (p.missing.length) msg += (msg ? '. ' : '') + 'Missing: SI ' + p.missing.join(', ');
+  return msg + '. Each stroke index 1–' + n + ' goes on one hole only, so check the card.';
+}
+function range(h) { // "holes 10–18" / "hole 18"
+  return h.length === 1 ? 'hole ' + h[0] : 'holes ' + h[0] + '–' + h[h.length - 1];
+}
+function cbRange(h, order) { // whole field from the 10th tee: "the last six (holes 4–9)", so the 1–9 / 4–9 choice is visible
+  var words = { 9: 'nine', 6: 'six', 3: 'three' };
+  if (order && order.length === 18 && order[0] === 10 && h.length > 1 && words[h.length]) return 'the last ' + words[h.length] + ' (' + range(h) + ')';
+  return range(h);
+}
+function cbStages(order) { // Australian Countback Method stages for the holes in play order
+  var n = order.length, st = [], lasts = n >= 18 ? [9, 6, 3] : n >= 10 ? [9, 6, 3] : [6, 3];
+  lasts.forEach(function (k) { if (k < n) st.push(order.slice(n - k)); });
+  for (var i = n - 1; i >= 0; i--) st.push([order[i]]); // then hole by hole from the last hole
+  return st;
+}
+function nineHole(st) { return +st.course.holes === 9 || st.round !== '18'; } // 9-hole round: players enter a 9-hole Daily Handicap
+function nameOf(p, i) { return (p && String(p.name || '').trim()) || ('Player ' + (i + 1)); }
+function isScore(v) { return v === 'P' || (v >= 1 && v <= 20); }
+function compute(st) {
+  var order = holesInPlay(st), n = order.length, rk = ranks(st, order), np = st.players.length;
+  var rows = st.players.map(function (p, i) {
+    var hcp = parseHcp(p.hcp), byHole = {}, total = 0, thru = 0;
+    order.forEach(function (h) {
+      var par = +st.course.par[h - 1], si = +st.course.si[h - 1], s = strokesOn(hcp, rk[h], n);
+      var g = (st.scores[h] || [])[i], e = { hole: h, par: par, si: si, rank: rk[h], strokes: s, played: isScore(g) };
+      if (g === 'P') { e.pickup = true; e.pts = 0; e.label = 'pickup'; }
+      else if (e.played) { e.gross = +g; e.net = e.gross - s; e.pts = points(par, e.net); e.label = netLabel(par, e.net); }
+      else e.pts = 0;
+      if (e.played) { thru++; total += e.pts; }
+      byHole[h] = e;
+    });
+    return { i: i, name: nameOf(p, i), hcp: hcp, playing: roundHcp(hcp), byHole: byHole, total: total, thru: thru };
+  });
+  var stages = cbStages(order);
+  rows.forEach(function (r) { r.key = [r.total].concat(stages.map(function (hs) { return hs.reduce(function (s, h) { return s + r.byHole[h].pts; }, 0); })); });
+  var cmp = function (a, b) { for (var k = 0; k < a.key.length; k++) if (a.key[k] !== b.key[k]) return b.key[k] - a.key[k]; return a.i - b.i; };
+  var board = rows.slice().sort(cmp);
+  board.forEach(function (r, k) {
+    var prev = board[k - 1], next = board[k + 1];
+    r.place = prev && prev.key.join() === r.key.join() ? prev.place : k + 1;
+    r.joint = (prev && prev.key.join() === r.key.join()) || (next && next.key.join() === r.key.join());
+    r.cb = null;
+    if (next && next.total === r.total) { // decided on countback, or tied after it
+      var s = 1; while (s < r.key.length && r.key[s] === next.key[s]) s++;
+      r.cb = s < r.key.length ? { over: next.i, stage: s - 1, holes: stages[s - 1], a: r.key[s], b: next.key[s] } : { joint: true };
+    }
+  });
+  var complete = rows.every(function (r) { return r.thru === n; });
+  return { order: order, n: n, rows: rows, board: board, stages: stages, complete: complete, played: Math.min.apply(null, rows.map(function (r) { return r.thru; })),
+    names: rows.map(function (r) { return r.name; }) };
+}
+function placeLabel(r) { var p = r.place, s = p === 1 ? '1st' : p === 2 ? '2nd' : p === 3 ? '3rd' : p + 'th'; return (r.joint ? '=' : '') + s; }
+function cbSentence(res, r, first) { // "Mel wins on countback: 19 v 17 on holes 10–18"
+  if (!r.cb) return '';
+  if (r.cb.joint) return 'Tied after countback (joint)';
+  var other = res.rows[r.cb.over].name, why = r.cb.a + ' v ' + r.cb.b + ' on ' + cbRange(r.cb.holes, res.order);
+  return first ? r.name + ' wins on countback: ' + why : r.name + ' ahead of ' + other + ' on countback: ' + why;
+}
+function roundLabel(st) {
+  if (+st.course.holes === 9) return '9 holes';
+  return st.round === 'front' ? 'front 9' : st.round === 'back' ? 'back 9' : '18 holes';
+}
+function shareText(st, res) {
+  var head = 'Stableford' + (String(st.course.name || '').trim() ? ' · ' + String(st.course.name).trim() : '') + ' · ' + roundLabel(st) + (res.complete ? '' : ' (thru ' + res.played + ')');
+  var lines = [head];
+  res.board.forEach(function (r, k) {
+    var cb = r.cb ? (r.cb.joint ? ' (tied after countback, joint)' : ' (countback: ' + r.cb.a + ' v ' + r.cb.b + ' on ' + cbRange(r.cb.holes, res.order) + ')') : '';
+    lines.push(placeLabel(r) + ' ' + r.name + ' ' + r.total + ' pts' + cb);
+  });
+  lines.push(URL);
+  return lines.join('\n');
+}
+function defaultCourse(holes) { return +holes === 9 ? { name: '', holes: 9, par: DEF_PAR9.slice(), si: DEF_SI9.slice() } : { name: '', holes: 18, par: DEF_PAR.slice(), si: DEF_SI.slice() }; }
+function defaultState() {
+  return { v: 1, players: [{ name: '', hcp: 0 }], course: defaultCourse(18), round: '18', tenth: false, scores: {}, hole: 1, screen: 'setup' };
+}
+var EX_SCORES = [ // Mel 12, Sam 2, Jo 24, Al +2 (Load example); ties on 36 points, split on countback
+  [5,4,6,4],[5,4,6,4],[4,4,5,3],[6,4,7,5],[5,4,5,4],[4,4,6,4],[4,3,4,3],[5,4,6,4],[5,5,6,5],
+  [5,4,6,4],[4,4,5,4],[3,4,4,3],[6,5,7,5],[5,4,5,5],[4,4,5,4],[3,3,5,4],[5,4,5,4],[5,5,6,5]];
+function exampleState() {
+  var s = defaultState();
+  s.players = [{ name: 'Mel', hcp: 12 }, { name: 'Sam', hcp: 2 }, { name: 'Jo', hcp: 24 }, { name: 'Al', hcp: -2 }];
+  s.course.name = 'Example card';
+  EX_SCORES.forEach(function (row, k) { s.scores[k + 1] = row.slice(); });
+  s.hole = 18; s.screen = 'result';
+  return s;
+}
+function parseList(txt, kind, n) { // "4 4 3 5 ..." or "443544345" (par only) -> numbers
+  var t = String(txt || '').trim(); if (!t) return { err: 'Paste ' + n + ' numbers, e.g. ' + (kind === 'par' ? '4 4 3 5 …' : '5 3 1 7 …') };
+  var nums = /^\d+$/.test(t) && kind === 'par' && t.length === n ? t.split('').map(Number) : (t.match(/\d+/g) || []).map(Number);
+  if (nums.length !== n) return { err: 'Found ' + nums.length + ' number' + (nums.length === 1 ? '' : 's') + ' for ' + (kind === 'par' ? 'par' : 'stroke index') + '; a ' + n + '-hole card needs ' + n + '.' };
+  if (kind === 'par' && nums.some(function (x) { return x < 3 || x > 6; })) return { err: 'Par must be 3 to 6 on every hole.' };
+  if (kind === 'si' && nums.some(function (x) { return x < 1 || x > n; })) return { err: 'Stroke index must be 1 to ' + n + ' on every hole.' };
+  return { nums: nums };
+}
+window.GCStableford = { compute: compute, strokesOn: strokesOn, points: points, netLabel: netLabel, parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote,
+  holesInPlay: holesInPlay, cbStages: cbStages, siProblems: siProblems, siMessage: siMessage, shareText: shareText, parseList: parseList,
+  defaultState: defaultState, exampleState: exampleState, defaultCourse: defaultCourse, placeLabel: placeLabel, cbSentence: cbSentence, cbRange: cbRange, nineHole: nineHole, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_stableford_v1', CKEY = 'gc_courses_v1';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+var S = load();
+function cleanCourse(c) {
+  var d = defaultCourse(c && +c.holes === 9 ? 9 : 18), n = d.holes;
+  if (!c) return d;
+  var ok = function (a, lo, hi) { return Array.isArray(a) && a.length === n && a.every(function (x) { return +x >= lo && +x <= hi; }); };
+  return { name: String(c.name || '').slice(0, 40), holes: n, par: ok(c.par, 3, 6) ? c.par.map(Number) : d.par, si: ok(c.si, 1, 99) ? c.si.map(Number) : d.si };
+}
+function load() {
+  var s = defaultState();
+  try {
+    var o = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (o && o.v === 1 && Array.isArray(o.players) && o.players.length >= MIN_PLAYERS) {
+      s.players = o.players.slice(0, MAX_PLAYERS).map(function (p) { var h = +p.hcp; return { name: String(p.name || '').slice(0, 24), hcp: isFinite(h) ? Math.max(HMIN, Math.min(HMAX, h)) : 0 }; });
+      s.course = cleanCourse(o.course);
+      s.round = ['18', 'front', 'back'].indexOf(o.round) >= 0 ? o.round : '18';
+      s.tenth = !!o.tenth;
+      s.scores = {};
+      if (o.scores && typeof o.scores === 'object') for (var h in o.scores) if (+h >= 1 && +h <= 18 && Array.isArray(o.scores[h])) s.scores[h] = o.scores[h].slice(0, s.players.length).map(function (v) { return isScore(v) ? v : null; });
+      s.hole = +o.hole || 1; s.screen = ['setup', 'course', 'hole', 'result'].indexOf(o.screen) >= 0 ? o.screen : 'setup';
+    }
+  } catch (e) {}
+  return s;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function courses() { try { var a = JSON.parse(localStorage.getItem(CKEY) || '[]'); return Array.isArray(a) ? a.filter(function (c) { return c && String(c.name || '').trim(); }).map(cleanCourse) : []; } catch (e) { return []; } }
+function saveCourses(a) { try { localStorage.setItem(CKEY, JSON.stringify(a)); } catch (e) {} }
+function order() { return holesInPlay(S); }
+function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length && sc.every(isScore)); }
+function thru() { return order().filter(recorded).length; }
+function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return isScore(sc[i]) ? sc[i] : +S.course.par[h - 1]; }); }
+function record(h) { if (!recorded(h)) S.scores[h] = shown(h); }
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function setRadio(name, v) { var els = document.querySelectorAll('input[name="' + name + '"]'); for (var i = 0; i < els.length; i++) els[i].checked = els[i].value === String(v); }
+
+function show(screen, focus) {
+  S.screen = screen; save();
+  ['setup', 'course', 'hole', 'result'].forEach(function (s) { $('scr-' + s).hidden = s !== screen; });
+  $('setup-next').hidden = !(screen === 'setup' || screen === 'result');
+  $('learn').hidden = screen === 'hole' || screen === 'course';
+  if (screen === 'setup') renderSetup();
+  if (screen === 'course') renderCourse();
+  if (screen === 'hole') renderHole();
+  if (screen === 'result') renderResult();
+  if (focus) { window.scrollTo(0, 0); var hd = $({ setup: 'setup-h', course: 'course-h', hole: 'hole-h', result: 'result-h' }[screen]); if (hd) hd.focus({ preventScroll: true }); }
+}
+
+/* Setup */
+function renderPlayers() {
+  var n = S.players.length, nine = nineHole(S), lbl = nine ? '9-hole Daily Handicap' : 'daily handicap';
+  $('hcp-col').textContent = nine ? '9-hole Daily Handicap' : 'Daily handicap';
+  $('dh-link').hidden = nine; // on 9 holes each player's own link sits beside their field
+  $('players').innerHTML = S.players.map(function (p, i) {
+    var nm = esc(nameOf(p, i));
+    return '<div class="sk-player">' +
+      '<label class="sr-only" for="pn' + i + '">Player ' + (i + 1) + ' name</label>' +
+      '<input class="gc-input" id="pn' + i + '" data-i="' + i + '" type="text" autocomplete="off" autocapitalize="words" maxlength="24" placeholder="Player ' + (i + 1) + '" value="' + esc(p.name || '') + '">' +
+      '<span class="gc-stepper" role="group" aria-label="' + nm + ' ' + lbl + '"><button type="button" data-h="-1" data-i="' + i + '" aria-label="Lower handicap for ' + nm + '">−</button>' +
+      '<input id="ph' + i + '" data-i="' + i + '" type="text" autocomplete="off" aria-label="' + nm + ' ' + lbl + ' (+ for plus)" aria-describedby="hn' + i + '" value="' + esc(fmtHcp(p.hcp)) + '">' +
+      '<button type="button" data-h="1" data-i="' + i + '" aria-label="Raise handicap for ' + nm + '">+</button></span>' +
+      (nine ? '<a class="sf-dhlink sf-dhrow" id="dhl' + i + '" href="/daily-handicap?from=stableford&amp;holes=9&amp;p=' + i + '" aria-label="Work out ' + nm + '\u2019s 9-hole Daily Handicap">Work out 9-hole DH →</a>' : '') +
+      '<p class="sf-hcpnote" id="hn' + i + '" aria-live="polite">' + esc(plusNote(+p.hcp)) + '</p>' +
+      '</div>';
+  }).join('');
+  $('pcount').value = n; $('pcount').textContent = n;
+  $('btn-add').disabled = n >= MAX_PLAYERS;
+  $('btn-less').disabled = n <= MIN_PLAYERS;
+}
+function setNote(i) { var el = $('hn' + i); if (el) el.textContent = plusNote(+S.players[i].hcp); }
+function renderSetup() {
+  renderPlayers();
+  var c = S.course, nine = +c.holes === 9;
+  $('course-name').textContent = String(c.name || '').trim() || 'Standard card (edit to match yours)';
+  var par = c.par.reduce(function (a, b) { return a + b; }, 0);
+  $('course-sum').textContent = c.holes + ' holes · par ' + par;
+  var saved = courses();
+  $('saved-wrap').hidden = !saved.length;
+  $('saved').innerHTML = '<option value="">Pick a saved course…</option>' + saved.map(function (x, k) { return '<option value="' + k + '"' + (x.name === c.name ? ' selected' : '') + '>' + esc(x.name) + ' (' + x.holes + ')</option>'; }).join('');
+  $('round-wrap').hidden = nine;
+  setRadio('round', S.round);
+  $('tenth-wrap').hidden = nine || S.round !== '18';
+  $('tenth').checked = !!S.tenth;
+  var o = order(), cb = cbStages(o);
+  $('round-help').textContent = (nine ? '9-hole card. ' : S.round !== '18' ? 'Use each player\u2019s 9-hole Daily Handicap. Strokes go by the 18-hole stroke index, ranked. ' : '') +
+    'Countback: ' + cb.slice(0, o.length >= 10 ? 3 : 2).map(function (h) { return cbRange(h, o); }).join(', then ') + ', then hole by hole from hole ' + o[o.length - 1] + '.';
+  var t = thru();
+  $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
+  var p = siProblems(c); $('setup-si').hidden = p.ok; $('setup-si').textContent = p.ok ? '' : siMessage(p, nine ? 9 : 18) + ' Fix it in Edit course.';
+  renderPrompt();
+}
+var pendingDH = null;
+function renderPrompt() {
+  var el = $('dh-prompt');
+  if (pendingDH == null) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = '<h2 id="dhp-h">Use Daily Handicap ' + esc(fmtHcp(pendingDH)) + ' for:</h2><div class="sk-playoff" role="group" aria-labelledby="dhp-h">' +
+    S.players.map(function (p, i) { return '<button type="button" class="gc-btn gc-btn-secondary" data-dh="' + i + '">' + esc(nameOf(p, i)) + '</button>'; }).join('') +
+    '<button type="button" class="gc-btn gc-btn-ghost" data-dh="x">Not now</button></div>';
+}
+
+/* Course */
+function renderCourse() {
+  var c = S.course, n = +c.holes;
+  $('cname').value = c.name || '';
+  setRadio('choles', n);
+  $('si-max').textContent = n;
+  $('holes').innerHTML = c.par.map(function (par, k) {
+    var h = k + 1;
+    return '<li id="ch' + h + '"><span class="n">' + h + '</span>' +
+      '<span class="gc-stepper" role="group" aria-label="Hole ' + h + ' par"><button type="button" data-cp="-1" data-h="' + h + '" aria-label="Lower par, hole ' + h + '">−</button><input id="cp' + h + '" data-h="' + h + '" type="text" inputmode="numeric" autocomplete="off" aria-label="Hole ' + h + ' par" value="' + par + '"><button type="button" data-cp="1" data-h="' + h + '" aria-label="Raise par, hole ' + h + '">+</button></span>' +
+      '<span class="gc-stepper si" role="group" aria-label="Hole ' + h + ' stroke index"><button type="button" data-cs="-1" data-h="' + h + '" aria-label="Lower stroke index, hole ' + h + '">−</button><input id="cs' + h + '" data-h="' + h + '" type="text" inputmode="numeric" autocomplete="off" aria-label="Hole ' + h + ' stroke index" aria-describedby="si-err" value="' + c.si[k] + '"><button type="button" data-cs="1" data-h="' + h + '" aria-label="Raise stroke index, hole ' + h + '">+</button></span></li>';
+  }).join('');
+  courseCheck();
+}
+function courseCheck() {
+  var c = S.course, n = +c.holes, p = siProblems(c), bad = {};
+  p.dupes.forEach(function (d) { d.holes.forEach(function (h) { bad[h] = 1; }); }); p.out.forEach(function (o) { bad[o.hole] = 1; });
+  for (var h = 1; h <= n; h++) { var li = $('ch' + h); if (li) { li.classList.toggle('bad', !!bad[h]); $('cs' + h).setAttribute('aria-invalid', bad[h] ? 'true' : 'false'); } }
+  $('si-err').hidden = p.ok; $('si-err').textContent = siMessage(p, n);
+  $('par-total').textContent = c.par.reduce(function (a, b) { return a + b; }, 0);
+  return p.ok;
+}
+function setCourseHoles(n) {
+  if (+S.course.holes === n) return;
+  var nm = S.course.name; S.course = defaultCourse(n); S.course.name = nm; S.scores = {}; if (n === 9) S.round = '18';
+  save(); renderCourse();
+}
+
+/* Hole */
+function stripHtml(h) {
+  var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h);
+  var r = compute(tmp), parts = r.rows.map(function (row) { var e = row.byHole[h]; return esc(row.name) + ' ' + e.pts + ' pt' + (e.pts === 1 ? '' : 's') + ' (' + e.label + ')'; });
+  var lead = r.board[0], tie = r.board[1] && r.board[1].total === lead.total;
+  var leader = S.players.length > 1 ? '<span>' + (tie ? 'Level on ' + lead.total + ' pts' : 'Leader: ' + esc(lead.name) + ' ' + lead.total + ' pts') + ' thru ' + (order().indexOf(h) + 1) + '</span>' : '<span>Total ' + lead.total + ' pts thru ' + (order().indexOf(h) + 1) + '</span>';
+  return '<strong>H' + h + ': ' + parts.join(' · ') + '</strong>' + leader;
+}
+function strokesNote(n) { return n > 0 ? '●'.repeat(Math.min(n, 4)) + ' ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives back ' + (-n) : 'no shot'; }
+function siWarn() {
+  var h = S.hole, p = siProblems(S.course), d = p.dupes.filter(function (x) { return x.holes.indexOf(h) >= 0; })[0], el = $('si-warn');
+  el.hidden = !d;
+  el.textContent = d ? 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '. Each hole needs a different stroke index, so check the card.' : '';
+  $('si').setAttribute('aria-invalid', d ? 'true' : 'false');
+}
+function renderHole() {
+  var o = order(); if (o.indexOf(S.hole) < 0) S.hole = o[0];
+  var h = S.hole, idx = o.indexOf(h);
+  $('hole-h').textContent = 'Hole ' + h;
+  $('hole-of').textContent = (idx + 1) + ' of ' + o.length + ' · thru ' + thru();
+  setRadio('par', S.course.par[h - 1]);
+  $('si').value = S.course.si[h - 1];
+  $('progress').innerHTML = o.map(function (x) { return '<i class="' + (x === h ? 'cur' : recorded(x) ? 'done' : '') + '"></i>'; }).join('');
+  var r = compute(S), vals = shown(h), def = !recorded(h);
+  $('scores').innerHTML = '<h2 class="sr-only">Scores for hole ' + h + '</h2>' + S.players.map(function (p, i) {
+    var nm = esc(nameOf(p, i)), e = r.rows[i].byHole[h], pu = vals[i] === 'P';
+    return '<div class="sf-row' + (pu ? ' is-pu' : '') + '" id="row' + i + '"><div class="sf-row1"><b>' + nm + '</b> <span id="tot' + i + '"></span></div>' +
+      '<div class="sf-row2"><small>' + strokesNote(e.strokes) + '</small>' +
+      '<button type="button" class="sf-pu" data-pu="' + i + '" aria-pressed="' + pu + '" aria-label="Pickup for ' + nm + ' (0 points)">Pickup</button>' +
+      '<span class="gc-stepper' + (def ? ' is-default' : '') + '"><button type="button" data-sc="-1" data-i="' + i + '" aria-label="One less for ' + nm + '">−</button>' +
+      '<input id="sc' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' score, hole ' + h + '" value="' + (pu ? 'P' : vals[i]) + '">' +
+      '<button type="button" data-sc="1" data-i="' + i + '" aria-label="One more for ' + nm + '">+</button></span></div></div>';
+  }).join('');
+  $('btn-prev').textContent = idx === 0 ? '← Setup' : '← Hole ' + o[idx - 1];
+  $('btn-next').textContent = idx === o.length - 1 ? 'See leaderboard →' : 'Next hole →';
+  updateStrip(); siWarn();
+}
+function updateStrip() {
+  var h = S.hole; $('strip').innerHTML = stripHtml(h);
+  var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h);
+  var r = compute(tmp);
+  r.rows.forEach(function (row, i) { var el = $('tot' + i); if (el) el.textContent = row.total + ' pts'; var rw = $('row' + i); if (rw) rw.classList.toggle('is-pu', shown(h)[i] === 'P'); });
+}
+function setScore(i, v) {
+  var h = S.hole; record(h);
+  S.scores[h][i] = v === 'P' ? 'P' : Math.max(1, Math.min(20, v));
+  var inp = $('sc' + i); if (inp && document.activeElement !== inp) inp.value = S.scores[h][i];
+  var pu = document.querySelector('button[data-pu="' + i + '"]'); if (pu) pu.setAttribute('aria-pressed', String(S.scores[h][i] === 'P'));
+  var steppers = $('scores').querySelectorAll('.gc-stepper'); for (var k = 0; k < steppers.length; k++) steppers[k].classList.remove('is-default');
+  save(); updateStrip();
+}
+function go(delta) {
+  var o = order(); record(S.hole); save();
+  var k = o.indexOf(S.hole) + delta;
+  if (k >= o.length) return show('result', true);
+  if (k < 0) return show('setup', true);
+  S.hole = o[k]; show('hole', true);
+}
+
+/* Result */
+function renderResult() {
+  var r = compute(S), b = r.board, hero = '';
+  var kicker = 'Stableford · ' + roundLabel(S) + (r.complete ? '' : ' · thru ' + r.played) + (String(S.course.name || '').trim() ? ' · ' + S.course.name.trim() : '');
+  if (!r.rows.some(function (x) { return x.thru; })) hero = '<p class="gc-kicker">Stableford</p><p class="gc-big">No holes scored yet</p>';
+  else {
+    var top = b.slice(0, 3), pod = top.length === 1 ? [top[0]] : top.length === 2 ? [top[1], top[0]] : [top[1], top[0], top[2]];
+    var cls = function (r0) { return r0 === top[0] ? 'p1' : r0 === top[1] ? 'p2' : 'p3'; };
+    hero = '<p class="gc-kicker">' + esc(kicker) + '</p> ' +
+      (b.length === 1 ? '<p class="gc-big">' + esc(b[0].name) + ' ' + b[0].total + ' pts</p>'
+        : '<div class="sf-podium" role="list" aria-label="Podium"' + (pod.length < 3 ? ' style="grid-template-columns:repeat(' + pod.length + ',1fr)"' : '') + '>' + pod.map(function (x) {
+          return '<div class="sf-step ' + cls(x) + '" role="listitem"><span class="pl">' + placeLabel(x) + '</span> <span class="nm">' + esc(x.name) + '</span> <span class="pt">' + x.total + ' pts</span></div>'; }).join('') + '</div>') +
+      (b.length > 3 ? '<ul class="sf-rest">' + b.slice(3).map(function (x) { return '<li><span>' + placeLabel(x) + ' ' + esc(x.name) + '</span> <span>' + x.total + ' pts</span></li>'; }).join('') + '</ul>' : '');
+    var notes = b.filter(function (x) { return x.cb; }).map(function (x) { return cbSentence(r, x, x.place === 1 && !x.cb.joint); });
+    var seen = {}; notes = notes.filter(function (t) { if (seen[t]) return false; seen[t] = 1; return true; });
+    if (notes.length) hero += '<p class="sf-cb" id="cb-line">' + notes.map(esc).join('<br>') + '</p>';
   }
-  const out = document.getElementById('out');
-  out.style.display = 'block';
-  out.innerHTML = `Total Stableford points: ${total}`;
-  out.scrollIntoView({behavior:'smooth'});
+  $('hero').innerHTML = hero;
+  $('btn-share').disabled = !r.rows.some(function (x) { return x.thru; });
+  $('why').innerHTML = b.map(function (row) {
+    var li = r.order.map(function (h) {
+      var e = row.byHole[h], t;
+      if (!e.played) t = '<span class="gc-muted">Not scored</span>';
+      else if (e.pickup) t = 'Pickup · 0 pts';
+      else t = e.gross + (e.strokes ? (e.strokes > 0 ? ' − ' + e.strokes : ' + ' + (-e.strokes)) + ' = net ' + e.net : ' (no shot)') + ', ' + e.label + ' · <b>' + e.pts + ' pt' + (e.pts === 1 ? '' : 's') + '</b>';
+      return '<li><span class="h">H' + h + '</span> <span>Par ' + e.par + ', SI ' + e.si + ': ' + t + '</span></li>';
+    }).join('');
+    return '<details class="sf-why"><summary><span>' + placeLabel(row) + ' ' + esc(row.name) + ' (' + fmtHcp(row.playing) + ')</span> <span>' + row.total + ' pts</span></summary><ol class="sk-ledger">' + li + '</ol></details>';
+  }).join('');
+  var p = siProblems(S.course), sn = $('si-note');
+  sn.hidden = p.ok; sn.textContent = p.ok ? '' : siMessage(p, +S.course.holes) + ' Shots go by SI, so fix the card for a fair result.';
 }
-// Inline note beside the handicap field when the entry is a plus handicap (+2, -2 or \u22122).
-function hcpNote() {
-  const raw = document.getElementById('hcp').value;
-  const h = parseHcp(raw);
-  const note = document.getElementById('hcpNote');
-  if (!(h < 0)) { note.textContent = ''; return; }
-  const n = String(Math.abs(h));
-  const k = Math.round(Math.abs(h));
-  note.textContent = k === 0
-    ? `Plus ${n} (+${n}): rounds to 0, so no strokes given back`
-    : `Plus ${n} (+${n}): gives back ${k} stroke${k === 1 ? '' : 's'}, starting at the highest stroke index`;
+function share() {
+  var text = shareText(S, compute(S));
+  window._shareText = text;
+  var copy = function () {
+    var done = function () { toast('Copied'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+    function fallback() { var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed'); } document.body.removeChild(ta); }
+  };
+  if (navigator.share) navigator.share({ title: 'Stableford result', text: text }).catch(function (e) { if (!e || e.name !== 'AbortError') copy(); });
+  else copy();
 }
-document.getElementById('hcp').addEventListener('input', hcpNote);
-document.getElementById('holes').addEventListener('change', build);
-hcpNote();
-build();
+function loadExample() { S = exampleState(); save(); show('result', true); }
+function newRound() {
+  if (!confirm('Start a new round? Players and course stay; scores are cleared.')) return;
+  S.scores = {}; S.hole = order()[0]; save(); show('hole', true);
+}
+
+/* Events */
+document.addEventListener('click', function (ev) {
+  var b = ev.target.closest('button'); if (!b) return;
+  var i = +b.getAttribute('data-i');
+  if (b.hasAttribute('data-sc')) { var cur = shown(S.hole)[i]; var base = cur === 'P' ? +S.course.par[S.hole - 1] : cur; setScore(i, cur === 'P' ? base : base + +b.getAttribute('data-sc')); $('sc' + i).value = S.scores[S.hole][i]; return; }
+  if (b.hasAttribute('data-pu')) { var j = +b.getAttribute('data-pu'), now = shown(S.hole)[j]; setScore(j, now === 'P' ? +S.course.par[S.hole - 1] : 'P'); $('sc' + j).value = S.scores[S.hole][j]; return; }
+  if (b.hasAttribute('data-h') && b.hasAttribute('data-i')) { var p = S.players[i]; p.hcp = Math.max(HMIN, Math.min(HMAX, Math.round(+p.hcp || 0) + +b.getAttribute('data-h'))); $('ph' + i).value = fmtHcp(p.hcp); setNote(i); save(); return; }
+  if (b.hasAttribute('data-dh')) { var w = b.getAttribute('data-dh'); if (w !== 'x') { S.players[+w].hcp = pendingDH; save(); toast('Daily Handicap ' + fmtHcp(pendingDH) + ' set for ' + nameOf(S.players[+w], +w)); } pendingDH = null; renderSetup(); return; }
+  if (b.hasAttribute('data-cp')) { var hp = +b.getAttribute('data-h'); S.course.par[hp - 1] = Math.max(3, Math.min(6, S.course.par[hp - 1] + +b.getAttribute('data-cp'))); $('cp' + hp).value = S.course.par[hp - 1]; save(); courseCheck(); return; }
+  if (b.hasAttribute('data-cs')) { var hs = +b.getAttribute('data-h'), n = +S.course.holes; S.course.si[hs - 1] = Math.max(1, Math.min(n, (+S.course.si[hs - 1] || 1) + +b.getAttribute('data-cs'))); $('cs' + hs).value = S.course.si[hs - 1]; save(); courseCheck(); return; }
+  if (b.hasAttribute('data-si')) { var n2 = +S.course.holes, sv = Math.max(1, Math.min(n2, (+S.course.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.course.si[S.hole - 1] = sv; $('si').value = sv; save(); var sel = b.getAttribute('data-si'); renderHole(); var nb = document.querySelector('button[data-si="' + sel + '"]'); if (nb) nb.focus(); return; }
+  switch (b.id) {
+    case 'btn-add': if (S.players.length < MAX_PLAYERS) { S.players.push({ name: '', hcp: 0 }); for (var hh in S.scores) S.scores[hh].push(null); save(); renderSetup(); } break;
+    case 'btn-less': if (S.players.length > MIN_PLAYERS) { S.players.pop(); for (var hl in S.scores) S.scores[hl].pop(); save(); renderSetup(); } break;
+    case 'btn-example': loadExample(); break;
+    case 'btn-course': show('course', true); break;
+    case 'btn-start': var o = order(), k = 0; while (k < o.length - 1 && recorded(o[k])) k++; S.hole = o[k]; show('hole', true); break;
+    case 'btn-fill-par': case 'btn-fill-si':
+      var kind = b.id === 'btn-fill-par' ? 'par' : 'si', res = parseList($(kind === 'par' ? 'fill-par' : 'fill-si').value, kind, +S.course.holes);
+      $('fill-err').textContent = res.err || ''; if (res.err) break;
+      S.course[kind] = res.nums; save(); renderCourse(); $('fill-err').textContent = (kind === 'par' ? 'Par' : 'Stroke index') + ' filled for ' + res.nums.length + ' holes.'; break;
+    case 'btn-csave':
+      var nm = String(S.course.name || '').trim();
+      if (!nm) { $('fill-err').textContent = 'Give the course a name to save it.'; $('cname').focus(); break; }
+      if (!courseCheck()) { $('fill-err').textContent = 'Fix the stroke index first, then save.'; break; }
+      var list = courses().filter(function (c) { return c.name.toLowerCase() !== nm.toLowerCase(); }); list.unshift(cleanCourse(S.course)); saveCourses(list.slice(0, 20));
+      toast('Saved ' + nm); $('fill-err').textContent = 'Saved “' + nm + '”. Pick it from Saved courses next time.'; break;
+    case 'btn-cdone': case 'btn-cdone-top': show('setup', true); break;
+    case 'btn-next': go(1); break;
+    case 'btn-prev': go(-1); break;
+    case 'btn-setup': record(S.hole); show('setup', true); break;
+    case 'btn-board': record(S.hole); show('result', true); break;
+    case 'btn-share': share(); break;
+    case 'btn-edit': var oo = order(), last = oo[0]; oo.forEach(function (x) { if (recorded(x)) last = x; }); S.hole = last; show('hole', true); break;
+    case 'btn-new': newRound(); break;
+  }
+});
+document.addEventListener('input', function (ev) {
+  var t = ev.target, i = +t.getAttribute('data-i');
+  if (/^pn\d/.test(t.id)) { S.players[i].name = t.value.slice(0, 24); save(); }
+  else if (/^ph\d/.test(t.id)) { var v = t.value.trim().replace(/\u2212/g, '-'); if (/^[+-]?\d{1,2}(\.\d)?$/.test(v)) { S.players[i].hcp = Math.max(HMIN, Math.min(HMAX, parseHcp(v))); save(); } else if (!v) { S.players[i].hcp = 0; save(); } setNote(i); }
+  else if (/^sc\d/.test(t.id)) { var x = t.value.trim(); if (/^p$/i.test(x)) setScore(i, 'P'); else { var n = parseInt(x, 10); if (n >= 1 && n <= 20) setScore(i, n); } }
+  else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= +S.course.holes) { S.course.si[S.hole - 1] = s; save(); siWarn(); } }
+  else if (t.id === 'cname') { S.course.name = t.value.slice(0, 40); save(); }
+  else if (/^cp\d/.test(t.id)) { var h = +t.getAttribute('data-h'), pv = parseInt(t.value, 10); if (pv >= 3 && pv <= 6) { S.course.par[h - 1] = pv; save(); courseCheck(); } }
+  else if (/^cs\d/.test(t.id)) { var h2 = +t.getAttribute('data-h'), sv = parseInt(t.value, 10); if (sv >= 1 && sv <= 99) { S.course.si[h2 - 1] = sv; save(); courseCheck(); } }
+});
+document.addEventListener('change', function (ev) {
+  var t = ev.target;
+  if (t.name === 'round') { S.round = t.value; if (S.round !== '18') S.tenth = false; S.hole = order()[0]; save(); renderSetup(); }
+  else if (t.id === 'tenth') { S.tenth = t.checked; save(); renderSetup(); }
+  else if (t.name === 'choles') setCourseHoles(+t.value);
+  else if (t.name === 'par') { var h = S.hole; S.course.par[h - 1] = +t.value; if (!recorded(h)) S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = +t.value; }); save(); updateStrip(); }
+  else if (t.id === 'saved') { var c = courses()[+t.value]; if (c) { var changed = +c.holes !== +S.course.holes; S.course = c; if (changed) { S.scores = {}; S.round = '18'; } save(); renderSetup(); toast('Course: ' + c.name); } }
+  else if (t.id === 'si') renderHole();
+});
+document.addEventListener('focusout', function (ev) {
+  var t = ev.target, i = +t.getAttribute('data-i');
+  if (/^ph\d/.test(t.id)) { t.value = fmtHcp(S.players[i].hcp); setNote(i); }
+  else if (/^sc\d/.test(t.id)) t.value = shown(S.hole)[i];
+  else if (t.id === 'si') t.value = S.course.si[S.hole - 1];
+  else if (/^cp\d/.test(t.id)) t.value = S.course.par[+t.getAttribute('data-h') - 1];
+  else if (/^cs\d/.test(t.id)) t.value = S.course.si[+t.getAttribute('data-h') - 1];
+});
+document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev.target.matches('.gc-stepper input')) { try { ev.target.select(); } catch (e) {} } });
+(function swipe() {
+  var x0 = null, y0 = null, el = $('scr-hole');
+  el.addEventListener('touchstart', function (e) { if (e.target.closest('input,button')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', function (e) { if (x0 == null) return; var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; if (Math.abs(dx) > 60 && Math.abs(dy) < 40) go(dx < 0 ? 1 : -1); x0 = null; }, { passive: true });
+})();
+// Back from /daily-handicap?from=stableford with ?dh=12 (or +2): ask which player it is for (or set it for ?p=<index>).
+var dhSet = null;
+(function dhReturn() {
+  try {
+    var q = new URLSearchParams(location.search), v = q.get('dh');
+    if (v != null && /^[+\-\u2212]?\d{1,2}$/.test(v.trim())) { pendingDH = Math.max(HMIN, Math.min(HMAX, parseHcp(v))); S.screen = 'setup'; }
+    var pi = q.get('p'); // from a player's own 9-hole link: no need to ask who it is for
+    if (pendingDH != null && pi != null && /^\d$/.test(pi) && +pi < S.players.length) { S.players[+pi].hcp = pendingDH; save(); dhSet = nameOf(S.players[+pi], +pi) + ': ' + (nineHole(S) ? '9-hole ' : '') + 'Daily Handicap ' + fmtHcp(pendingDH); pendingDH = null; }
+    if (v != null && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+  } catch (e) {}
+})();
+window.GCStablefordUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share,
+  reset: function () { S = defaultState(); save(); show('setup'); }, set: function (s) { S = s; save(); show(S.screen || 'setup'); } };
+show(S.screen || 'setup');
+if (dhSet) toast(dhSet);
+})();
 </script>
 </body>
 </html>

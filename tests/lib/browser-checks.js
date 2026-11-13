@@ -6,7 +6,7 @@
 //                     or Lighthouse < 95 in any category on home/skins/stableford/privacy.
 //   --ci (PR gate, priorities-v7 P1): fail on axe serious/critical (WCAG 2.2 AA) at 375 and 320,
 //                     any sideways scroll at 320/375, any input[type=number] on a rebuilt page
-//                     (legacy allowlist: Stableford until P4, Skins while it is the legacy page),
+//                     (legacy allowlist: Skins while it is the legacy page; Stableford removed in P4),
 //                     Lighthouse mobile Performance < 95, Accessibility < 95, LCP > 2.5 s or CLS > 0.1
 //                     (median of 3 runs when the first run misses a budget), and the calculator-first
 //                     fold check on skins/stableford/daily-handicap (P3).
@@ -21,7 +21,7 @@ const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
 let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false;
-const legacyNumberOK=name=>/^stableford/.test(name)||(!isV2&&/^skins/.test(name)); // type=number allowlist
+const legacyNumberOK=name=>!isV2&&/^skins/.test(name); // type=number allowlist: only the legacy Skins page (Stableford rebuilt in P4)
 const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
 (async()=>{
   if(!base){const port=8790+Math.floor(Math.random()*100);srv=spawn(process.execPath,[path.join(__dirname,'serve.js'),SITE,String(port)],{stdio:'ignore'});base='http://localhost:'+port;await new Promise(r=>setTimeout(r,700));}
@@ -74,6 +74,52 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('skins (legacy)',w,'/skins',null,w===375?'skins-legacy-375.png':null);
       await check('skins (legacy) example settled',w,'/skins',async p=>{await p.evaluate(()=>{loadExample();settleUp();});},null);
     }
+  }
+  // Stableford rebuild (P4): every screen at 375 and 320, incl. 4 long names (max data)
+  const isSf=await (async()=>{const p=await page(375);await p.goto(base+'/stableford');const r=await p.evaluate(()=>document.body.dataset.gc==='stableford-v2');await p.context().close();return r;})();
+  if(isSf){
+    const LONG=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'];
+    const four=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;const s=U.state();s.players=[{name:L[0],hcp:12},{name:L[1],hcp:2},{name:L[2],hcp:24},{name:L[3],hcp:-2}];U.show('setup');},LONG);};
+    const hole7=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L?L[i]:x.name);for(let h=8;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole',true);},null);await p.click('button[data-sc="-1"][data-i="0"]');await p.evaluate(()=>scrollTo(0,0));};
+    const hole7long=async p=>{await p.evaluate(L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L[i]);for(let h=8;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole',true);},LONG);await p.click('button[data-pu="3"]');};
+    const result=async p=>{await p.evaluate(()=>GCStablefordUI.loadExample());};
+    const resultLong=async p=>{await p.evaluate(L=>{GCStablefordUI.loadExample();const s=GCStablefordUI.state();s.players.forEach((x,i)=>x.name=L[i]);GCStablefordUI.show('result');document.querySelectorAll('#why details').forEach(d=>d.open=true);},LONG);};
+    const tie=async p=>{await p.evaluate(()=>{const U=GCStablefordUI,G=GCStableford;const s=G.defaultState();s.course.name='Countback demo';s.players=[{name:'Mel',hcp:0},{name:'Sam',hcp:0},{name:'Jo',hcp:0},{name:'Al',hcp:0}];
+      const pts=[[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],[3,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2],[3,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1]];
+      for(let h=1;h<=18;h++)s.scores[h]=pts.map(a=>s.course.par[h-1]+2-a[h-1]);s.screen='result';U.set(s);});};
+    const course=async p=>{await p.evaluate(()=>GCStablefordUI.show('course',true));};
+    const nine=async p=>{await four(p);await p.evaluate(()=>{const s=GCStablefordUI.state();s.round='front';GCStablefordUI.show('setup');});};
+    const courseDupe=async p=>{await p.evaluate(()=>{const s=GCStablefordUI.state();s.course.si[6]=5;GCStablefordUI.show('course',true);});};
+    for(const w of [375,320]){
+      await check('stableford setup: 4 long names, +2 note',w,'/stableford',four,`stableford-1-setup-${w}.png`);
+      await check('stableford setup, front 9: 9-hole DH label + link beside each field',w,'/stableford',nine,`stableford-1b-setup-9holes-${w}.png`);
+      await check('stableford course card',w,'/stableford',course,`stableford-2-course-${w}.png`);
+      await check('stableford course card, duplicate SI',w,'/stableford',courseDupe,w===375?'stableford-2b-course-dupe-375-full.png':null);
+      await check('stableford hole entry, live strip (hole 7)',w,'/stableford',hole7,`stableford-3-hole7-strip-${w}.png`);
+      await check('stableford hole entry, 4 long names + pickup',w,'/stableford',hole7long,null);
+      await check('stableford result podium (example)',w,'/stableford',result,`stableford-4-podium-${w}.png`);
+      await check('stableford result, countback ties',w,'/stableford',tie,`stableford-5-countback-${w}.png`);
+      await check('stableford result full page, long names, why open',w,'/stableford',resultLong,w===375?'stableford-6-result-375-full.png':null);
+    }
+  }
+  if(isSf){ // PO 12 Nov: on 9 holes each player's "Work out 9-hole DH" link sits right under their handicap stepper (one tap away)
+    for(const w of [375,320]){
+      const p=await page(w);await p.goto(base+'/stableford',{waitUntil:'load'});
+      await p.evaluate(()=>{const s=GCStablefordUI.state();s.players=[{name:'Bartholomew-Fitzgerald',hcp:6},{name:'Maximiliana Oyelaran',hcp:1},{name:'Christopher-Montague',hcp:12},{name:'Anastasiya Wolfensohn',hcp:-1}];s.round='front';GCStablefordUI.show('setup');});
+      const r=await p.evaluate(()=>[0,1,2,3].map(i=>{const st=document.getElementById('ph'+i).closest('.gc-stepper').getBoundingClientRect(),a=document.getElementById('dhl'+i);if(!a)return {i,ok:false,why:'missing'};const l=a.getBoundingClientRect();
+        const gap=Math.round(l.top-st.bottom),ov=Math.min(l.right,st.right)-Math.max(l.left,st.left);return {i,gap,h:Math.round(l.height),ok:gap>=-4&&gap<=12&&ov>=40&&l.height>=44&&l.right<=innerWidth};}));
+      const bad=r.some(x=>!x.ok);if(bad)fail=1;rows.push({name:`stableford 9-hole DH link placement ${w}`,width:w,placement:r});
+      console.log(`${gate(bad)}  stableford 9-hole DH link right under each stepper @${w}: ${r.map(x=>`P${x.i+1} gap ${x.gap}px, ${x.h}px tall`).join('; ')}`);
+      await p.context().close();}
+  }
+  if(pages.some(p=>p[0]==='daily-handicap')){ // PO 12 Nov: "(effective 2 Oct 2025)" never wraps mid-phrase, and never causes sideways scroll
+    for(const w of [375,320]){
+      const p=await page(w);await p.goto(base+'/daily-handicap',{waitUntil:'load'});
+      const r=await p.evaluate(()=>{const s=document.querySelector('p.lede .nowrap');return {found:!!s,lines:s?new Set([...s.getClientRects()].map(x=>Math.round(x.top))).size:0,sw:document.documentElement.scrollWidth,vw:innerWidth,right:s?Math.round(s.getBoundingClientRect().right):0};});
+      const lede=await p.$('p.lede');if(w===375&&lede)await lede.screenshot({path:path.join(OUT,'dh-date-line-375.png')});
+      const bad=!(r.found&&r.lines===1&&r.sw<=r.vw&&r.right<=r.vw);if(bad)fail=1;rows.push({name:`daily-handicap date phrase ${w}`,width:w,nowrap:r});
+      console.log(`${gate(bad)}  daily-handicap "(effective 2 Oct 2025)" on one line @${w}: ${r.lines} line, ends at ${r.right}px, page ${r.sw}px wide (viewport ${r.vw})`);
+      await p.context().close();}
   }
   if(isV2){ // setup clearance: sticky Start bar must not cover setup controls
     const sel=['#btn-add','#btn-less','#pn0','#pn3','#ph3','#stake','input[name=holes][value=back]+span','input[name=scoring][value=gross]+span','details.sk-more summary','#btn-start'];
