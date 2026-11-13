@@ -60,10 +60,11 @@ later(async()=>{const ex=G.exampleState();const link=linkOf(G.toPayload(ex));con
   ok('a 1z. link opens the read-only result: podium and countback line, no setup',U.viewing()&&!h.$('scr-result').hidden&&h.$('scr-setup').hidden&&txt(h.$('cb-line'))==='Mel wins on countback: 20 v 18 on holes 10–18');
   ok('banner: "Shared result" / "Read-only, as entered by the scorer." (no sharer name), role=status, shown',txt(h.$('gc-shared-t'))==='Shared result'&&txt(h.$('gc-shared-p'))==='Read-only, as entered by the scorer.'&&h.$('gc-shared').getAttribute('role')==='status'&&h.w.getComputedStyle(h.$('gc-shared')).display==='block'&&cl.contains('gc-view')&&!cl.contains('gc-wait'));
   ok('Edit scores, New round and its note are hidden; Start your own round and Copy link are shown',['own-actions','new-note'].every(id=>h.w.getComputedStyle(h.$(id)).display==='none')&&h.w.getComputedStyle(h.$('view-actions')).display==='grid'&&txt(h.$('gc-own'))==='Start your own round'&&txt(h.$('gc-copy'))==='Copy link');
+  ok('Start your own round sits directly under the podium (#hero), primary; Share result and Copy link are secondary links; the primary Share button is hidden',h.$('hero').nextElementSibling===h.$('view-actions')&&/gc-btn-primary/.test(h.$('gc-own').className)&&/gc-btn-ghost/.test(h.$('gc-reshare').className)&&/gc-btn-ghost/.test(h.$('gc-copy').className)&&h.w.getComputedStyle(h.$('share-row')).display==='none');
   ok('the per-hole why is there for every player',h.d.querySelectorAll('#why details').length===4);
   ok('your saved round was never read while opening the link',!reads.includes(KEY)&&!reads.includes(CKEY),reads.join());
-  let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};h.$('btn-share').click();await new Promise(r=>setTimeout(r,5));
-  ok('Share re-shares the same link, unchanged',!!shared&&shared.text.split('\n').pop()===link&&shared.text.split('\n')[0]==='Stableford - Example card - 18 holes',shared&&shared.text);
+  let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};h.$('gc-reshare').click();await new Promise(r=>setTimeout(r,5));
+  ok('Share result (secondary link) re-shares the same link, unchanged',!!shared&&shared.text.split('\n').pop()===link&&shared.text.split('\n')[0]==='Stableford - Example card - 18 holes',shared&&shared.text);
   let copied=null;Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:t=>{copied=t;return Promise.resolve();}},configurable:true});h.$('gc-copy').click();await new Promise(r=>setTimeout(r,5));
   ok('Copy link copies exactly the link',copied===link,copied);
   ok('localStorage byte-identical after opening, sharing and copying',h.w.localStorage.getItem(KEY)===mine&&h.w.localStorage.getItem(CKEY)===courses&&h.w.localStorage.length===2);
@@ -81,7 +82,7 @@ later(async()=>{const ex=G.exampleState();const link=linkOf(G.toPayload(ex));con
   const p=open({url:linkOf(G.toPayload(ex),false),zip:false});await p.w.GCStablefordUI.opened();ok('a "1." link opens without CompressionStream',p.w.GCStablefordUI.viewing());
   const pe=open({zip:false});pe.w.GCStablefordUI.loadExample();const l2=await pe.w.GCStablefordUI.link();ok('no CompressionStream: the page writes a "1." link',/#r=1\.[A-Za-z0-9_-]+$/.test(l2.url));
   const nb=open({url:link,zip:false});await nb.w.GCStablefordUI.opened();
-  ok('a 1z. link on a browser without DecompressionStream: "This link needs a newer browser" + Start your own round',txt(nb.$('gc-shared-t'))==='This link needs a newer browser'&&nb.w.getComputedStyle(nb.$('gc-own')).display!=='none'&&nb.w.getComputedStyle(nb.$('gc-copy')).display==='none');
+  ok('a 1z. link on a browser without DecompressionStream: "This link needs a newer browser" + Start your own round',txt(nb.$('gc-shared-t'))==='This link needs a newer browser'&&nb.w.getComputedStyle(nb.$('gc-own')).display!=='none'&&nb.w.getComputedStyle(nb.d.querySelector('.gc-view-links')).display==='none');
   // a part-played front 9 with a pickup and a plus handicap
   const st=G.defaultState();st.round='front';st.players=[{name:'Al',hcp:-2,hcp9:-1},{name:'Bo',hcp:20,hcp9:null}];st.scores={1:[4,'P'],2:[3,6],3:[5,5]};
   const hp=open({url:linkOf(G.toPayload(st))});await hp.w.GCStablefordUI.opened();
@@ -108,7 +109,7 @@ const hostile=[
   ['round "x"',linkOf(mod(o=>o.r='x')).split('#')[1]]];
 later(async()=>{const bad=[];for(const [label,frag] of hostile){const h=open({url:URL+(frag.startsWith('#')?frag:'#'+frag),storage:{[KEY]:mine}});await h.w.GCStablefordUI.opened();
     const good=!h.w.GCStablefordUI.viewing()&&txt(h.$('gc-shared-t'))==='This result link can\u2019t be opened'&&txt(h.$('gc-shared-p'))==='It is incomplete or from a newer version of the calculator.'
-      &&['setup','course','hole','result'].every(s=>h.$('scr-'+s).hidden)&&!h.d.documentElement.classList.contains('gc-wait')&&h.w.localStorage.getItem(KEY)===mine&&h.$('hero').innerHTML===''&&h.w.getComputedStyle(h.$('gc-own')).display!=='none'
+      &&['setup','course','hole','result'].every(s=>h.$('scr-'+s).hidden)&&!h.d.documentElement.classList.contains('gc-wait')&&h.w.localStorage.getItem(KEY)===mine&&h.$('hero').innerHTML===''&&h.w.getComputedStyle(h.$('gc-own')).display!=='none'&&h.$('gc-shared').nextElementSibling===h.$('view-actions')
       &&[...h.d.querySelectorAll('h1')].filter(e=>h.w.getComputedStyle(e).display!=='none'&&!e.closest('[hidden]')).length===1;
     if(!good)bad.push(label);}
   ok(`${hostile.length} hostile links (bad base64, unknown/no tag, truncated, >4,096, deflate bomb, bad UTF-8, non-object, wrong version/tool, out-of-range par/SI/handicap/players/scores, wrong types): error card, Start your own round, nothing half-rendered, storage untouched, exactly one h1 (sr-only)`,bad.length===0,bad.join(', '));
@@ -129,7 +130,7 @@ const spy=log=>w=>{for(const fn of ['pushState','replaceState']){const o=w.Histo
 async function histFlow(f){const log=[],link=linkOf(G.toPayload(G.exampleState())),u=URL+'?dh=7&p=0#r='+link.split('#r=')[1];
   // 1) open a link that also carries ?dh= (the DH return must not run), share, copy, then Start your own round
   const h=open({url:u,storage:{[KEY]:mine},before:spy(log)},f);await h.w.GCStablefordUI.opened();
-  h.w.navigator.share=()=>Promise.resolve();h.$('btn-share').click();Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:()=>Promise.resolve()},configurable:true});h.$('gc-copy').click();
+  h.w.navigator.share=()=>Promise.resolve();h.$('gc-reshare').click();Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:()=>Promise.resolve()},configurable:true});h.$('gc-copy').click();
   await new Promise(r=>setTimeout(r,5));const beforeOwn=log.length;h.$('gc-own').click();const own=log.slice(beforeOwn);
   // 2) the error card's Start your own round
   const e=open({url:URL+'#r=1z.AAAA',storage:{[KEY]:mine},before:spy(log)},f);await e.w.GCStablefordUI.opened();const be=log.length;e.$('gc-own').click();const ownErr=log.slice(be);
@@ -143,7 +144,7 @@ later(async()=>{const r=await histFlow();
   ok('every history call in viewer mode leaves location.hash without r= (result, error card, link pasted into an open tab)',r.log.length>=3&&r.log.every(c=>!/r=/.test(c.after)),JSON.stringify(r.log));
   ok('Start your own round clears the fragment as its very first step (one replaceState, made while the viewer is still showing, before anything else)',
     [r.own,r.ownErr,r.ownTab].every(o=>o.length===1&&o[0].fn==='replaceState'&&o[0].view&&/^#r=/.test(o[0].before)&&o[0].after===''),JSON.stringify([r.own,r.ownErr,r.ownTab]));
-  const f1=mut('ownorder',"history.replaceState(null, '', location.pathname + location.search); leaveShared(true);","leaveShared(true); history.replaceState(null, '', location.pathname + location.search);");
+  const f1=mut('ownorder',"GCShare.clearHash(); leaveShared(true);","leaveShared(true); GCShare.clearHash();");
   const m1=await histFlow(f1);ok('mutation: clearing the fragment after leaving the viewer is caught',f1&&!m1.own.every(c=>c.view));
   const f2=mut('dhguard',"  if (RAW != null) return; // a shared result link is open: leave your round alone\n","");
   const m2=await histFlow(f2);ok('mutation: letting the DH return run on a #r= page is caught (a history call keeps r=)',f2&&m2.log.some(c=>/r=/.test(c.after)));

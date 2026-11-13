@@ -122,9 +122,14 @@ a{color:var(--accent)}
     gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE';
     document.head.appendChild(gaTag);
     gtag('js', new Date());
-    gtag('config', 'G-DH32H3GWKE');
+    // Shared result links (#r=...) carry names and scores in the fragment: GA gets the page without it.
+    var gaStrip = function () { return /^#r=/.test(location.hash) ? { page_location: location.origin + location.pathname } : null; };
+    if (gaStrip()) gtag('config', 'G-DH32H3GWKE', gaStrip()); else gtag('config', 'G-DH32H3GWKE');
+    addEventListener('popstate', function () { if (gaStrip()) gtag('set', gaStrip()); });
+    addEventListener('hashchange', function () { if (gaStrip()) gtag('set', gaStrip()); });
   }
 </script>
+<script>if (/^#r=/.test(location.hash)) document.documentElement.classList.add('gc-view', 'gc-wait'); // shared result: banner first, no setup flash</script>
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
   .sk-screen[hidden]{display:none}
@@ -186,6 +191,9 @@ a{color:var(--accent)}
   .sk-pay span:first-child{min-width:0;overflow-wrap:anywhere}
   .sk-pay span:last-child{flex:none}
   .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
+  /* shared viewer with 4+ payments: compact lines so Start your own round stays on the first screen (PO, 12 Nov) */
+  .gc-view .sk-many .sk-pay{display:block;font-size:var(--fs-md);font-weight:600;line-height:1.35;margin-top:var(--s1)}
+  .gc-view .sk-many .sk-pay span:last-child{white-space:nowrap;font-weight:800;margin-left:var(--s1)}
   .sk-ledger{list-style:none;margin:0;padding:0}
   .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
   .sk-ledger li+li{border-top:1px solid var(--line)}
@@ -207,6 +215,23 @@ a{color:var(--accent)}
   .sk-prompt{background:var(--accent-soft);border:1px solid var(--accent-line)}
   .sk-prompt p{margin:0 0 var(--s3)}
   .sk-prompt .sk-ask{display:grid;grid-template-columns:1fr;gap:var(--s2)}
+  /* gc-share viewer: the same block in every calculator page (tests/run checks) */
+  .gc-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
+  .gc-shared h2{margin:0;font-size:var(--fs-md)}
+  .gc-shared p{margin:var(--s1) 0 0;color:#14532d}
+  .gc-view .gc-shared{display:block}
+  .gc-wait .sk-screen{display:none!important}
+  .gc-wait .gc-shared-wait{display:block;min-height:100vh}
+  .gc-shared-wait,.gc-view-actions{display:none}
+  .gc-view:not(.gc-wait) .gc-view-actions{display:grid;gap:var(--s1);margin-top:var(--s3)}
+  .gc-view-links{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+  .gc-view-err .gc-view-links{display:none}
+  .gc-view-err .gc-shared{background:var(--warn-soft);border-color:#fcd34d}
+  .gc-view-err .gc-shared p{color:var(--warn)}
+  .gc-shared-h1{display:none}
+  .gc-view-err .gc-shared-h1{display:block}
+  .gc-view .gc-own-only{display:none!important}
+  /* /gc-share viewer */
   .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px} /* longer DH messages: wide, not a tall blob */
 </style>
 <!-- seo:jsonld:start -->
@@ -319,6 +344,8 @@ a{color:var(--accent)}
 </div></header>
 
 <main class="gc-main">
+<div class="gc-card sk-pad gc-shared" id="gc-shared" role="status"><h1 class="sr-only gc-shared-h1">Golf skins calculator</h1><h2 id="gc-shared-t">Shared result</h2><p id="gc-shared-p">Read-only, as entered by the scorer.</p></div>
+<div class="gc-shared-wait" aria-hidden="true"></div>
 
 <!-- SETUP -->
 <section class="sk-screen" id="scr-setup" aria-labelledby="setup-h">
@@ -403,8 +430,9 @@ a{color:var(--accent)}
 <section class="sk-screen" id="scr-result" aria-labelledby="result-h" hidden>
   <h1 id="result-h" class="sr-only" tabindex="-1">Skins result</h1>
   <div class="gc-hero" id="hero"></div>
-  <div id="playoff" class="gc-card" style="margin-top:var(--s3)" hidden></div>
-  <div class="sk-actions" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
+  <div class="gc-view-actions" id="view-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="gc-own">Start your own round</button><div class="gc-view-links"><button type="button" class="gc-btn gc-btn-ghost" id="gc-reshare">Share result</button><button type="button" class="gc-btn gc-btn-ghost" id="gc-copy">Copy link</button></div></div>
+  <div id="playoff" class="gc-card gc-own-only" style="margin-top:var(--s3)" hidden></div>
+  <div class="sk-actions gc-own-only" id="share-row" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Totals</h2>
     <div class="sk-totals" id="totals"></div>
@@ -414,11 +442,11 @@ a{color:var(--accent)}
     <p class="sk-note" id="si-note" style="margin-top:var(--s2)" hidden></p>
     <ol class="sk-ledger" id="ledger"></ol>
   </div>
-  <div class="sk-actions sk-actions-2" style="position:static;background:none">
+  <div class="sk-actions sk-actions-2 gc-own-only" id="own-actions" style="position:static;background:none">
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
-  <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0. Your players and scores are saved on this device only.</p>
+  <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0.<span class="gc-own-only"> Your players and scores are saved on this device only.</span></p>
   <p class="gc-muted" style="margin-top:var(--s2)">Scoring: common club format (skins have no governing rulebook). <a href="#how-h">How it's calculated</a></p>
   <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
   <div class="gc-next">
@@ -457,6 +485,104 @@ a{color:var(--accent)}
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
 <footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<!-- Shared result links: verbatim copy of /gc-share.js. tests/run fails if it drifts from gc-share.js. -->
+<script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
+   page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
+   A result link is https://golfcalculators.com/<tool>#r=<tag>.<payload>. The data sits in the #fragment, which
+   browsers never send to the server, so names and scores never reach Netlify, a CDN, a Referer or a preview
+   crawler. Tags: "1z." = v1, deflate-raw then base64url; "1." = v1, plain base64url (no CompressionStream).
+   Everything decoded is treated as hostile: size caps, strict base64url, fatal UTF-8, JSON.parse only; each
+   page then rebuilds its state field by field from a whitelist (never Object.assign). */
+(function () {
+  var MAX = 4096, CAP = 16384;
+  function err(code) { var e = new Error(code); e.code = code; return e; }
+  function b64u(bytes) {
+    var s = '', i;
+    for (i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, Array.prototype.slice.call(bytes, i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64u(str) {
+    if (!/^[A-Za-z0-9_-]+$/.test(str) || str.length % 4 === 1) return null;
+    var b = str.replace(/-/g, '+').replace(/_/g, '/'), s, u, i;
+    while (b.length % 4) b += '=';
+    try { s = atob(b); } catch (e) { return null; }
+    u = new Uint8Array(s.length);
+    for (i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    return u;
+  }
+  function pump(bytes, stream, cap) { // write all bytes through a (De)CompressionStream; stop past cap bytes out
+    var w = stream.writable.getWriter(), r = stream.readable.getReader(), parts = [], n = 0;
+    w.write(bytes).catch(function () {}); w.close().catch(function () {});
+    return new Promise(function (res, rej) {
+      (function next() {
+        r.read().then(function (x) {
+          if (x.done) { var out = new Uint8Array(n), o = 0; parts.forEach(function (p) { out.set(p, o); o += p.length; }); return res(out); }
+          n += x.value.length;
+          if (n > cap) { r.cancel().catch(function () {}); return rej(err('bad')); }
+          parts.push(x.value); next();
+        }, function () { rej(err('bad')); });
+      })();
+    });
+  }
+  function canZip() { return typeof CompressionStream === 'function'; }
+  function encode(obj, plain) { // -> Promise of "1z.<payload>" (or "1.<payload>")
+    var bytes = new TextEncoder().encode(JSON.stringify(obj));
+    if (!plain && canZip()) return pump(bytes, new CompressionStream('deflate-raw'), Infinity).then(function (z) { return '1z.' + b64u(z); });
+    return Promise.resolve('1.' + b64u(bytes));
+  }
+  function decode(raw) { // -> Promise of the parsed JSON object; rejects with code 'bad' or 'browser'
+    return new Promise(function (res, rej) {
+      if (typeof raw !== 'string' || raw.length > MAX) return rej(err('bad'));
+      var m = /^(1z?)\.([A-Za-z0-9_-]+)$/.exec(raw);
+      if (!m) return rej(err('bad'));
+      var bytes = unb64u(m[2]);
+      if (!bytes) return rej(err('bad'));
+      var zipped = m[1] === '1z';
+      if (zipped && typeof DecompressionStream !== 'function') return rej(err('browser'));
+      if (!zipped && bytes.length > CAP) return rej(err('bad'));
+      (zipped ? pump(bytes, new DecompressionStream('deflate-raw'), CAP) : Promise.resolve(bytes)).then(function (b) {
+        var o;
+        try { o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(b)); } catch (e) { return rej(err('bad')); }
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return rej(err('bad'));
+        res(o);
+      }, rej);
+    });
+  }
+  function fromHash(hash) { var m = /^#r=([^&#]*)$/.exec(hash || ''); return m ? m[1] : null; } // r= is the only key
+  function get(o, k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; } // own keys only
+  function cleanText(s, max) { // NFC, no C0/C1 or bidi controls, trimmed, at most max code points
+    if (typeof s !== 'string') return '';
+    if (s.normalize) s = s.normalize('NFC');
+    s = s.replace(/[\u0000-\u001F\u007F-\u009F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '').trim();
+    return Array.from(s).slice(0, max).join('').trim();
+  }
+  function gsm(text) { // share text in plain ASCII where we wrote it, so SMS stays GSM-7 (PO, 12 Nov)
+    return String(text).replace(/\s*\u00B7\s*/g, ' - ').replace(/[\u2013\u2014\u2212]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+      .replace(/\u2192/g, '->').replace(/\u2026/g, '...').replace(/\u00D7/g, 'x').replace(/\u00A0/g, ' ');
+  }
+  var TEXT = { title: 'Shared result', line: 'Read-only, as entered by the scorer.',
+    bad: ['This result link can\u2019t be opened', 'It is incomplete or from a newer version of the calculator.'],
+    browser: ['This link needs a newer browser', 'Update your browser to see this result, or start your own round.'] };
+  function banner(mode) { // mode: 'ok' | 'bad' | 'browser'; the banner is pre-rendered in the page (no layout shift)
+    var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
+    if (t) t.textContent = x[0];
+    if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
+    var h = document.documentElement.classList;
+    h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
+  }
+  function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); }
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
+    TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
+})();
+</script>
 <script>
 (function () {
 'use strict';
@@ -563,24 +689,78 @@ function exampleState() {
   s.hole = 18; s.screen = 'result';
   return s;
 }
-function shareText(st, r) {
+function shareText(st, r, link) { // plain ASCII (GSM-7 for SMS); the last line is the result link when there is one
   var mode = st.scoring === 'gross' ? 'gross' : (st.scoring === 'offlow' ? 'net off the low' : 'net full handicaps') + (+st.allowance !== 100 ? ' ' + st.allowance + '%' : '');
   var holes = st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '';
   var lines = ['Skins: ' + money(r.stake) + '/skin, ' + mode + holes + ', carryovers ' + (st.carry ? 'on' : 'off') + (r.played < r.total ? ' (thru ' + r.played + ' of ' + r.total + ')' : '')];
   if (r.payments.length) r.payments.forEach(function (p) { lines.push(r.names[p.from] + ' pays ' + r.names[p.to] + ' ' + money(p.amount)); });
   else lines.push('All square');
-  lines.push(r.names.map(function (nm, i) { return nm + ' ' + signed(r.balances[i]).replace('\u2212', '-') + ' (' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + ')'; }).join(' | ')); // plain ASCII: SMS stays GSM-7 (PO, 12 Nov)
+  // per-player balances: only up to 5 players; with 6 or more the link carries the detail (shorter SMS, PO 12 Nov)
+  if (r.names.length < 6) lines.push(r.names.map(function (nm, i) { return nm + ' ' + signed(r.balances[i]).replace('\u2212', '-') + ' (' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + ')'; }).join(' | '));
   if (r.playoffWinner != null) lines.push(r.names[r.playoffWinner] + ' won the playoff for ' + r.leftover + ' carried skin' + (r.leftover === 1 ? '' : 's'));
   else if (r.leftover && r.played === r.total) lines.push(r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried after the last hole: nobody wins ' + (r.leftover === 1 ? 'it' : 'them'));
-  return lines.join('\n');
+  lines.push('Settled at ' + (link || URL));
+  return window.GCShare ? window.GCShare.gsm(lines.join('\n')) : lines.join('\n');
+}
+// Result link payload (share-link design §2): only the inputs; the viewer recomputes with this engine.
+// {"v":1,"t":"sk","$":"5","r":"18"|"f"|"b","m":"f"|"o"|"g","a":100,"c":0|1,"e":"n"|"p","o":playoff winner|null,
+//  "par":"443544345…","si":"53179bdfh…" (base36),"pl":[[name, 18-hole DH, 9-hole DH|null, "45453-…" (base36 1-20, - not played)],…]}
+var HMIN = -10, HMAX = 54;
+function stakeNum(st) { return parseFloat(String(st.stake).replace(/[^0-9.]/g, '')); }
+function toPayload(st) {
+  var stake = stakeNum(st), rg = holeRange(st.holes), n = st.players.length;
+  if (!(stake > 0) || !/^\d{1,7}(\.\d{1,6})?$/.test(String(stake))) return null;
+  if (st.si.some(function (x) { return !(+x >= 1 && +x <= 18); }) || st.par.some(function (x) { return !(+x >= 3 && +x <= 6); })) return null;
+  var hc = function (v) { return Math.max(HMIN, Math.min(HMAX, Math.round(+v || 0))); };
+  return { v: 1, t: 'sk', $: String(stake), r: st.holes === 'front' ? 'f' : st.holes === 'back' ? 'b' : '18',
+    m: st.scoring === 'gross' ? 'g' : st.scoring === 'offlow' ? 'o' : 'f', a: Math.max(50, Math.min(100, Math.round(+st.allowance || 100))), c: st.carry ? 1 : 0,
+    e: st.endRule === 'playoff' ? 'p' : 'n', o: st.playoff != null && +st.playoff >= 0 && +st.playoff < n ? +st.playoff : null,
+    par: st.par.map(Number).join(''), si: st.si.map(function (x) { return (+x).toString(36); }).join(''),
+    pl: st.players.map(function (p, i) {
+      var sc = '';
+      for (var h = 1; h <= 18; h++) { var v = h >= rg[0] && h <= rg[1] ? (st.scores[h] || [])[i] : null; sc += v >= 1 && v <= 20 ? (+v).toString(36) : '-'; }
+      return [String(p.name || '').trim(), hc(p.hcp), p.hcp9 == null || p.hcp9 === '' ? null : hc(p.hcp9), sc];
+    }) };
+}
+function fromPayload(o) { // whitelist rebuild; null on anything out of range (share-link design §6)
+  var G = window.GCShare, get = G.get;
+  if (!o || typeof o !== 'object' || get(o, 'v') !== 1 || get(o, 't') !== 'sk') return null;
+  var st$ = get(o, '$'), r = get(o, 'r'), m = get(o, 'm'), a = get(o, 'a'), c = get(o, 'c'), e = get(o, 'e'), po = get(o, 'o'), par = get(o, 'par'), si = get(o, 'si'), pl = get(o, 'pl');
+  if (typeof st$ !== 'string' || !/^\d{1,7}(\.\d{1,6})?$/.test(st$) || !(parseFloat(st$) > 0)) return null;
+  if (['18', 'f', 'b'].indexOf(r) < 0 || ['f', 'o', 'g'].indexOf(m) < 0 || ['n', 'p'].indexOf(e) < 0 || (c !== 0 && c !== 1)) return null;
+  if (typeof a !== 'number' || a !== Math.round(a) || a < 50 || a > 100) return null;
+  if (typeof par !== 'string' || !/^[3-6]{18}$/.test(par) || typeof si !== 'string' || !/^[1-9a-i]{18}$/.test(si)) return null;
+  if (!Array.isArray(pl) || pl.length < MIN_PLAYERS || pl.length > MAX_PLAYERS) return null;
+  if (po !== null && po !== undefined && !(typeof po === 'number' && po === Math.round(po) && po >= 0 && po < pl.length)) return null;
+  var okH = function (v) { return typeof v === 'number' && v === Math.round(v) && v >= HMIN && v <= HMAX; };
+  var s = defaultState(), cols = [];
+  s.stake = st$; s.holes = r === 'f' ? 'front' : r === 'b' ? 'back' : '18'; s.scoring = { f: 'full', o: 'offlow', g: 'gross' }[m];
+  s.allowance = a; s.carry = c === 1; s.endRule = e === 'p' ? 'playoff' : 'nobody'; s.playoff = po == null ? null : po;
+  s.par = par.split('').map(Number); s.si = si.split('').map(function (ch) { return parseInt(ch, 36); });
+  s.players = [];
+  for (var i = 0; i < pl.length; i++) {
+    var p = pl[i];
+    if (!Array.isArray(p) || p.length !== 4 || typeof p[0] !== 'string' || !okH(p[1]) || !(p[2] === null || okH(p[2])) || typeof p[3] !== 'string' || !/^[1-9a-k-]{18}$/.test(p[3])) return null;
+    s.players.push({ name: G.cleanText(p[0], 24), hcp: p[1], hcp9: p[2] }); cols.push(p[3]);
+  }
+  var rg = holeRange(s.holes);
+  for (var h = rg[0]; h <= rg[1]; h++) {
+    var row = cols.map(function (sc) { var ch = sc.charAt(h - 1); return ch === '-' ? null : parseInt(ch, 36); });
+    if (row.some(function (v) { return v != null; })) s.scores[h] = row;
+  }
+  s.hole = rg[1]; s.screen = 'result';
+  return s;
 }
 window.GCSkins = { compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
-  parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote, hcpFor: hcpFor, hcp9Of: hcp9Of, needsCheck9: needsCheck9, check9Note: check9Note, isNine: isNine, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI };
+  parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote, hcpFor: hcpFor, hcp9Of: hcp9Of, needsCheck9: needsCheck9, check9Note: check9Note, isNine: isNine, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI,
+  toPayload: toPayload, fromPayload: fromPayload };
 
 /* ---------- UI ---------- */
 var KEY = 'gc_skins_v2', LEGACY = 'golfcalculators_skins_v2', URL = 'https://golfcalculators.com/skins';
 var $ = function (id) { return document.getElementById(id); };
-var S = load();
+var RAW = window.GCShare ? GCShare.fromHash(location.hash) : null; // a shared result link: never touch your saved round
+var VIEW = null; // { raw, url } while showing a shared result (read-only)
+var S = RAW != null ? defaultState() : load();
 
 function load() {
   var s = defaultState();
@@ -607,7 +787,7 @@ function load() {
   } catch (e) {}
   return s;
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function save() { if (VIEW || RAW != null) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 function range() { return holeRange(S.holes); }
 function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length && sc.every(function (v) { return v >= 1; })); }
 function thru() { var rg = range(), c = 0; for (var h = rg[0]; h <= rg[1]; h++) if (recorded(h)) c++; return c; }
@@ -766,7 +946,7 @@ function renderResult() {
   var r = compute(S), hero = '';
   var kicker = r.played === r.total ? 'Skins settled · ' + money(r.stake) + ' a skin' : 'So far · thru ' + r.played + ' of ' + r.total;
   if (!r.played) hero = '<p class="gc-kicker">Skins</p><p class="gc-big">No holes scored yet</p>';
-  else if (r.needsPlayoff) hero = '<p class="gc-kicker">' + kicker + '</p><p class="gc-big">Playoff for ' + r.carry + ' skin' + (r.carry === 1 ? '' : 's') + '</p><p class="sk-hero-sub">Pick the playoff winner below to settle.</p>';
+  else if (r.needsPlayoff) hero = '<p class="gc-kicker">' + kicker + '</p><p class="gc-big">Playoff for ' + r.carry + ' skin' + (r.carry === 1 ? '' : 's') + '</p><p class="sk-hero-sub">' + (VIEW ? 'The playoff winner has not been entered yet.' : 'Pick the playoff winner below to settle.') + '</p>';
   else {
     var one = r.payments.length === 1;
     hero = '<p class="gc-kicker">' + esc(kicker) + '</p>' + (r.payments.length ? r.payments.map(function (p) {
@@ -778,7 +958,9 @@ function renderResult() {
     if (note) hero += '<p class="sk-hero-sub">' + note + '</p>';
   }
   $('hero').innerHTML = hero;
-  $('btn-share').disabled = !r.played || r.needsPlayoff;
+  $('hero').classList.toggle('sk-many', r.payments.length >= 4);
+  $('btn-share').disabled = $('gc-reshare').disabled = !r.played || r.needsPlayoff;
+  if (window.GCShare && !$('btn-share').disabled) prepareLink();
   $('totals').innerHTML = r.names.map(function (nm, i) {
     var b = r.balances[i];
     return '<span>' + esc(nm) + '</span><span class="sk-sk">' + r.skins[i] + ' skin' + (r.skins[i] === 1 ? '' : 's') + '</span><span class="' + (b < 0 ? 'neg' : b > 0 ? 'pos' : 'zero') + '">' + signed(b) + '</span>';
@@ -804,17 +986,32 @@ function renderResult() {
     }).join('') + '</div>';
   } else po.hidden = true;
 }
+var LINK = null; // { key, url } prepared when the result renders, so Share stays inside the tap (iOS)
+function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; } // drafts link to themselves
+function prepareLink() {
+  if (VIEW) { LINK = { key: 'view', url: VIEW.url }; return Promise.resolve(LINK); }
+  var pay = toPayload(S); if (!pay) { LINK = null; return Promise.resolve(null); }
+  var key = JSON.stringify(pay);
+  if (LINK && LINK.key === key) return Promise.resolve(LINK);
+  return GCShare.encode(pay).then(function (t) { LINK = { key: key, url: linkBase() + '#r=' + t }; return LINK; }, function () { return null; });
+}
 function share() {
-  var r = compute(S), text = shareText(S, r);
-  var copy = function () {
-    var full = text + '\nSettled at ' + URL;
-    var done = function () { toast('Copied. Paste it in the group chat'); };
-    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(full).then(done, fallback); else fallback();
-    function fallback() { var ta = document.createElement('textarea'); ta.value = full; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed'); } document.body.removeChild(ta); }
-  };
-  if (navigator.share) navigator.share({ title: 'Skins result', text: text, url: URL }).catch(function (e) { if (!e || e.name !== 'AbortError') copy(); });
+  var pay = VIEW ? null : toPayload(S), key = pay ? JSON.stringify(pay) : 'view';
+  if (LINK && LINK.key === key) return shareNow(LINK.url);
+  return prepareLink().then(function (l) { return shareNow(l ? l.url : URL); });
+}
+function copyLink() { return prepareLink().then(function (l) { var u = l ? l.url : URL; window._copied = u; copyText(u, 'Link copied'); }); }
+function copyText(text, msg) {
+  var done = function () { toast(msg); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+  function fallback() { var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Copy failed'); } document.body.removeChild(ta); }
+}
+function shareNow(link) { // the result link is the text's last line ("Settled at …"), as on Stableford
+  var text = shareText(S, compute(S), link);
+  window._shareText = text;
+  var copy = function () { copyText(text, 'Copied. Paste it in the group chat'); };
+  if (navigator.share) navigator.share({ title: 'Skins result', text: text }).catch(function (e) { if (!e || e.name !== 'AbortError') copy(); });
   else copy();
-  window._shareText = text + '\nSettled at ' + URL;
 }
 function loadExample() { S = exampleState(); save(); show('result', true); }
 function newRound() {
@@ -886,6 +1083,7 @@ document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev
 
 var dhSet = null;
 (function dhReturn() { // back from a player's 'Work out 9-hole DH' link: /skins?dh=7&holes=9&p=2
+  if (RAW != null) return; // a shared result link is open: leave your round alone
   try {
     var q = new URLSearchParams(location.search), v = q.get('dh'), hq = q.get('holes'), pi = q.get('p');
     // holes: which DH the calculator worked out. Old links have no holes= and only came from 9-hole rounds: a 9-hole DH.
@@ -898,10 +1096,43 @@ var dhSet = null;
     if (v != null && history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
   } catch (e) {}
 })();
-window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, reset: function () { S = defaultState(); save(); show('setup'); } };
-show(S.screen || 'setup');
-if (dhSet) toast(dhSet);
-if (pendingDH) focusPrompt();
+/* Shared result viewer (share-link design §5) */
+var opening = Promise.resolve();
+function openShared(raw) {
+  RAW = raw; VIEW = null; LINK = null; document.documentElement.classList.add('gc-view', 'gc-wait');
+  var mine = opening = GCShare.decode(raw).then(function (o) {
+    var st = fromPayload(o); if (!st) { var e = new Error('bad'); e.code = 'bad'; throw e; }
+    if (mine !== opening) return;
+    VIEW = { raw: raw, url: linkBase() + '#r=' + raw }; S = st; GCShare.banner('ok'); show('result');
+  }).catch(function (e) {
+    if (mine !== opening) return;
+    VIEW = null; S = defaultState(); GCShare.banner(e && e.code === 'browser' ? 'browser' : 'bad');
+    ['setup', 'hole', 'result'].forEach(function (x) { $('scr-' + x).hidden = true; }); $('setup-next').hidden = true; $('learn').hidden = false;
+  });
+  return opening;
+}
+function leaveShared(focus) {
+  RAW = null; VIEW = null; LINK = null; opening = Promise.resolve(); GCShare.leave();
+  S = load(); show('setup', focus);
+}
+addEventListener('hashchange', function () {
+  var raw = GCShare.fromHash(location.hash);
+  if (raw != null && raw !== RAW) openShared(raw); // RAW: the link open (or opening) now
+  else if (raw == null && RAW != null) leaveShared(false);
+});
+// Start your own round: clearing the #r= fragment is the FIRST step (GCShare.clearHash, PO/GA); the only history call in viewer mode.
+$('gc-own').addEventListener('click', function () { GCShare.clearHash(); leaveShared(true); });
+$('gc-reshare').addEventListener('click', function () { share(); });
+$('gc-copy').addEventListener('click', copyLink);
+window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, copyLink: copyLink,
+  opened: function () { return opening; }, viewing: function () { return !!VIEW; }, link: function () { return prepareLink(); },
+  reset: function () { S = defaultState(); save(); show('setup'); }, set: function (s) { S = s; save(); show(S.screen || 'setup'); } };
+if (RAW != null) openShared(RAW);
+else {
+  show(S.screen || 'setup');
+  if (dhSet) toast(dhSet);
+  if (pendingDH) focusPrompt();
+}
 })();
 </script>
 </body>

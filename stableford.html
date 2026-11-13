@@ -203,7 +203,7 @@ a{color:var(--accent)}
   .sf-checknote{grid-column:1/-1;margin:0;font-size:var(--fs-sm);font-weight:600;color:#7c2d12;background:#fff7ed;border:1px solid #fdba74;border-radius:var(--r-sm);padding:var(--s1) var(--s2)}
   .sf-checknote:empty{display:none}
   .sf-prompt p{margin:0 0 var(--s3)}
-  /* shared result (viewer) */
+  /* gc-share viewer: the same block in every calculator page (tests/run checks) */
   .gc-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
   .gc-shared h2{margin:0;font-size:var(--fs-md)}
   .gc-shared p{margin:var(--s1) 0 0;color:#14532d}
@@ -211,13 +211,15 @@ a{color:var(--accent)}
   .gc-wait .sk-screen{display:none!important}
   .gc-wait .gc-shared-wait{display:block;min-height:100vh}
   .gc-shared-wait,.gc-view-actions{display:none}
-  .gc-view:not(.gc-wait) .gc-view-actions{display:grid;gap:var(--s2);margin-top:var(--s3)}
-  .gc-view-err .gc-view-actions #gc-copy{display:none}
+  .gc-view:not(.gc-wait) .gc-view-actions{display:grid;gap:var(--s1);margin-top:var(--s3)}
+  .gc-view-links{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2)}
+  .gc-view-err .gc-view-links{display:none}
   .gc-view-err .gc-shared{background:var(--warn-soft);border-color:#fcd34d}
   .gc-view-err .gc-shared p{color:var(--warn)}
   .gc-shared-h1{display:none}
   .gc-view-err .gc-shared-h1{display:block}
-  .gc-view #own-actions,.gc-view #new-note{display:none}
+  .gc-view .gc-own-only{display:none!important}
+  /* /gc-share viewer */
   .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px} /* longer DH messages: wide, not a tall blob */
   .sf-prompt .sf-ask{display:grid;grid-template-columns:1fr;gap:var(--s2)}
   .sf-dhlink{display:inline-flex;align-items:center;min-height:44px;font-weight:600}
@@ -505,20 +507,20 @@ a{color:var(--accent)}
 <section class="sk-screen" id="scr-result" aria-labelledby="result-h" hidden>
   <h1 id="result-h" class="sr-only" tabindex="-1">Stableford leaderboard</h1>
   <div class="gc-hero" id="hero"></div>
-  <div class="sk-actions" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
+  <div class="gc-view-actions" id="view-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="gc-own">Start your own round</button><div class="gc-view-links"><button type="button" class="gc-btn gc-btn-ghost" id="gc-reshare">Share result</button><button type="button" class="gc-btn gc-btn-ghost" id="gc-copy">Copy link</button></div></div>
+  <div class="sk-actions gc-own-only" id="share-row" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
   <p class="gc-muted" style="margin-top:var(--s2)" id="result-src">Points: R&amp;A Rules of Golf, Rule 21.1b. Ties: Australian Countback Method, Golf Australia <cite>WHS Official reference guide for Australian administrators</cite>, Edition January 2026, §11. <a href="#how-h">How it's calculated</a></p>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Why: hole by hole</h2>
     <p class="sk-note" id="si-note" style="margin-top:var(--s2)" hidden></p>
     <div id="why"></div>
   </div>
-  <div class="sk-actions sk-actions-2" id="own-actions" style="position:static;background:none">
+  <div class="sk-actions sk-actions-2 gc-own-only" id="own-actions" style="position:static;background:none">
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
-  <p class="gc-muted" id="new-note">New round keeps your players and course and clears the scores.</p>
+  <p class="gc-muted gc-own-only" id="new-note">New round keeps your players and course and clears the scores.</p>
 </section>
-<div class="gc-view-actions" id="view-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="gc-own">Start your own round</button><button type="button" class="gc-btn gc-btn-secondary gc-btn-block" id="gc-copy">Copy link</button></div>
 
 <div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
   <a class="next-card" href="/skins"><strong>Next step: Skins calculator →</strong><span>Settle skins and see who pays whom for the same round.</span></a>
@@ -633,11 +635,19 @@ a{color:var(--accent)}
     var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
     if (t) t.textContent = x[0];
     if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
     var h = document.documentElement.classList;
     h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
   }
   function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
-  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave,
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); }
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
     TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
 })();
 </script>
@@ -1273,7 +1283,8 @@ addEventListener('hashchange', function () {
 // Start your own round: clearing the #r= fragment is the FIRST step, before anything else runs (PO, GA). In viewer mode this is
 // the only history call: nothing calls pushState/replaceState while #r= is in the URL (dhReturn is skipped), so GA's
 // history listener never sees a URL that still holds names.
-$('gc-own').addEventListener('click', function () { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); leaveShared(true); });
+$('gc-own').addEventListener('click', function () { GCShare.clearHash(); leaveShared(true); });
+$('gc-reshare').addEventListener('click', function () { share(); });
 $('gc-copy').addEventListener('click', copyLink);
 window.GCStablefordUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, copyLink: copyLink,
   opened: function () { return opening; }, viewing: function () { return !!VIEW; }, link: function () { return prepareLink(); },

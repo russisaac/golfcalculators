@@ -20,7 +20,7 @@ const SITE=path.resolve(process.env.SITE||path.join(__dirname,'../..'));
 const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
-let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false,hasShare=false;
+let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false,hasShare=false,hasSkShare=false;
 const legacyNumberOK=name=>!isV2&&/^skins/.test(name); // type=number allowlist: only the legacy Skins page (Stableford rebuilt in P4)
 const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
 (async()=>{
@@ -54,12 +54,14 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     console.log(`${gate(bad)}${CI&&strictBad&&!bad?' (WARN)':''}  ${name} @${w}: axe ${v.length} (serious/critical ${serious.length})${v.length?' '+v.map(x=>`${x.impact}:${x.id}(${x.nodes})`).join('; '):''} · sideways scroll ${hs}${hs?` (page ${m.docScroll}px in ${m.vw}px${m.innerScroll.length?', inner scroller '+m.innerScroll.join(','):''})`:''} · controls ${m.controls}, ≥44px ${m.pct44}%, <24px ${m.under24.length} · type=number ${m.typeNumber}${m.typeNumber&&!tnBad?' (legacy allowlist)':''}${errs.length?' · JS errors '+errs.join('|'):''}`);
     await p.context().close();
   }
+  hasSkShare=await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>!!(window.GCShare&&window.GCSkinsUI&&GCSkinsUI.link));await p.context().close();return r;})();
   hasShare=await (async()=>{const p=await page(375);await p.goto(base+'/stableford');const r=await p.evaluate(()=>!!window.GCShare);await p.context().close();return r;})();
   isV2=await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>document.body.dataset.gc==='skins-v2');await p.context().close();return r;})();
   const midRound=async p=>{await p.evaluate(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();for(let h=7;h<=18;h++)delete s.scores[h];s.hole=7;U.show('hole');});await p.click('button[data-sc="-1"][data-i="3"]');};
   const maxData=async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.players=[...Array(8)].map((_,i)=>({name:'Bartholomew-Fitzgerald'+i,hcp:i===0?-10:54-i}));s.scores={};s.hole=18;GCSkinsUI.show('hole');});};
   const maxSetup=async p=>{await maxData(p);await p.evaluate(()=>GCSkinsUI.show('setup'));};
   const maxResult=async p=>{await p.evaluate(()=>{const s=GCSkinsUI.state();s.players=[...Array(8)].map((_,i)=>({name:'Bartholomew-Fitzgerald'+i,hcp:i*6}));s.scores={};for(let h=1;h<=18;h++)s.scores[h]=s.players.map((_,i)=>3+((h*7+i*3)%5));GCSkinsUI.show('result');});};
+  const SKLONG8=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn','Wilhelmina Castellanos','Fitzwilliam Abernathy','Gwendolyn Featherstone','Montgomery Ashworth-Lee'];
   const SKLONG=['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'];
   const skLong=async(p,holes)=>{await p.evaluate(([L,ho])=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:[12,20,24,-2][i],hcp9:null}));s.holes=ho;s.scores={};GCSkinsUI.show('setup');},[SKLONG,holes]);};
   const skAsk=async p=>{await skLong(p,'18');await p.goto(p.url().split('?')[0]+'?dh=7&holes=9&p=1',{waitUntil:'load'});};
@@ -76,6 +78,13 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('skins max data: setup 8 players',w,'/skins',maxSetup,null);
       await check('skins setup, front 9: 9-hole DH labels, links and check notes (8 long names)',w,'/skins',async p=>{await maxSetup(p);await p.evaluate(()=>{const s=GCSkinsUI.state();s.holes='front';s.players.forEach(x=>{delete x.hcp9;});GCSkinsUI.show('setup');});},`skins-1b-setup-9holes-${w}.png`);
       await check('skins max data: result 8 players',w,'/skins',maxResult,w===320?'skins-6-maxdata-result-320-full.png':null);
+      if(hasSkShare){ // share-link-skins: the read-only viewer (8 long names) and the error card
+        const skViewer=async p=>{const url=await p.evaluate(async L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map((n,i)=>({name:n,hcp:i*3,hcp9:null}));for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>3+((x*7+i*3)%5));U.show('result');return (await U.link()).url;},SKLONG8);
+          await p.evaluate(()=>localStorage.clear());await p.goto(url,{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.opened());};
+        await check('skins shared result (viewer), 8 long names',w,'/skins',skViewer,`skins-7-shared-viewer-${w}.png`);
+        await check('skins shared result (viewer) full page',w,'/skins',skViewer,w===375?'skins-7b-shared-viewer-375-full.png':null);
+        await check('skins shared link that cannot be opened (error card)',w,'/skins#r=1z.AAAA',async p=>{await p.evaluate(()=>GCSkinsUI.opened());},`skins-8-shared-error-${w}.png`);
+      }
       if(hasSkAsk){ // skins-dh-return-ask: the Stableford question on Skins (4 long names), then each answer
         await check('skins DH return: 9-hole DH onto an 18-hole round asks first',w,'/skins',skAsk,`skins-1c-dh-ask-switch-${w}.png`);
         await check('skins DH return: switched to front 9, 9-hole DH set',w,'/skins',async p=>{await skAsk(p);await p.click('button[data-dhr=front]');},`skins-1d-dh-switched-front9-${w}.png`);
@@ -143,14 +152,49 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await p.addInitScript(()=>{window.__hist=[];for(const fn of ['pushState','replaceState']){const o=History.prototype[fn];History.prototype[fn]=function(...a){const before=location.hash,view=document.documentElement.classList.contains('gc-view');const r=o.apply(this,a);window.__hist.push({fn,before,after:location.hash,view});return r;};}});
       await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCStablefordUI.opened());
       const r=await p.evaluate(()=>{const pod=document.querySelector('.sf-podium').getBoundingClientRect(),ban=document.getElementById('gc-shared').getBoundingClientRect();
-        return {viewing:GCStablefordUI.viewing(),podBottom:Math.round(pod.bottom),banTop:Math.round(ban.top),vh:innerHeight,saved:localStorage.getItem('gc_stableford_v1'),t:document.getElementById('gc-shared-t').textContent};});
+        return {viewing:GCStablefordUI.viewing(),podBottom:Math.round(pod.bottom),ownBottom:Math.round(document.getElementById('gc-own').getBoundingClientRect().bottom),banTop:Math.round(ban.top),vh:innerHeight,saved:localStorage.getItem('gc_stableford_v1'),t:document.getElementById('gc-shared-t').textContent};});
       await p.click('#gc-own');
       const back=await p.evaluate(()=>({viewing:GCStablefordUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
       const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
-      const firstScreen=w===375?r.podBottom<=r.vh:true;
+      const firstScreen=w===375?r.podBottom<=r.vh&&r.ownBottom<=r.vh:true;
       const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>300||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
       if(bad)fail=1;rows.push({name:`stableford share link ${w}`,width:w,link:own.url.length,r,back});
-      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium on the first screen (bottom ${r.podBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
+      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium and Start your own round on the first screen (bottoms ${r.podBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
+      await p.context().close();}
+  }
+  if(isV2&&hasSkShare){ // share-link-skins in a real browser: fresh load of the link, history calls, storage untouched, own round back
+    for(const [w,hgt] of [[375,812],[320,568]]){
+      let p=await page(w,hgt);await p.goto(base+'/skins',{waitUntil:'load'});
+      const own=await p.evaluate(async()=>{const U=GCSkinsUI;U.loadExample();const url=(await U.link()).url;const s=U.state();s.players[0].name='Me';s.screen='setup';U.set(s);return {url,saved:localStorage.getItem('gc_skins_v2')};});
+      const p0=p;p=await p0.context().newPage();await p0.close();
+      await p.addInitScript(()=>{window.__hist=[];for(const fn of ['pushState','replaceState']){const o=History.prototype[fn];History.prototype[fn]=function(...a){const before=location.hash,view=document.documentElement.classList.contains('gc-view');const r=o.apply(this,a);window.__hist.push({fn,before,after:location.hash,view});return r;};}});
+      await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.opened());
+      const r=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),heroBottom:Math.round(document.getElementById('hero').getBoundingClientRect().bottom),ownBottom:Math.round(document.getElementById('gc-own').getBoundingClientRect().bottom),vh:innerHeight,saved:localStorage.getItem('gc_skins_v2'),t:document.getElementById('gc-shared-t').textContent,hero:document.getElementById('hero').textContent}));
+      await p.click('#gc-own');
+      const back=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
+      const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
+      const firstScreen=w===375?r.ownBottom<=r.vh:true;
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>320||!r.viewing||r.t!=='Shared result'||!/Alex pays Drew/.test(r.hero)||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
+      if(bad)fail=1;rows.push({name:`skins share link ${w}`,width:w,link:own.url.length,r,back});
+      console.log(`${gate(bad)}  skins share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, result and Start your own round on the first screen (bottoms ${r.heroBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}`);
+      await p.context().close();}
+  }
+  if(hasShare){ // PO 12 Nov, both tools: in the shared viewer, Start your own round is on the first screen at 375x812 with the longest data
+    const cases=[];
+    if(isSf)cases.push(['stableford','4 long names, 40-char course',async p=>p.evaluate(async L=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.players.forEach((x,i)=>x.name=L[i]);s.course.name='Royal Sydney Golf Club - Composite (Blue)';U.show('result');return (await U.link()).url;},['Bartholomew-Fitzgerald','Maximiliana Oyelaran','Christopher-Montague','Anastasiya Wolfensohn'])]);
+    if(isV2&&hasSkShare){
+      cases.push(['skins','8 long names',async p=>p.evaluate(async L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map((n,i)=>({name:n,hcp:i*3,hcp9:null}));for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>3+((x*7+i*3)%5));U.show('result');return (await U.link()).url;},SKLONG8)]);
+      cases.push(['skins','8 long names, 7 payments',async p=>p.evaluate(async L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map((n,i)=>({name:n,hcp:0,hcp9:null}));s.endRule='nobody';for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>x<=7?(i===7?3:5):x<=16?4:(i===x%8?3:5));U.show('result');return (await U.link()).url;},SKLONG8)]);
+    }
+    for(const [tool,label,mk] of cases){
+      let p=await page(375,812);await p.goto(base+'/'+tool,{waitUntil:'load'});const url=await mk(p);const p0=p;p=await p0.context().newPage();await p0.close();
+      await p.goto(url,{waitUntil:'load'});await p.evaluate(t=>(t==='skins'?GCSkinsUI:GCStablefordUI).opened(),tool);await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const o=document.getElementById('gc-own').getBoundingClientRect(),h=document.getElementById('hero').getBoundingClientRect(),a=document.getElementById('view-actions');
+        return {heroBottom:Math.round(h.bottom),ownTop:Math.round(o.top),ownBottom:Math.round(o.bottom),vh:innerHeight,next:document.getElementById('hero').nextElementSibling===a,primary:/gc-btn-primary/.test(document.getElementById('gc-own').className),pays:document.querySelectorAll('#hero .sk-pay').length};});
+      const shot=`fold-shared-${tool}-${label.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}-375x812.png`;await p.screenshot({path:path.join(OUT,shot)});
+      const bad=!(r.next&&r.primary&&r.ownBottom>0&&r.ownBottom<=r.vh&&r.ownTop>=r.heroBottom);
+      if(bad)fail=1;rows.push({name:`${tool} shared fold ${label}`,width:375,r});
+      console.log(`${gate(bad)}  ${tool} shared result fold @375x812 (${label}${r.pays?`, ${r.pays} payments`:''}): Start your own round (primary) directly under the result, on the first screen: result bottom ${r.heroBottom}px, button ${r.ownTop}-${r.ownBottom}px of ${r.vh}px`);
       await p.context().close();}
   }
   if(isSf){ // PO 12 Nov: on 9 holes each player's "Work out 9-hole DH" link sits right under their handicap stepper (one tap away)
@@ -284,8 +328,9 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
-    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare))continue;
+  const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
+    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;
     let runs=[runLh(0)];if(!budget(runs[0]))runs.push(runLh(1),runLh(2));
