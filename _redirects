@@ -1,0 +1,11 @@
+# 301 .html URLs to the extensionless canonicals (P3).
+# force (!) so the real .html files do not shadow the redirect.
+# Clean URLs still serve 200: Netlify maps /privacy -> privacy.html internally,
+# with no hop back to .html, so this does not loop.
+# Query strings are forwarded (destinations have no '?'). Browsers keep #r=
+# fragments across the 301; the server never sees the fragment.
+/index.html           /                   301!
+/skins.html           /skins              301!
+/stableford.html      /stableford         301!
+/daily-handicap.html  /daily-handicap     301!
+/privacy.html         /privacy            301!
