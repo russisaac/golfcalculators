@@ -372,6 +372,23 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P2 stableford result: Update saved course?',w,'/stableford',async p=>{await sfAskUpd(p);await p.evaluate(()=>document.getElementById('course-ask').scrollIntoView({block:'center'}));},`v9-p2-stableford-result-update-ask-${sz}.png`,hgt);
     }
   }
+  // v9 P3 mixed tees (GA §3(I)): setup with tees, hole screen with the second tee row, result, Stableford tab 2
+  const hasMixed=/id="mixed"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'));
+  if(hasMixed){
+    const skMix=async (p,scr)=>{await p.evaluate(scr=>{localStorage.clear();const U=GCSkinsUI,s=GCSkins.exampleState();s.mixed=true;s.course={name:'Lakes',tee:'Blue'};
+      s.tee2={name:'Red',par:s.par.map((v,i)=>i===0||i===5?5:v),si:s.si.slice()};s.players[1].tee=1;s.players[3].tee=1;s.screen=scr;s.hole=1;U.set(s);},scr);await p.waitForTimeout(150);};
+    const sfMix=async (p,scr)=>{await p.evaluate(scr=>{localStorage.clear();const U=GCStablefordUI,s=GCStableford.exampleState();s.mixed=true;s.course.tee='Blue';
+      s.course2={tee:'Red',holes:18,par:s.course.par.map((v,i)=>i===0||i===5?5:v),si:s.course.si.slice()};s.players[2].tee=1;s.screen=scr;s.hole=1;U.set(s);},scr);await p.waitForTimeout(150);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P3 skins setup: players on different tees',w,'/skins',async p=>{await skMix(p,'setup');await p.evaluate(()=>document.getElementById('mixed-wrap').scrollIntoView());},`v9-p3-skins-setup-tees-${sz}.png`,hgt);
+      await check('v9 P3 skins hole: second tee par + SI',w,'/skins',async p=>{await skMix(p,'hole');},`v9-p3-skins-hole-tee2-${sz}.png`,hgt);
+      await check('v9 P3 skins result: mixed tees',w,'/skins',async p=>{await skMix(p,'result');},`v9-p3-skins-result-${sz}.png`,hgt);
+      await check('v9 P3 stableford setup: players on different tees',w,'/stableford',async p=>{await sfMix(p,'setup');await p.evaluate(()=>document.getElementById('mixed-wrap').scrollIntoView());},`v9-p3-stableford-setup-tees-${sz}.png`,hgt);
+      await check('v9 P3 stableford course card: second tee tab',w,'/stableford',async p=>{await sfMix(p,'setup');await p.click('#btn-course2');},`v9-p3-stableford-course-tab2-${sz}.png`,hgt);
+      await check('v9 P3 stableford hole: second tee par + SI',w,'/stableford',async p=>{await sfMix(p,'hole');},`v9-p3-stableford-hole-tee2-${sz}.png`,hgt);
+      await check('v9 P3 stableford result: mixed tees',w,'/stableford',async p=>{await sfMix(p,'result');await p.evaluate(()=>{const d=document.querySelector('details.sf-why');if(d)d.open=true;});},`v9-p3-stableford-result-${sz}.png`,hgt);
+    }
+  }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
   // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
   if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){

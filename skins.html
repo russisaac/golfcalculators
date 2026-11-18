@@ -151,6 +151,10 @@ a{color:var(--accent)}
      the players, holes or scoring controls at any scroll position. */
   .sk-actions.sk-start{position:static;background:none}
   .sk-cname{display:grid;grid-template-columns:1fr 7.5em;gap:var(--s2)}
+  .sk-cname.sk-tee2{grid-template-columns:1fr}
+  .sk-teeseg{grid-column:1/-1}
+  .sk-course2{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+  .sk-course2[hidden]{display:none}
   .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the next-step card showed on the hole and result screens */
   html{scroll-padding-top:56px;scroll-padding-bottom:96px}
   .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
@@ -328,6 +332,14 @@ a{color:var(--accent)}
       "@type": "Answer",
       "text": "Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one."
      }
+    },
+    {
+     "@type": "Question",
+     "name": "Can players on different tees play skins together?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Each player gets shots by their own tee's stroke index, and a hole is decided on net score against each player's own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup."
+     }
     }
    ]
   },
@@ -421,6 +433,14 @@ a{color:var(--accent)}
       <div><label class="gc-label" for="ctee">Tee</label><input class="gc-input" id="ctee" type="text" autocomplete="off" autocapitalize="words" maxlength="20" placeholder="e.g. Blue"></div>
     </div>
     <p class="gc-muted" id="course-help" style="margin-top:var(--s2)">Par and stroke index go in hole by hole. Name the course and you can save the card at the end, so next time it fills in with one tap.</p>
+    <label class="sk-switch" id="mixed-wrap" style="margin-top:var(--s2)"><input type="checkbox" id="mixed" aria-describedby="mixed-help"> Players on different tees</label>
+    <p class="gc-muted" id="mixed-help">Each player uses their own tee’s par and stroke index, and skins compare net scores against each player’s own par (Golf Australia §3(I)).</p>
+    <div id="tee2-box" style="margin-top:var(--s2)" hidden>
+      <div class="sk-cname sk-tee2"><div><label class="gc-label" for="t2name">Second tee</label><input class="gc-input" id="t2name" type="text" autocomplete="off" autocapitalize="words" maxlength="20" placeholder="e.g. Red"></div></div>
+      <div id="saved2-wrap" style="margin-top:var(--s3)" hidden><h3 class="gc-label" id="saved2-l">Second tee card from Your courses</h3>
+        <div id="saved2" role="group" aria-labelledby="saved2-l"></div></div>
+      <p class="gc-muted" style="margin-top:var(--s2)">Choose each player’s tee under their name. Second-tee par and stroke index go in hole by hole too.</p>
+    </div>
   </div>
   <p class="gc-muted">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
 </section>
@@ -441,6 +461,16 @@ a{color:var(--accent)}
         </div></div>
       <div id="si-wrap"><span class="gc-label" id="si-l">Stroke index</span>
         <span class="gc-stepper" role="group" aria-labelledby="si-l"><button type="button" data-si="-1" aria-label="Lower stroke index">−</button><input id="si" type="text" inputmode="numeric" aria-label="Stroke index" autocomplete="off"><button type="button" data-si="1" aria-label="Raise stroke index">+</button></span></div>
+    </div>
+    <div class="sk-course sk-course2" id="tee2-row" hidden>
+      <div><span class="gc-label" id="par2-l">Par</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="par2-l" id="par2-seg">
+          <label><input type="radio" name="par2" value="3"><span>3</span></label>
+          <label><input type="radio" name="par2" value="4"><span>4</span></label>
+          <label><input type="radio" name="par2" value="5"><span>5</span></label>
+        </div></div>
+      <div id="si2-wrap"><span class="gc-label" id="si2-l">Stroke index</span>
+        <span class="gc-stepper" role="group" aria-labelledby="si2-l"><button type="button" data-si2="-1" aria-label="Lower stroke index, second tee">−</button><input id="si2" type="text" inputmode="numeric" aria-label="Stroke index, second tee" autocomplete="off"><button type="button" data-si2="1" aria-label="Raise stroke index, second tee">+</button></span></div>
     </div>
     <p class="sk-note" id="si-warn" role="alert" style="margin-top:var(--s3)" hidden></p>
     <div class="sk-progress" id="progress" aria-hidden="true"></div>
@@ -513,6 +543,7 @@ a{color:var(--accent)}
   <div class="gc-faq-item"><h3>How much should a skin be worth?</h3><p>Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.</p></div>
   <div class="gc-faq-item"><h3>How are skins payouts split?</h3><p>Each player's balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.</p></div>
   <div class="gc-faq-item"><h3>How are handicap strokes given in net skins?</h3><p>Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the <a href="/daily-handicap">Daily Handicap calculator</a>), not half the 18-hole one.</p></div>
+  <div class="gc-faq-item"><h3>Can players on different tees play skins together?</h3><p>Yes. Each player gets shots by their own tee's stroke index, and a hole is decided on net score against each player's own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup.</p></div>
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
@@ -651,13 +682,14 @@ a{color:var(--accent)}
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   // "Your courses" list: one tap fills the card (data-cuse=<index in list()>), a delete asks first (data-cdel, then
   // data-cdel-yes / data-cdel-no). Course names are escaped (they are typed by the golfer).
-  function listHtml(cards, asking) {
+  function listHtml(cards, asking, use) { // use: data attribute for the fill button (default "cuse"); a custom one has no delete
+    var ua = use || 'cuse';
     return '<ul class="gc-courses">' + cards.map(function (c, i) {
       var l = esc(label(c));
       if (asking === key(c)) return '<li class="gc-courses-ask"><span id="cdq' + i + '">Delete <b>' + l + '</b> from Your courses?</span>' +
         '<span class="gc-courses-yn" role="group" aria-labelledby="cdq' + i + '"><button type="button" class="gc-btn gc-btn-secondary" data-cdel-yes="' + i + '">Delete</button><button type="button" class="gc-btn gc-btn-ghost" data-cdel-no="' + i + '">Keep</button></span></li>';
-      return '<li><button type="button" class="gc-btn gc-btn-secondary gc-courses-use" data-cuse="' + i + '"><b>' + l + '</b> <span>' + c.holes + ' holes · par ' + par(c) + '</span></button>' +
-        '<button type="button" class="gc-btn gc-btn-ghost gc-courses-del" data-cdel="' + i + '" aria-label="Delete ' + l + ' from Your courses">✕</button></li>';
+      return '<li><button type="button" class="gc-btn gc-btn-secondary gc-courses-use" data-' + ua + '="' + i + '"><b>' + l + '</b> <span>' + c.holes + ' holes · par ' + par(c) + '</span></button>' +
+        (use ? '' : '<button type="button" class="gc-btn gc-btn-ghost gc-courses-del" data-cdel="' + i + '" aria-label="Delete ' + l + ' from Your courses">✕</button>') + '</li>';
     }).join('') + '</ul>';
   }
   function par(c) { return c.par.reduce(function (s, x) { return s + x; }, 0); }
@@ -706,25 +738,37 @@ function hcp9Of(p) { return p.hcp9 != null && p.hcp9 !== '' ? parseHcp(p.hcp9) :
 function hcpFor(st, p) { return isNine(st) ? hcp9Of(p) : parseHcp(p.hcp); }
 function needsCheck9(st, p) { return isNine(st) && (p.hcp9 == null || p.hcp9 === '') && parseHcp(p.hcp) !== 0; }
 function check9Note(p) { return 'Half of 18-hole DH ' + fmtHcp(parseHcp(p.hcp)) + ': please check'; } // one line at 320 px
+// Mixed tees (v9 P3, Golf Australia WHS reference guide, January 2026, §3(I)): each player plays their own tee's par
+// and stroke index (st.tee2 for players with tee 1). The Daily Handicap already allows for the tees, so no strokes are
+// added for the par difference; a skin is won on net score relative to each player's own par (a net 6 on a par 5 ties
+// a net 5 on a par 4). Off (or no tee2): exactly the previous rule.
+function isMixed(st) { var t = st && st.tee2; return !!(st && st.mixed && t && Array.isArray(t.par) && t.par.length === 18 && Array.isArray(t.si) && t.si.length === 18); }
+function teeOf(st, p) { return isMixed(st) && p && p.tee === 1 ? 1 : 0; }
+function parAt(st, t, h) { return +(t ? st.tee2.par : st.par)[h - 1]; }
+function siAt(st, t, h) { return +(t ? st.tee2.si : st.si)[h - 1]; }
 function compute(st) {
   var n = st.players.length, names = st.players.map(nameOf);
+  var mixed = isMixed(st), tees = st.players.map(function (p) { return teeOf(st, p); });
   var stake = parseFloat(String(st.stake).replace(/[^0-9.]/g, ''));
   var rg = holeRange(st.holes), a = rg[0], b = rg[1], total = b - a + 1;
   var allow = Math.min(100, Math.max(50, +st.allowance || 100)) / 100;
   var net = st.scoring !== 'gross', offlow = st.scoring === 'offlow';
   var playing = st.players.map(function (p) { if (!net) return 0; return rh(hcpFor(st, p) * allow); });
   var minP = Math.min.apply(null, playing);
-  var holeSis = []; for (var x = a; x <= b; x++) holeSis.push(+st.si[x - 1]);
+  var holeSis = [], holeSis2 = []; for (var x = a; x <= b; x++) { holeSis.push(+st.si[x - 1]); if (mixed) holeSis2.push(+st.tee2.si[x - 1]); }
   var skins = names.map(function () { return 0; }), carry = 0, played = 0, ledger = [];
   for (var h = a; h <= b; h++) {
     var sc = st.scores[h], si = +st.si[h - 1];
-    var strokes = playing.map(function (p) { return net ? strokesOnHole(offlow ? p - minP : p, total === 9 ? rankSI(si, holeSis) : si, total) : 0; });
+    var strokes = playing.map(function (p, i) { var s2 = mixed ? siAt(st, tees[i], h) : si; return net ? strokesOnHole(offlow ? p - minP : p, total === 9 ? rankSI(s2, mixed && tees[i] ? holeSis2 : holeSis) : s2, total) : 0; });
     var e = { hole: h, par: +st.par[h - 1], si: si, strokes: strokes, played: false };
+    if (mixed) e.pars = tees.map(function (t) { return parAt(st, t, h); });
     if (!sc || sc.length !== n || sc.some(function (v) { return !(v >= 1); })) { ledger.push(e); continue; }
     played++; e.played = true; e.gross = sc.slice();
     e.net = sc.map(function (g, i) { return g - strokes[i]; });
-    var low = Math.min.apply(null, e.net);
-    var win = []; e.net.forEach(function (v, i) { if (v === low) win.push(i); });
+    var cmp = e.net;
+    if (mixed) { e.rel = e.net.map(function (v, i) { return v - e.pars[i]; }); cmp = e.rel; } // §3(I): versus own par
+    var low = Math.min.apply(null, cmp);
+    var win = []; cmp.forEach(function (v, i) { if (v === low) win.push(i); });
     e.low = low; e.carryIn = carry;
     if (win.length === 1) { e.winner = win[0]; e.value = 1 + carry; skins[win[0]] += e.value; carry = 0; }
     else { e.tied = win; if (st.carry) carry += 1; e.carryOut = st.carry ? carry : 0; }
@@ -753,8 +797,10 @@ function compute(st) {
   }
   return { names: names, stake: stake, stakeOk: ok, skins: skins, balances: balances, payments: payments, ledger: ledger,
     carry: carry, leftover: leftover, playoffWinner: playoffWinner, needsPlayoff: needsPlayoff, played: played, total: total,
-    range: rg, playing: playing, totalSkins: totalSkins };
+    range: rg, playing: playing, totalSkins: totalSkins, mixed: mixed, tees: tees };
 }
+function relText(d) { return d === 0 ? 'level par' : Math.abs(d) + (d < 0 ? ' under' : ' over'); }
+function teeName(st, t) { var n = t ? st.tee2 && st.tee2.name : st.course && st.course.tee; return String(n || '').trim() || (t ? 'Tee 2' : 'Tee 1'); }
 
 function defaultState() {
   return { v: 1, players: [{ name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }],
@@ -772,7 +818,7 @@ function exampleState() {
 }
 function shareText(st, r, link) { // plain ASCII (GSM-7 for SMS); the last line is the result link when there is one
   var mode = st.scoring === 'gross' ? 'gross' : (st.scoring === 'offlow' ? 'net off the low' : 'net full handicaps') + (+st.allowance !== 100 ? ' ' + st.allowance + '%' : '');
-  var holes = st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '';
+  var holes = (st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '') + (isMixed(st) ? ', mixed tees (vs own par)' : '');
   var lines = ['Skins: ' + money(r.stake) + '/skin, ' + mode + holes + ', carryovers ' + (st.carry ? 'on' : 'off') + (r.played < r.total ? ' (thru ' + r.played + ' of ' + r.total + ')' : '')];
   if (r.payments.length) r.payments.forEach(function (p) { lines.push(r.names[p.from] + ' pays ' + r.names[p.to] + ' ' + money(p.amount)); });
   else lines.push('All square');
@@ -789,7 +835,8 @@ function shareText(st, r, link) { // plain ASCII (GSM-7 for SMS); the last line 
 var HMIN = -10, HMAX = 54;
 function stakeNum(st) { return parseFloat(String(st.stake).replace(/[^0-9.]/g, '')); }
 function toPayload(st) {
-  var stake = stakeNum(st), rg = holeRange(st.holes), n = st.players.length;
+  var stake = stakeNum(st), rg = holeRange(st.holes), n = st.players.length, mixed = isMixed(st);
+  if (mixed && (st.tee2.si.some(function (x) { return !(+x >= 1 && +x <= 18); }) || st.tee2.par.some(function (x) { return !(+x >= 3 && +x <= 6); }))) return null;
   if (!(stake > 0) || !/^\d{1,7}(\.\d{1,6})?$/.test(String(stake))) return null;
   if (st.si.some(function (x) { return !(+x >= 1 && +x <= 18); }) || st.par.some(function (x) { return !(+x >= 3 && +x <= 6); })) return null;
   var hc = function (v) { return Math.max(HMIN, Math.min(HMAX, Math.round(+v || 0))); };
@@ -800,13 +847,15 @@ function toPayload(st) {
     pl: st.players.map(function (p, i) {
       var sc = '';
       for (var h = 1; h <= 18; h++) { var v = h >= rg[0] && h <= rg[1] ? (st.scores[h] || [])[i] : null; sc += v >= 1 && v <= 20 ? (+v).toString(36) : '-'; }
-      return [String(p.name || '').trim(), hc(p.hcp), p.hcp9 == null || p.hcp9 === '' ? null : hc(p.hcp9), sc];
-    }) };
+      var row = [String(p.name || '').trim(), hc(p.hcp), p.hcp9 == null || p.hcp9 === '' ? null : hc(p.hcp9), sc];
+      if (mixed) row.push(teeOf(st, p)); // v9 P3: 5th field = tee (0 first, 1 second) only on mixed-tee links
+      return row;
+    }), tees: mixed ? { a: String((st.course && st.course.tee) || '').trim().slice(0, 20), b: String(st.tee2.name || '').trim().slice(0, 20), par: st.tee2.par.map(Number).join(''), si: st.tee2.si.map(function (x) { return (+x).toString(36); }).join('') } : undefined };
 }
 function fromPayload(o) { // whitelist rebuild; null on anything out of range (share-link design §6)
   var G = window.GCShare, get = G.get;
   if (!o || typeof o !== 'object' || get(o, 'v') !== 1 || get(o, 't') !== 'sk') return null;
-  var st$ = get(o, '$'), r = get(o, 'r'), m = get(o, 'm'), a = get(o, 'a'), c = get(o, 'c'), e = get(o, 'e'), po = get(o, 'o'), par = get(o, 'par'), si = get(o, 'si'), pl = get(o, 'pl');
+  var st$ = get(o, '$'), r = get(o, 'r'), m = get(o, 'm'), a = get(o, 'a'), c = get(o, 'c'), e = get(o, 'e'), po = get(o, 'o'), par = get(o, 'par'), si = get(o, 'si'), pl = get(o, 'pl'), tz = get(o, 'tees');
   if (typeof st$ !== 'string' || !/^\d{1,7}(\.\d{1,6})?$/.test(st$) || !(parseFloat(st$) > 0)) return null;
   if (['18', 'f', 'b'].indexOf(r) < 0 || ['f', 'o', 'g'].indexOf(m) < 0 || ['n', 'p'].indexOf(e) < 0 || (c !== 0 && c !== 1)) return null;
   if (typeof a !== 'number' || a !== Math.round(a) || a < 50 || a > 100) return null;
@@ -814,6 +863,12 @@ function fromPayload(o) { // whitelist rebuild; null on anything out of range (s
   if (!Array.isArray(pl) || pl.length < MIN_PLAYERS || pl.length > MAX_PLAYERS) return null;
   if (po !== null && po !== undefined && !(typeof po === 'number' && po === Math.round(po) && po >= 0 && po < pl.length)) return null;
   var okH = function (v) { return typeof v === 'number' && v === Math.round(v) && v >= HMIN && v <= HMAX; };
+  var mixed = tz !== undefined && tz !== null;
+  if (mixed) { // v9 P3 second tee card: {a: first tee name, b: second tee name, par, si}
+    if (typeof tz !== 'object' || Array.isArray(tz)) return null;
+    var ta = get(tz, 'a'), tb = get(tz, 'b'), tp = get(tz, 'par'), ts = get(tz, 'si');
+    if (typeof ta !== 'string' || typeof tb !== 'string' || typeof tp !== 'string' || !/^[3-6]{18}$/.test(tp) || typeof ts !== 'string' || !/^[1-9a-i]{18}$/.test(ts)) return null;
+  }
   var s = defaultState(), cols = [];
   s.stake = st$; s.holes = r === 'f' ? 'front' : r === 'b' ? 'back' : '18'; s.scoring = { f: 'full', o: 'offlow', g: 'gross' }[m];
   s.allowance = a; s.carry = c === 1; s.endRule = e === 'p' ? 'playoff' : 'nobody'; s.playoff = po == null ? null : po;
@@ -821,18 +876,21 @@ function fromPayload(o) { // whitelist rebuild; null on anything out of range (s
   s.players = [];
   for (var i = 0; i < pl.length; i++) {
     var p = pl[i];
-    if (!Array.isArray(p) || p.length !== 4 || typeof p[0] !== 'string' || !okH(p[1]) || !(p[2] === null || okH(p[2])) || typeof p[3] !== 'string' || !/^[1-9a-k-]{18}$/.test(p[3])) return null;
-    s.players.push({ name: G.cleanText(p[0], 24), hcp: p[1], hcp9: p[2] }); cols.push(p[3]);
+    if (!Array.isArray(p) || p.length !== (mixed ? 5 : 4) || typeof p[0] !== 'string' || !okH(p[1]) || !(p[2] === null || okH(p[2])) || typeof p[3] !== 'string' || !/^[1-9a-k-]{18}$/.test(p[3])) return null;
+    if (mixed && p[4] !== 0 && p[4] !== 1) return null;
+    var pp = { name: G.cleanText(p[0], 24), hcp: p[1], hcp9: p[2] }; if (mixed) pp.tee = p[4];
+    s.players.push(pp); cols.push(p[3]);
   }
   var rg = holeRange(s.holes);
   for (var h = rg[0]; h <= rg[1]; h++) {
     var row = cols.map(function (sc) { var ch = sc.charAt(h - 1); return ch === '-' ? null : parseInt(ch, 36); });
     if (row.some(function (v) { return v != null; })) s.scores[h] = row;
   }
+  if (mixed) { s.mixed = true; s.course = { name: '', tee: G.cleanText(ta, 20) }; s.tee2 = { name: G.cleanText(tb, 20), par: tp.split('').map(Number), si: ts.split('').map(function (ch) { return parseInt(ch, 36); }) }; }
   s.hole = rg[1]; s.screen = 'result';
   return s;
 }
-window.GCSkins = { compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
+window.GCSkins = { isMixed: isMixed, teeOf: teeOf, compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
   parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote, hcpFor: hcpFor, hcp9Of: hcp9Of, needsCheck9: needsCheck9, check9Note: check9Note, isNine: isNine, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI,
   toPayload: toPayload, fromPayload: fromPayload };
 
@@ -858,6 +916,9 @@ function load() {
         if (typeof s.scores !== 'object' || !s.scores) s.scores = {};
         if (o.course && typeof o.course === 'object') s.course = { name: String(o.course.name || '').slice(0, 40), tee: String(o.course.tee || '').slice(0, 20) }; // v9 P2 (optional key)
         if (typeof o.courseAsk === 'string') s.courseAsk = o.courseAsk.slice(0, 2000);
+        if (o.tee2 && typeof o.tee2 === 'object') { var t2 = o.tee2, okA = function (a, lo, hi) { return Array.isArray(a) && a.length === 18 && a.every(function (x) { return +x >= lo && +x <= hi; }); };
+          s.tee2 = { name: String(t2.name || '').slice(0, 20), par: okA(t2.par, 3, 6) ? t2.par.map(Number) : s.par.slice(), si: okA(t2.si, 1, 18) ? t2.si.map(Number) : s.si.slice() };
+          s.mixed = !!o.mixed; o.players.slice(0, MAX_PLAYERS).forEach(function (p, i) { if (p && p.tee === 1) s.players[i].tee = 1; }); }
         return s;
       }
     }
@@ -874,7 +935,7 @@ function save() { if (VIEW || RAW != null) return; try { localStorage.setItem(KE
 function range() { return holeRange(S.holes); }
 function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length && sc.every(function (v) { return v >= 1; })); }
 function thru() { var rg = range(), c = 0; for (var h = rg[0]; h <= rg[1]; h++) if (recorded(h)) c++; return c; }
-function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return sc[i] >= 1 ? sc[i] : +S.par[h - 1]; }); }
+function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return sc[i] >= 1 ? sc[i] : parAt(S, teeOf(S, p), h); }); }
 function record(h) { if (!recorded(h)) S.scores[h] = shown(h); }
 function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
@@ -905,6 +966,7 @@ function renderPlayers() {
       (nine ? '<a class="sk-dhlink" id="dhl' + i + '" href="/daily-handicap?from=skins&amp;holes=9&amp;p=' + i + '" aria-label="Work out ' + nm + '\u2019s 9-hole Daily Handicap">Work out 9-hole DH →</a>' +
         '<p class="sk-hcpnote" id="hn' + i + '" aria-live="polite">' + (needsCheck9(S, p) ? esc(check9Note(p)) : '') + '</p>' : '') +
       '<p class="sk-plusnote" id="pl' + i + '" aria-live="polite">' + esc(plusNote(hcpFor(S, p))) + '</p>') +
+      (isMixed(S) ? '<div class="gc-seg sk-teeseg" role="radiogroup" aria-label="' + nm + ' tee">' + [0, 1].map(function (t) { return '<label><input type="radio" name="pt' + i + '" value="' + t + '" data-i="' + i + '"' + (teeOf(S, p) === t ? ' checked' : '') + '><span>' + esc(teeName(S, t)) + '</span></label>'; }).join('') + '</div>' : '') +
       '</div>';
   }).join('');
   $('pcount').value = n; $('pcount').textContent = n;
@@ -936,6 +998,12 @@ function renderCourses() {
   if (document.activeElement !== $('ctee')) $('ctee').value = c.tee || '';
   $('saved-wrap').hidden = !list.length;
   $('saved').innerHTML = GCCourses.listHtml(list, askDel);
+  var mx = isMixed(S); $('mixed').checked = mx; $('tee2-box').hidden = !mx;
+  if (mx) { if (document.activeElement !== $('t2name')) $('t2name').value = S.tee2.name || ''; $('saved2-wrap').hidden = !list.length; $('saved2').innerHTML = GCCourses.listHtml(list, null, 'cuse2'); }
+}
+function setMixed(on) { // v9 P3: the second tee card starts as a copy of today's card; players start on the first tee
+  if (on && !S.tee2) S.tee2 = { name: '', par: S.par.slice(), si: S.si.slice() };
+  S.mixed = !!on; save(); renderSetup();
 }
 function useCourse(c) { // one tap fills today's par and SI; editing a hole later never changes the saved card
   S.par = c.par.slice(); S.si = c.si.slice(); S.course = { name: c.name, tee: c.tee }; delete S.courseAsk;
@@ -1007,25 +1075,29 @@ function stripText(h) {
   var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h); tmp.endRule = 'nobody';
   var r = compute(tmp), e = r.ledger.filter(function (x) { return x.hole === h; })[0], line;
   var last = h === range()[1];
-  if (e.winner != null) line = 'Skin to ' + r.names[e.winner] + ' (' + e.net[e.winner] + (S.scoring === 'gross' ? '' : ' net') + ')' + (e.value > 1 ? ', worth ' + e.value + ' skins' : '');
-  else if (S.carry) line = 'Halved: carry ' + e.carryOut + (last ? ' (still carried after the last hole)' : ' to hole ' + (h + 1));
+  if (e.winner != null) line = 'Skin to ' + r.names[e.winner] + ' (' + e.net[e.winner] + (S.scoring === 'gross' ? '' : ' net') + (r.mixed ? ' on par ' + e.pars[e.winner] + ', ' + relText(e.rel[e.winner]) : '') + ')' + (e.value > 1 ? ', worth ' + e.value + ' skins' : '');
+  else if (S.carry) line = 'Halved' + (r.mixed ? ' at ' + relText(e.low) : '') + ': carry ' + e.carryOut + (last ? ' (still carried after the last hole)' : ' to hole ' + (h + 1));
   else line = 'Halved: no skin';
   var so = r.names.map(function (nm, i) { return r.skins[i] ? esc(nm) + ' ' + r.skins[i] : ''; }).filter(Boolean).join(' · ') || 'none yet';
   return '<strong>' + esc(line) + '</strong><span>Skins so far: ' + so + '</span>';
 }
 function strokesNote(n) { return n > 0 ? '●'.repeat(n) + ' gets ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives 1 shot' : 'no shot'; }
-function siDupes() { // holes in play that share a stroke index (net modes only)
+function siDupes(t) { // holes in play that share a stroke index (net modes only), per tee card (t: 0 first, 1 second)
   var rg = range(), seen = {}, out = [];
-  if (S.scoring === 'gross') return out;
-  for (var h = rg[0]; h <= rg[1]; h++) { var v = +S.si[h - 1]; (seen[v] = seen[v] || []).push(h); }
-  for (var k in seen) if (seen[k].length > 1) out.push({ si: +k, holes: seen[k] });
+  if (S.scoring === 'gross' || (t && !isMixed(S))) return out;
+  for (var h = rg[0]; h <= rg[1]; h++) { var v = siAt(S, t ? 1 : 0, h); (seen[v] = seen[v] || []).push(h); }
+  for (var k in seen) if (seen[k].length > 1) out.push({ si: +k, holes: seen[k], tee: t ? 1 : 0 });
   return out;
 }
 function siWarn() {
-  var h = S.hole, d = siDupes().filter(function (x) { return x.holes.indexOf(h) >= 0; })[0], el = $('si-warn');
-  el.hidden = !d;
-  el.textContent = d ? 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '. Each hole needs a different stroke index, so check the card.' : '';
-  $('si').setAttribute('aria-invalid', d ? 'true' : 'false');
+  var h = S.hole, el = $('si-warn'), mx = isMixed(S), msgs = [];
+  [0, 1].forEach(function (t) {
+    var d = siDupes(t).filter(function (x) { return x.holes.indexOf(h) >= 0; })[0];
+    $(t ? 'si2' : 'si').setAttribute('aria-invalid', d ? 'true' : 'false');
+    if (d) msgs.push((mx ? teeName(S, t) + ': ' : '') + 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '.');
+  });
+  el.hidden = !msgs.length;
+  el.textContent = msgs.length ? msgs.join(' ') + ' Each hole needs a different stroke index' + (mx ? ' on each tee' : '') + ', so check the card.' : '';
 }
 function renderHole() {
   var rg = range(), h = Math.min(rg[1], Math.max(rg[0], S.hole || rg[0])); S.hole = h;
@@ -1034,6 +1106,10 @@ function renderHole() {
   setRadio('par', S.par[h - 1]);
   $('si').value = S.si[h - 1];
   $('si-wrap').hidden = S.scoring === 'gross';
+  var mx = isMixed(S); $('tee2-row').hidden = !mx;
+  $('par-l').textContent = mx ? 'Par \u00b7 ' + teeName(S, 0) : 'Par'; $('si-l').textContent = mx ? 'Stroke index \u00b7 ' + teeName(S, 0) : 'Stroke index';
+  if (mx) { setRadio('par2', S.tee2.par[h - 1]); $('si2').value = S.tee2.si[h - 1]; $('si2-wrap').hidden = S.scoring === 'gross';
+    $('par2-l').textContent = 'Par \u00b7 ' + teeName(S, 1); $('si2-l').textContent = 'Stroke index \u00b7 ' + teeName(S, 1); }
   var pr = ''; for (var x = rg[0]; x <= rg[1]; x++) pr += '<i class="' + (x === h ? 'cur' : recorded(x) ? 'done' : '') + '"></i>'; $('progress').innerHTML = pr;
   var r = compute(S), e = r.ledger.filter(function (x) { return x.hole === h; })[0];
   var vals = shown(h), def = !recorded(h);
@@ -1097,16 +1173,17 @@ function renderResult() {
   var li = r.ledger.map(function (e) {
     var t;
     if (!e.played) t = '<span class="gc-muted">Not scored</span>';
-    else if (e.winner != null) t = '<span class="win">' + esc(r.names[e.winner]) + '</span> ' + e.net[e.winner] + g + ', skin' + (e.carryIn ? ' + ' + e.carryIn + ' carry' : '');
+    else if (e.winner != null) t = '<span class="win">' + esc(r.names[e.winner]) + '</span> ' + e.net[e.winner] + g + (r.mixed ? ' on par ' + e.pars[e.winner] + ' (' + relText(e.rel[e.winner]) + ')' : '') + ', skin' + (e.carryIn ? ' + ' + e.carryIn + ' carry' : '');
+    else if (r.mixed) t = 'Halved at ' + relText(e.low) + ' (' + e.tied.map(function (i) { return esc(r.names[i]) + ' ' + e.net[i] + g + ' on par ' + e.pars[i]; }).join(', ') + ')' + (S.carry ? ', carry ' + e.carryOut : ', no skin');
     else t = 'Halved on ' + e.low + g + ' (' + e.tied.map(function (i) { return esc(r.names[i]); }).join(', ') + ')' + (S.carry ? ', carry ' + e.carryOut : ', no skin');
     return '<li><span class="h">H' + e.hole + '</span><span>' + t + '</span></li>';
   });
   if (r.leftover && r.played === r.total) li.push('<li><span class="h">End</span><span>' + (r.playoffWinner != null ? '<span class="win">' + esc(r.names[r.playoffWinner]) + '</span> wins the playoff: ' + r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') : r.needsPlayoff ? r.leftover + ' skins go to the playoff winner' : r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried: nobody wins') + '</span></li>');
   $('ledger').innerHTML = li.join('');
-  var dup = siDupes(), sn = $('si-note');
+  var dup = siDupes(0).concat(siDupes(1)), sn = $('si-note');
   sn.hidden = !dup.length;
   renderCourseAsk(r);
-  sn.textContent = dup.length ? 'Check stroke indexes: ' + dup.map(function (x) { return 'holes ' + x.holes.join(' and ') + ' share SI ' + x.si; }).join('; ') + '. Shots are given by SI, so fix the card for a fair result.' : '';
+  sn.textContent = dup.length ? 'Check stroke indexes: ' + dup.map(function (x) { return (r.mixed ? teeName(S, x.tee) + ' ' : '') + 'holes ' + x.holes.join(' and ') + ' share SI ' + x.si; }).join('; ') + '. Shots are given by SI, so fix the card for a fair result.' : '';
   var po = $('playoff');
   if (S.endRule === 'playoff' && r.leftover && r.played === r.total) {
     po.hidden = false;
@@ -1162,6 +1239,8 @@ document.addEventListener('click', function (ev) {
   if (b.hasAttribute('data-h')) { setHcp(i, hcpFor(S, S.players[i]) + +b.getAttribute('data-h')); $('ph' + i).value = fmtHcp(hcpFor(S, S.players[i])); return; }
   if (b.hasAttribute('data-dhr')) { dhRound(b.getAttribute('data-dhr')); return; }
   if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
+  if (b.hasAttribute('data-cuse2')) { var c2 = skCourses()[+b.getAttribute('data-cuse2')]; if (c2 && S.tee2) { S.tee2.par = c2.par.slice(); S.tee2.si = c2.si.slice(); if (!S.tee2.name) S.tee2.name = c2.tee || ''; save(); renderSetup(); toast(teeName(S, 1) + ' card: ' + courseLabel(c2)); } return; }
+  if (b.hasAttribute('data-si2')) { var s2v = Math.max(1, Math.min(18, (+S.tee2.si[S.hole - 1] || 1) + +b.getAttribute('data-si2'))); S.tee2.si[S.hole - 1] = s2v; save(); var sel2 = b.getAttribute('data-si2'); renderHole(); var nb3 = document.querySelector('button[data-si2="' + sel2 + '"]'); if (nb3) nb3.focus(); return; }
   if (b.hasAttribute('data-cuse')) { var cu = skCourses()[+b.getAttribute('data-cuse')]; askDel = null; if (cu) useCourse(cu); return; }
   if (b.hasAttribute('data-cdel')) { var cd = skCourses()[+b.getAttribute('data-cdel')]; if (cd) { askDel = GCCourses.key(cd); renderCourses(); var y = document.querySelector('[data-cdel-yes]'); if (y) y.focus(); } return; }
   if (b.hasAttribute('data-cdel-yes')) { var cy = skCourses()[+b.getAttribute('data-cdel-yes')]; askDel = null; if (cy) { GCCourses.remove(GCCourses.key(cy)); toast('Deleted ' + courseLabel(cy)); } renderCourses(); $('cname').focus(); return; }
@@ -1191,7 +1270,9 @@ document.addEventListener('input', function (ev) {
   else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) setHcp(i, parseHcp(v)); else setPlusNote(i); } // + - − all mean plus
   else if (/^sc\d/.test(t.id)) { var n = parseInt(t.value, 10); if (n >= 1 && n <= 15) setScore(i, n); }
   else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); siWarn(); } }
-  else if (t.id === 'cname' || t.id === 'ctee') { S.course = S.course || { name: '', tee: '' }; S.course[t.id === 'cname' ? 'name' : 'tee'] = t.value.slice(0, t.id === 'cname' ? 40 : 20); save(); }
+  else if (t.id === 'si2') { var s2 = parseInt(t.value, 10); if (s2 >= 1 && s2 <= 18) { S.tee2.si[S.hole - 1] = s2; save(); siWarn(); } }
+  else if (t.id === 't2name') { S.tee2.name = t.value.slice(0, 20); save(); renderPlayers(); }
+  else if (t.id === 'cname' || t.id === 'ctee') { S.course = S.course || { name: '', tee: '' }; S.course[t.id === 'cname' ? 'name' : 'tee'] = t.value.slice(0, t.id === 'cname' ? 40 : 20); save(); if (t.id === 'ctee' && isMixed(S)) renderPlayers(); }
   else if (t.id === 'stake') { S.stake = t.value.trim(); save(); }
 });
 document.addEventListener('change', function (ev) {
@@ -1200,7 +1281,9 @@ document.addEventListener('change', function (ev) {
   else if (t.name === 'scoring') { S.scoring = t.value; save(); renderSetup(); }
   else if (t.name === 'endRule') { S.endRule = t.value; S.playoff = null; save(); }
   else if (t.id === 'carry') { S.carry = t.checked; save(); }
-  else if (t.name === 'par') { var h = S.hole; S.par[h - 1] = +t.value; if (!recorded(h)) { S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = +t.value; }); } save(); updateStrip(); }
+  else if (t.name === 'par' || t.name === 'par2') { var h = S.hole; (t.name === 'par2' ? S.tee2.par : S.par)[h - 1] = +t.value; if (!recorded(h)) { var dv = shown(h); S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = dv[i]; }); } save(); updateStrip(); }
+  else if (t.id === 'mixed') setMixed(t.checked);
+  else if (/^pt\d/.test(t.name)) { var pi = +t.getAttribute('data-i'); if (+t.value === 1) S.players[pi].tee = 1; else delete S.players[pi].tee; save(); }
   else if (t.id === 'si') { renderHole(); }
 });
 document.addEventListener('focusout', function (ev) {
@@ -1208,6 +1291,7 @@ document.addEventListener('focusout', function (ev) {
   if (/^ph\d/.test(t.id)) { t.value = fmtHcp(hcpFor(S, S.players[i])); setPlusNote(i); }
   else if (/^sc\d/.test(t.id)) t.value = shown(S.hole)[i];
   else if (t.id === 'si') t.value = S.si[S.hole - 1];
+  else if (t.id === 'si2' && S.tee2) t.value = S.tee2.si[S.hole - 1];
   else if (t.id === 'stake') stakeValid();
 });
 document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev.target.matches('.gc-stepper input:not([readonly]), #stake')) { try { ev.target.select(); } catch (e) {} } });

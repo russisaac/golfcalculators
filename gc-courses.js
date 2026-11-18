@@ -33,13 +33,14 @@
   function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
   // "Your courses" list: one tap fills the card (data-cuse=<index in list()>), a delete asks first (data-cdel, then
   // data-cdel-yes / data-cdel-no). Course names are escaped (they are typed by the golfer).
-  function listHtml(cards, asking) {
+  function listHtml(cards, asking, use) { // use: data attribute for the fill button (default "cuse"); a custom one has no delete
+    var ua = use || 'cuse';
     return '<ul class="gc-courses">' + cards.map(function (c, i) {
       var l = esc(label(c));
       if (asking === key(c)) return '<li class="gc-courses-ask"><span id="cdq' + i + '">Delete <b>' + l + '</b> from Your courses?</span>' +
         '<span class="gc-courses-yn" role="group" aria-labelledby="cdq' + i + '"><button type="button" class="gc-btn gc-btn-secondary" data-cdel-yes="' + i + '">Delete</button><button type="button" class="gc-btn gc-btn-ghost" data-cdel-no="' + i + '">Keep</button></span></li>';
-      return '<li><button type="button" class="gc-btn gc-btn-secondary gc-courses-use" data-cuse="' + i + '"><b>' + l + '</b> <span>' + c.holes + ' holes · par ' + par(c) + '</span></button>' +
-        '<button type="button" class="gc-btn gc-btn-ghost gc-courses-del" data-cdel="' + i + '" aria-label="Delete ' + l + ' from Your courses">✕</button></li>';
+      return '<li><button type="button" class="gc-btn gc-btn-secondary gc-courses-use" data-' + ua + '="' + i + '"><b>' + l + '</b> <span>' + c.holes + ' holes · par ' + par(c) + '</span></button>' +
+        (use ? '' : '<button type="button" class="gc-btn gc-btn-ghost gc-courses-del" data-cdel="' + i + '" aria-label="Delete ' + l + ' from Your courses">✕</button>') + '</li>';
     }).join('') + '</ul>';
   }
   function par(c) { return c.par.reduce(function (s, x) { return s + x; }, 0); }
