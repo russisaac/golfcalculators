@@ -32,46 +32,152 @@
  "url": "https://golfcalculators.com/"
 }
 </script>
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). tests/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+</style>
 <style>
-  :root { --green: #166534; --bg: #f8fafc; --border: #e2e8f0; }
-  body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: var(--bg); color: #0f172a; }
-  header { background: white; border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; }
-  header h1 { margin: 0; font-size: 1.35rem; letter-spacing: -0.02em; }
-  main { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem; }
-  .lede { color: #475569; margin: 0 0 1.75rem; font-size: 1.05rem; }
-  .card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.5rem; margin-bottom: 1rem; text-decoration: none; color: inherit; display: block; transition: border-color 0.15s; }
-  .card:hover { border-color: var(--green); }
-  .card h2 { margin: 0 0 0.35rem; font-size: 1.15rem; color: var(--green); }
-  .card p { margin: 0; color: #334155; }
-  .soon { color: #64748b; font-size: 0.9rem; margin-top: 1.5rem; }
-  footer { text-align: center; padding: 2rem; color: #475569; font-size: 0.85rem; }
-  footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
+  /* Landing (v9 P1): Skins first, in the Skins hero style. */
+  .lp-hero{padding:var(--s4) 0 var(--s2)}
+  .lp-kicker{font-size:var(--fs-sm);font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+  .lp-hero h1{font-size:var(--fs-xl);font-weight:800;letter-spacing:-.02em;margin-top:var(--s1)}
+  .lp-sub{color:var(--ink-2);margin-top:var(--s2)}
+  .lp-cta{margin-top:var(--s4);font-size:18px;min-height:56px}
+  .lp-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s1) var(--s3);list-style:none;margin:var(--s3) 0 0;padding:0;font-size:var(--fs-sm);color:var(--muted)}
+  .lp-trust li::before{content:"\2713\00a0";color:var(--accent);font-weight:700}
+  .lp-sample{margin:var(--s4) 0 0}
+  .lp-sample .lp-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+  .lp-sample .lp-pay{display:flex;justify-content:space-between;gap:var(--s2);font-size:var(--fs-lg);font-weight:700;line-height:1.3;margin-top:var(--s2)}
+  .lp-sample .lp-pay+.lp-pay{margin-top:var(--s1)}
+  .lp-sample .lp-tag{flex:none;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,255,255,.18);border-radius:999px;padding:2px var(--s2)}
+  .lp-sample figcaption{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s2);text-align:center}
+  .lp-more{margin:var(--s6) 0 var(--s3);font-size:var(--fs-md)}
+  .lp-cards{display:grid;gap:var(--s3)}
+  .lp-cards a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);text-decoration:none;color:var(--ink)}
+  .lp-cards a strong{display:block;color:var(--accent);font-size:var(--fs-md)}
+  .lp-cards a span{display:block;font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s1)}
+  .lp-trust li{white-space:nowrap}
+  @media (max-width:360px){.lp-trust{font-size:13px;gap:var(--s1) var(--s2)}.lp-sample .lp-pay{font-size:18px}.lp-sample .gc-kicker{font-size:12px;letter-spacing:.02em}}
+  @media (min-width:560px){.lp-cards{grid-template-columns:1fr 1fr}}
 </style>
 </head>
-<body>
-<header>
-  <h1>Golf Calculators</h1>
-</header>
-<main>
-  <p class="lede">Practical tools for the round and the 19th hole.</p>
-
-  <a class="card" href="/skins">
-    <h2>Skins Calculator</h2>
-    <p>Enter the scores. See who won each skin (with carryovers) and exactly who pays whom.</p>
-  </a>
-
-  <a class="card" href="/daily-handicap">
-    <h2>Golf Australia Daily Handicap</h2>
-    <p>Calculate your Daily Handicap using the current 2026 formula.</p>
-  </a>
-
-  <a class="card" href="/stableford">
-    <h2>Stableford Calculator</h2>
-    <p>Enter gross scores and Stroke Index. Get net points and a running total.</p>
-  </a>
-
-  <p class="soon">More calculators coming soon.</p>
+<body data-gc="home-v2">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home" aria-current="page"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+<main class="gc-main">
+  <section class="lp-hero" aria-labelledby="lp-h">
+    <p class="lp-kicker">Golf Calculators</p>
+    <h1 id="lp-h">Playing today?</h1>
+    <p class="lp-sub">Score skins hole by hole on your phone. When you walk off the last green, everyone knows exactly who pays whom.</p>
+    <a class="gc-btn gc-btn-primary gc-btn-block lp-cta" id="lp-cta" href="/skins">Start a skins round</a>
+    <ul class="lp-trust" id="lp-trust" aria-label="Why use it"><li>Free</li><li>No sign-up</li><li>Works on your phone</li></ul>
+  </section>
+  <figure class="lp-sample" id="lp-sample">
+    <div class="gc-hero">
+      <div class="lp-head"><p class="gc-kicker">Skins settled · $5.00 a skin</p><span class="lp-tag" aria-hidden="true">Sample</span></div>
+      <div id="lp-sample-lines">
+        <p class="lp-pay"><span>Alex pays Drew</span> <span>$75.00</span></p>
+        <p class="lp-pay"><span>Blake pays Drew</span> <span>$75.00</span></p>
+        <p class="lp-pay"><span>Casey pays Drew</span> <span>$35.00</span></p>
+      </div>
+    </div>
+    <figcaption id="lp-sample-cap">Sample settle-up from a 4-ball, net skins with carryovers. Share it to the group chat in one tap.</figcaption>
+  </figure>
+  <h2 class="lp-more">Also for today's round</h2>
+  <div class="lp-cards">
+    <a href="/stableford"><strong>Stableford Calculator →</strong><span>Points by handicap, a live leaderboard and the countback.</span></a>
+    <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Your Golf Australia Daily Handicap for today's tees (2026 formula).</span></a>
+  </div>
 </main>
-<footer><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 </body>
 </html>

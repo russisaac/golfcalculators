@@ -356,6 +356,18 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     if(bad)fail=1;rows.push({name:`${n} fold 375x812`,width:375,fold:r});
     console.log(`${gate(bad)}  ${n} calculator first @375x812: H1 bottom ${r.h1}px, first control #${r.ctl} bottom ${r.ctlBottom}px (viewport ${r.vh}), search content starts at ${r.learnTop===null?'n/a':r.learnTop+'px'}`);
     await p.context().close();}
+  // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
+  // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
+  if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){
+    const p=await page(w,hgt);await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(200);
+    const r=await p.evaluate(()=>{const c=document.getElementById('lp-cta'),s=document.querySelector('#lp-sample .lp-pay');if(!c)return null;const a=c.getBoundingClientRect(),b=s?s.getBoundingClientRect():null;
+      return {ctaTop:Math.round(a.top),ctaBottom:Math.round(a.bottom),sampleTop:b?Math.round(b.top):null,sampleBottom:b?Math.round(b.bottom):null,vh:innerHeight};});
+    if(!r){await p.context().close();break;}
+    await p.screenshot({path:path.join(OUT,`fold-home-${w}x${hgt}.png`)});
+    const bad=!(r.ctaTop>=0&&r.ctaBottom<=r.vh&&(w!==375||r.sampleBottom<=r.vh));
+    if(bad)fail=1;rows.push({name:`home fold ${w}x${hgt}`,width:w,fold:r});
+    console.log(`${gate(bad)}  home landing fold @${w}x${hgt}: Skins CTA ${r.ctaTop}-${r.ctaBottom}px, first sample settle-up line ${r.sampleTop}-${r.sampleBottom}px of ${r.vh}px${w===375?' (both must be on the first screen)':' (CTA must be on the first screen)'}`);
+    await p.context().close();}}
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
