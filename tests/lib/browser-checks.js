@@ -170,7 +170,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       const noUtm=own.url.replace('?utm_source=share&utm_medium=link&utm_campaign=stableford',''); // v9 P6: the utm tags add 58 chars; the 300-char budget is for the link itself
       const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||noUtm.length>300||(noUtm!==own.url&&!/\?utm_source=share&utm_medium=link&utm_campaign=stableford#r=/.test(own.url))||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
       if(bad)fail=1;rows.push({name:`stableford share link ${w}`,width:w,link:own.url.length,r,back});
-      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium and Start your own round on the first screen (bottoms ${r.podBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
+      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${noUtm.length} chars + ${own.url.length-noUtm.length} utm); it opens read-only ("${r.t}")${w===375?`, podium and Start your own round on the first screen (bottoms ${r.podBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, query "${back.search}", focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
       await p.context().close();}
   }
   if(isV2&&hasSkShare){ // share-link-skins in a real browser: fresh load of the link, history calls, storage untouched, own round back
@@ -182,11 +182,15 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.opened());
       const r=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),heroBottom:Math.round(document.getElementById('hero').getBoundingClientRect().bottom),ownBottom:Math.round(document.getElementById('gc-own').getBoundingClientRect().bottom),vh:innerHeight,saved:localStorage.getItem('gc_skins_v2'),t:document.getElementById('gc-shared-t').textContent,hero:document.getElementById('hero').textContent}));
       await p.click('#gc-own');
-      const back=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
+      const back=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,search:location.search,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
       const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
       const firstScreen=w===375?r.ownBottom<=r.vh:true;
-      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>320||!r.viewing||r.t!=='Shared result'||!/Alex pays Drew/.test(r.hero)||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
-      if(bad)fail=1;rows.push({name:`skins share link ${w}`,width:w,link:own.url.length,r,back});
+      // v9 P6: links carry ?utm_source=share&utm_medium=link&utm_campaign=skins (58 chars) before #r=; the 320-char budget
+      // is for the link itself, as before P6. Start your own round must drop the utm tags as well as #r= (no stale campaign).
+      const noUtm=own.url.replace('?utm_source=share&utm_medium=link&utm_campaign=skins','');
+      const utmOk=noUtm===own.url||(/\?utm_source=share&utm_medium=link&utm_campaign=skins#r=/.test(own.url)&&!/utm_/.test(back.search||''));
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||noUtm.length>320||!utmOk||!r.viewing||r.t!=='Shared result'||!/Alex pays Drew/.test(r.hero)||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
+      if(bad)fail=1;rows.push({name:`skins share link ${w}`,width:w,link:own.url.length,linkNoUtm:noUtm.length,r,back});
       console.log(`${gate(bad)}  skins share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, result and Start your own round on the first screen (bottoms ${r.heroBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}`);
       await p.context().close();}
   }
