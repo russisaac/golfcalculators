@@ -32,8 +32,8 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // Netlify injects a feedback drawer (/.netlify/scripts/cdp, a fixed iframe) into Deploy Preview URLs only;
   // block it so previews are tested as production serves them.
   async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});await ctx.route('**/.netlify/scripts/**',r=>r.abort());return ctx.newPage();}
-  async function check(name,w,url,prep,shot){
-    const p=await page(w);const errs=[];p.on('pageerror',e=>errs.push(e.message));
+  async function check(name,w,url,prep,shot,hgt){
+    const p=await page(w,hgt||812);const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base+url,{waitUntil:'load'});if(prep)await prep(p);await p.waitForTimeout(250);
     const ax=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa','best-practice']).analyze();
     const m=await p.evaluate(()=>{const els=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].filter(e=>e.offsetParent&&getComputedStyle(e).visibility!=='hidden');
@@ -356,6 +356,22 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     if(bad)fail=1;rows.push({name:`${n} fold 375x812`,width:375,fold:r});
     console.log(`${gate(bad)}  ${n} calculator first @375x812: H1 bottom ${r.h1}px, first control #${r.ctl} bottom ${r.ctlBottom}px (viewport ${r.vh}), search content starts at ${r.learnTop===null?'n/a':r.learnTop+'px'}`);
     await p.context().close();}
+  // v9 P2 Your courses: every new screen at 375x812 and 320x568 (axe, sideways scroll, screenshots)
+  const hasCourses=fs.existsSync(path.join(SITE,'gc-courses.js'));
+  if(hasCourses){
+    const CARDS=JSON.stringify([{name:'Royal Sydney Golf Club',tee:'Blue',holes:18,par:[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],si:[5,3,17,1,9,11,15,7,13,6,4,18,2,10,12,16,8,14]},{name:'Moore Park',tee:'White',holes:18,par:[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],si:[5,3,17,1,9,11,15,7,13,6,4,18,2,10,12,16,8,14]},{name:'Bartholomew-Fitzgerald Memorial Links',tee:'Championship',holes:9,par:[4,4,3,5,4,4,3,4,5],si:[1,2,3,4,5,6,7,8,9]}]);
+    const withCards=async p=>{await p.evaluate(c=>{localStorage.clear();localStorage.setItem('gc_courses_v1',c);},CARDS);await p.reload({waitUntil:'load'});};
+    const skAskUpd=async p=>{await withCards(p);await p.click('[data-cuse="1"]');await p.evaluate(()=>{const U=GCSkinsUI,s=U.state();s.players=[{name:'Alex',hcp:0},{name:'Blake',hcp:4},{name:'Casey',hcp:8},{name:'Drew',hcp:12}];s.par[4]=3;s.scores={};for(let x=1;x<=18;x++)s.scores[x]=[4,5,4,5];U.show('result');});};
+    const sfAskUpd=async p=>{await withCards(p);await p.click('[data-cuse="0"]');await p.evaluate(()=>{const U=GCStablefordUI,s=U.state();s.players=[{name:'Mel',hcp:12,hcp9:null},{name:'Sam',hcp:2,hcp9:null}];s.course.par[2]=4;s.scores={};for(let x=1;x<=18;x++)s.scores[x]=[5,4];U.show('result');});};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P2 skins setup: Your courses',w,'/skins',async p=>{await withCards(p);await p.evaluate(()=>document.getElementById('course-card').scrollIntoView());},`v9-p2-skins-setup-courses-${sz}.png`,hgt);
+      await check('v9 P2 skins setup: delete asks first',w,'/skins',async p=>{await withCards(p);await p.click('[data-cdel="0"]');await p.evaluate(()=>document.getElementById('course-card').scrollIntoView());},`v9-p2-skins-delete-ask-${sz}.png`,hgt);
+      await check('v9 P2 skins result: Update saved course?',w,'/skins',async p=>{await skAskUpd(p);await p.evaluate(()=>document.getElementById('course-ask').scrollIntoView({block:'center'}));},`v9-p2-skins-result-update-ask-${sz}.png`,hgt);
+      await check('v9 P2 stableford setup: Your courses',w,'/stableford',async p=>{await withCards(p);await p.evaluate(()=>document.getElementById('saved-wrap').scrollIntoView({block:'center'}));},`v9-p2-stableford-setup-courses-${sz}.png`,hgt);
+      await check('v9 P2 stableford course card: name + tee',w,'/stableford',async p=>{await withCards(p);await p.click('[data-cuse="0"]');await p.click('#btn-course');},`v9-p2-stableford-course-card-${sz}.png`,hgt);
+      await check('v9 P2 stableford result: Update saved course?',w,'/stableford',async p=>{await sfAskUpd(p);await p.evaluate(()=>document.getElementById('course-ask').scrollIntoView({block:'center'}));},`v9-p2-stableford-result-update-ask-${sz}.png`,hgt);
+    }
+  }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
   // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
   if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){

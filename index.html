@@ -118,6 +118,20 @@ a{color:var(--accent)}
 /* Footer */
 .gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
 .gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
 </style>
 <style>
   /* Landing (v9 P1): Skins first, in the Skins hero style. */

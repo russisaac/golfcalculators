@@ -15,7 +15,7 @@ const PAR=[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],SI=[5,3,1,7,9,11,13,15,17,2,4,6,
 // ---- static: floor + reuse ----
 {const h=open();const d=h.d;
  ok('0 input[type=number]',d.querySelectorAll('input[type=number]').length===0&&!/type="number"/.test(src));
- ok('every text input that takes numbers uses inputmode (except handicap fields, which need + and −)',[...d.querySelectorAll('input[type=text]')].every(i=>/^ph\d/.test(i.id)||i.hasAttribute('inputmode')||['pn0','cname','fill-par','fill-si'].includes(i.id)||/^pn/.test(i.id)));
+ ok('every text input that takes numbers uses inputmode (except handicap fields, which need + and −)',[...d.querySelectorAll('input[type=text]')].every(i=>/^ph\d/.test(i.id)||i.hasAttribute('inputmode')||['pn0','cname','ctee','fill-par','fill-si'].includes(i.id)||/^pn/.test(i.id)));
  ok('uses shared gc.css (inlined block byte-identical to /gc.css)',(d.querySelector('style[data-src="/gc.css"]')||{}).textContent===fs.readFileSync(path.join(SITE,'gc.css'),'utf8'));
  ok('reuses the Skins slice-1 components (gc-stepper, sk-screen hole screen, sk-strip, gc-hero, gc-toast)',['.gc-stepper','#scr-hole.sk-screen','.sk-strip','.gc-hero','.gc-toast','.gc-seg'].every(s=>d.querySelector(s)));
  ok('nav links all three calculators',['/skins','/stableford','/daily-handicap'].every(u=>d.querySelector(`nav a[href="${u}"]`))&&!!d.querySelector('a.gc-brand[href="/"]'));
@@ -232,8 +232,8 @@ const two=n=>Array(n).fill(2);const mod=(a,ch)=>{a=a.slice();for(const k in ch)a
  h.set('cs9','10');ok('9-hole card: typing SI 10 flags hole 9 (use 1–9)',/hole 9 has SI 10 \(use 1–9\)/i.test(txt(h.$('si-err'))),txt(h.$('si-err')));
  // re-pick saved course in a new session
  const h2=open({storage:{gc_courses_v1:h.w.localStorage.getItem('gc_courses_v1')}});
- ok('saved courses listed on setup',!h2.$('saved-wrap').hidden&&/Royal Test \(18\)/.test(txt(h2.$('saved'))));
- h2.set('saved','0','change');ok('re-picking a saved course loads its name, par and SI',h2.w.GCStablefordUI.state().course.name==='Royal Test'&&h2.w.GCStablefordUI.state().course.si[0]===1&&txt(h2.$('course-name'))==='Royal Test');}
+ ok('saved courses listed on setup (Your courses, v9 P2)',!h2.$('saved-wrap').hidden&&/Royal Test 18 holes/.test(txt(h2.$('saved'))));
+ click(h2,'[data-cuse="0"]');ok('re-picking a saved course loads its name, par and SI',h2.w.GCStablefordUI.state().course.name==='Royal Test'&&h2.w.GCStablefordUI.state().course.si[0]===1&&txt(h2.$('course-name'))==='Royal Test');}
 
 // ---- players: 1–4, plus note, DH round trip ----
 {const h=open();const U=h.w.GCStablefordUI;
