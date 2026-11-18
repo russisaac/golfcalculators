@@ -137,6 +137,8 @@ a{color:var(--accent)}
 .gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
 .gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
 .gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
 </style>
 
 <!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
