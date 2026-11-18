@@ -435,6 +435,25 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P5 stableford result: Add to Home Screen tip (Android)',w,'/stableford',tip('GCStablefordUI','android'),`v9-p5-stableford-tip-android-${sz}.png`,hgt);
     }
   }
+  // v10 P2 Skins polish + pot: the example result's 3 payment lines are one line each at 320 and 375, smaller than the
+  // hero headline; "learn more" links in How it's calculated are >= 44px tall; pot setup and pot result screenshots.
+  if(/name="pay" value="pot"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    const potRound=async p=>{await p.evaluate(()=>{const U=GCSkinsUI,s=U.state();s.players=['Alex','Blake','Casey','Drew'].map(n=>({name:n,hcp:0}));s.scoring='gross';s.carry=false;s.pay='pot';s.scores={};
+      const c=[7,5,3,3];let h=1;c.forEach((k,i)=>{for(let j=0;j<k;j++,h++)s.scores[h]=c.map((_,x)=>x===i?3:5);});U.show('result');});await p.waitForTimeout(150);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v10 P2 skins example result (polish)',w,'/skins',async p=>{await p.evaluate(()=>GCSkinsUI.loadExample());await p.waitForTimeout(150);},`v10-p2-skins-result-${sz}.png`,hgt);
+      await check('v10 P2 skins pot result',w,'/skins',potRound,`v10-p2-skins-pot-result-${sz}.png`,hgt);
+      await check('v10 P2 skins setup: How is a skin paid? (More options open, From a pot)',w,'/skins',async p=>{await p.click('details.sk-more summary');await p.check('input[name=pay][value=pot]');await p.evaluate(()=>document.getElementById('pay-l').scrollIntoView({block:'center'}));},`v10-p2-skins-pay-option-${sz}.png`,hgt);
+      const p=await page(w,hgt);await p.goto(base+'/skins',{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.loadExample());await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const lines=[...document.querySelectorAll('#hero .sk-pay')].map(e=>{const cs=getComputedStyle(e);return {h:Math.round(e.getBoundingClientRect().height),lh:parseFloat(cs.lineHeight),fs:parseFloat(cs.fontSize),cut:e.firstElementChild.scrollWidth>e.firstElementChild.clientWidth};});
+        const big=document.querySelector('#hero .gc-big'),bfs=big?parseFloat(getComputedStyle(big).fontSize):0;
+        const links=[...document.querySelectorAll('#learn p a')].map(a=>Math.round(a.getBoundingClientRect().height));return {lines,bfs,links};});
+      const one=r.lines.length===3&&r.lines.every(x=>x.h<=Math.ceil(x.lh)+1&&!x.cut),sub=r.lines.every(x=>x.fs<r.bfs&&x.fs<=16),tall=r.links.length>0&&r.links.every(x=>x>=44);
+      const bad=!(one&&sub&&tall);if(bad)fail=1;rows.push({name:`skins polish ${sz}`,width:w,polish:r});
+      console.log(`${gate(bad)}  v10 P2 skins polish @${sz}: 3 payment lines on one line each, not cut (${r.lines.map(x=>x.h+'px').join('/')}) · ${r.lines[0]&&r.lines[0].fs}px under a ${r.bfs}px headline · ${r.links.length} learn-more links ${Math.min(...r.links)}–${Math.max(...r.links)}px tall`);
+      await p.context().close();
+    }
+  }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
   // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
   if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){
