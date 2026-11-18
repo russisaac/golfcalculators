@@ -18,6 +18,9 @@ const arg=k=>{const a=process.argv.find(x=>x.startsWith('--'+k+'='));return a?a.
 const CI=process.argv.includes('--ci'),noLh=process.argv.includes('--no-lh');
 const SITE=path.resolve(process.env.SITE||path.join(__dirname,'../..'));
 const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
+// Same text metrics as the GitHub runner: its fontconfig resolves system-ui / sans-serif to DejaVu Sans, while a dev box
+// may use Noto Sans or Roboto (narrower). Chrome and Lighthouse (child processes) inherit this. Opt out: GC_SYSTEM_FONTS=1.
+if(!process.env.FONTCONFIG_FILE&&!process.env.GC_SYSTEM_FONTS)process.env.FONTCONFIG_FILE=path.join(__dirname,'fonts-ci.conf');
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
 let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false,hasShare=false,hasSkShare=false;
@@ -32,9 +35,16 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // Netlify injects a feedback drawer (/.netlify/scripts/cdp, a fixed iframe) into Deploy Preview URLs only;
   // block it so previews are tested as production serves them.
   async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});await ctx.route('**/.netlify/scripts/**',r=>r.abort());return ctx.newPage();}
+  // A scrolled check must not leave a control half under the sticky header: axe then reports that control as
+  // "partially obscured" (target-size), which says where the test scrolled, not how big the target is. Nudge the page
+  // so any control straddling the header's bottom edge sits fully below it (a few px; every target is still checked).
+  async function restClear(p){await p.evaluate(()=>{const hd=document.querySelector('.gc-header');if(!hd||getComputedStyle(hd).position!=='sticky'||scrollY===0)return;
+    for(let i=0;i<6;i++){const hb=hd.getBoundingClientRect().bottom;const t=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].find(e=>{if(hd.contains(e)||!e.offsetParent)return false;const r=e.getBoundingClientRect();return r.height>0&&r.top<hb&&r.bottom>hb;});
+      if(!t)return;window.scrollBy(0,t.getBoundingClientRect().top-hb-8);}});await p.waitForTimeout(50);}
   async function check(name,w,url,prep,shot,hgt){
     const p=await page(w,hgt||812);const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base+url,{waitUntil:'load'});if(prep)await prep(p);await p.waitForTimeout(250);
+    await restClear(p);
     const ax=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa','best-practice']).analyze();
     const m=await p.evaluate(()=>{const els=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].filter(e=>e.offsetParent&&getComputedStyle(e).visibility!=='hidden');
       const inline=e=>e.tagName==='A'&&getComputedStyle(e).display==='inline';

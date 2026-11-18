@@ -126,6 +126,8 @@ a{color:var(--accent)}
 /* v9 P4 feedback: "Send feedback" line after a result */
 .gc-fb{margin-top:var(--s3)}
 .gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
 </style>
 <style>
 .fb h1{font-size:var(--fs-xl);margin:var(--s2) 0 var(--s2)}
