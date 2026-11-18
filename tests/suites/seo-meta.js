@@ -78,8 +78,10 @@ ok('Next step: skins → daily-handicap',!!docs['skins.html'].querySelector('.gc
   ok('home links all three tools with a one-line description (Skins CTA + lede, Stableford and DH cards)',!!cta&&cta.getAttribute('href')==='/skins'&&norm(dh.querySelector('.lp-sub').textContent).length>10&&['stableford','daily-handicap'].every(t=>cards.some(a=>a.getAttribute('href')==='/'+t&&norm((a.querySelector('span')||{}).textContent).length>10)));}}
 // sitemap + robots
 {const sm=fs.readFileSync(path.join(SITE,'sitemap.xml'),'utf8');const urls=[...sm.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod><\/url>/g)].map(m=>m[1]);
- const canon=files.map(f=>docs[f].querySelector('link[rel=canonical]').href);
+ const noindex=f=>/noindex/.test(meta(docs[f],'meta[name="robots"]')||''); // v9 P4: the feedback "thanks" page is noindex, so it stays out of the sitemap
+ const canon=files.filter(f=>!noindex(f)).map(f=>docs[f].querySelector('link[rel=canonical]').href);
  ok('sitemap lists every canonical URL, each with lastmod',canon.every(c=>urls.includes(c))&&urls.length===(sm.match(/<url>/g)||[]).length,urls.join(' '));
+ ok('noindex pages are not in the sitemap, and only the feedback thanks page is noindex',files.filter(noindex).every(f=>f==='feedback-thanks.html'&&!urls.includes(docs[f].querySelector('link[rel=canonical]').href)),files.filter(noindex).join());
  ok('robots.txt references the sitemap',/^Sitemap: https:\/\/golfcalculators\.com\/sitemap\.xml$/m.test(fs.readFileSync(path.join(SITE,'robots.txt'),'utf8')));}
 // generator in sync
 if(fs.existsSync(path.join(SITE,'tools/seo/build.js'))){let inSync=true;try{execFileSync(process.execPath,[path.join(SITE,'tools/seo/build.js'),'--check'],{stdio:'pipe'});}catch(e){inSync=false;}ok('pages match tools/seo/build.js output (content.js + pages.json)',inSync);}

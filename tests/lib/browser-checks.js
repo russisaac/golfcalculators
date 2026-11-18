@@ -389,6 +389,19 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P3 stableford result: mixed tees',w,'/stableford',async p=>{await sfMix(p,'result');await p.evaluate(()=>{const d=document.querySelector('details.sf-why');if(d)d.open=true;});},`v9-p3-stableford-result-${sz}.png`,hgt);
     }
   }
+  // v9 P4 feedback: the form (from a result link), the empty-form message, the thanks page, the link after results, the footer
+  if(pages.some(p=>p[0]==='feedback')){
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P4 feedback form (from Skins)',w,'/feedback?from=skins',null,`v9-p4-feedback-form-${sz}.png`,hgt);
+      await check('v9 P4 feedback form: empty send',w,'/feedback?from=stableford',async p=>{await p.click('#fb-send');await p.evaluate(()=>document.getElementById('fb-err').scrollIntoView({block:'center'}));},`v9-p4-feedback-empty-${sz}.png`,hgt);
+      await check('v9 P4 feedback thanks',w,'/feedback-thanks',null,`v9-p4-feedback-thanks-${sz}.png`,hgt);
+      await check('v9 P4 skins result: Send feedback',w,'/skins',async p=>{await p.evaluate(()=>{GCSkinsUI.loadExample();});await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-skins-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 stableford result: Send feedback',w,'/stableford',async p=>{await p.evaluate(()=>{GCStablefordUI.loadExample();});await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-stableford-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 daily-handicap result: Send feedback',w,'/daily-handicap',async p=>{await p.fill('#ga','14.2');await p.fill('#slope','128');await p.fill('#scratch','71');await p.fill('#par','72');await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-dh-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 home footer: Feedback',w,'/',async p=>{await p.evaluate(()=>document.querySelector('footer').scrollIntoView({block:'end'}));},`v9-p4-home-footer-${sz}.png`,hgt);
+      await check('v9 P4 privacy: feedback form section',w,'/privacy',async p=>{await p.evaluate(()=>document.getElementById('feedback').scrollIntoView());},`v9-p4-privacy-feedback-${sz}.png`,hgt);
+    }
+  }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
   // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
   if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){
@@ -406,7 +419,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
   const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
     if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;

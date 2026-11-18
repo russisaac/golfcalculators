@@ -142,6 +142,9 @@ a{color:var(--accent)}
 .gc-ask{border-left:4px solid var(--accent)}
 .gc-ask h2{margin-bottom:var(--s1)}
 .gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
 </style>
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
@@ -571,6 +574,7 @@ a{color:var(--accent)}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
   <p class="gc-muted gc-own-only" id="new-note">New round keeps your players and course and clears the scores.</p>
+  <p class="gc-muted gc-fb" id="fb-after">How did the calculator go? <a href="/feedback?from=stableford">Send feedback</a></p>
 </section>
 
 <div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
@@ -604,7 +608,7 @@ a{color:var(--accent)}
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
-<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="gc-footer"><a href="/feedback?from=stableford">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <!-- Shared result links: verbatim copy of /gc-share.js. tests/run fails if it drifts from gc-share.js. -->
 <script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
    page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.

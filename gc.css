@@ -97,3 +97,6 @@ a{color:var(--accent)}
 .gc-ask{border-left:4px solid var(--accent)}
 .gc-ask h2{margin-bottom:var(--s1)}
 .gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}

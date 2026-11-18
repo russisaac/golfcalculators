@@ -124,6 +124,9 @@ a{color:var(--accent)}
 .gc-ask{border-left:4px solid var(--accent)}
 .gc-ask h2{margin-bottom:var(--s1)}
 .gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
 </style>
 
 <script>
@@ -508,6 +511,7 @@ a{color:var(--accent)}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
+  <p class="gc-muted gc-fb" id="fb-after">How did the calculator go? <a href="/feedback?from=skins">Send feedback</a></p>
   <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0.<span class="gc-own-only"> Your players and scores are saved on this device only.</span></p>
   <p class="gc-muted" style="margin-top:var(--s2)">Scoring: common club format (skins have no governing rulebook). <a href="#how-h">How it's calculated</a></p>
   <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
@@ -547,7 +551,7 @@ a{color:var(--accent)}
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
-<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="gc-footer"><a href="/feedback?from=skins">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <!-- Shared result links: verbatim copy of /gc-share.js. tests/run fails if it drifts from gc-share.js. -->
 <script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
    page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
