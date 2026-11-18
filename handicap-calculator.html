@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
+<title>Golf Handicap Calculator Australia (GA / WHS 2026)</title>
+<meta name="description" content="Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds: score differentials, best 8 of 20, and the table for fewer than 20 scores.">
+<link rel="canonical" href="https://golfcalculators.com/handicap-calculator">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="golfcalculators.com">
+<meta property="og:title" content="Golf Handicap Calculator Australia (GA / WHS 2026)">
+<meta property="og:description" content="Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds: score differentials, best 8 of 20, and the table for fewer than 20 scores.">
+<meta property="og:url" content="https://golfcalculators.com/handicap-calculator">
+<meta property="og:image" content="https://golfcalculators.com/og/handicap-calculator.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Handicap Index Calculator: Your GA Handicap estimate from your last 20 rounds: WHS best 8 of 20. golfcalculators.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Golf Handicap Calculator Australia (GA / WHS 2026)">
+<meta name="twitter:description" content="Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds: score differentials, best 8 of 20, and the table for fewer than 20 scores.">
+<meta name="twitter:image" content="https://golfcalculators.com/og/handicap-calculator.png">
+<meta name="twitter:image:alt" content="Handicap Index Calculator: Your GA Handicap estimate from your last 20 rounds: WHS best 8 of 20. golfcalculators.com">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). tests/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
+</style>
+<style>
+  .hi-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .hi-lede{color:var(--ink-2);margin:0 0 var(--s3)}
+  .hi-tabs{margin-bottom:var(--s3)}
+  .hi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+  .hi-grid .gc-input{padding:0 var(--s2)}
+  .hi-err{color:var(--danger);font-size:var(--fs-sm);margin-top:var(--s2)}
+  .hi-err:empty{display:none}
+  .hi-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer;font-size:var(--fs-sm)}
+  .hi-pcc{display:grid;grid-template-columns:minmax(0,1fr) 6em;gap:var(--s2);align-items:center}
+  .hi-help{margin-top:var(--s2)}
+  .hi-add{margin-top:var(--s3)}
+  textarea.gc-input{min-height:96px;padding:var(--s2) var(--s3);resize:vertical}
+  .hi-hero .gc-big{font-size:var(--fs-xl)}
+  .hi-sub{margin-top:var(--s2);font-size:var(--fs-sm);opacity:.95}
+  .hi-sub b{font-weight:800}
+  .hi-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .hi-bridge{display:block;margin-top:var(--s3);padding:var(--s3) var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--accent-line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+  .hi-bridge strong{display:block;color:var(--accent)}
+  .hi-bridge span{font-size:var(--fs-sm);color:var(--muted)}
+  .hi-rounds{list-style:none;margin:var(--s2) 0 0;padding:0}
+  .hi-rounds li{display:grid;grid-template-columns:minmax(0,1fr) auto 44px;gap:var(--s2);align-items:center;padding:var(--s1) 0 var(--s1) var(--s2);border-radius:var(--r-sm)}
+  .hi-rounds li+li{margin-top:2px}
+  .hi-rounds li.is-count{background:var(--accent-soft)}
+  .hi-rounds .hi-what{min-width:0;font-size:var(--fs-sm);color:var(--ink-2)}
+  .hi-rounds .hi-what b{color:var(--ink)}
+  .hi-rounds .hi-d{font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+  .hi-rounds .hi-tag{display:block;font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+  .hi-rounds .hi-del{width:44px;min-width:44px;padding:0;color:var(--muted);font-size:var(--fs-lg)}
+  .hi-roundshead{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+  .gc-next[hidden],.hi-own[hidden]{display:none}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn p a{padding:12px 0} /* prose links: 44px tall tap areas without changing the line spacing (v10 P2 polish) */
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
+  .hi-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
+  .hi-view .hi-shared{display:block}
+  .hi-view .hi-own{display:none!important}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px}
+</style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/handicap-calculator#app",
+   "name": "Golf Handicap Calculator",
+   "url": "https://golfcalculators.com/handicap-calculator",
+   "description": "Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds: score differentials, best 8 of 20, and the table for fewer than 20 scores.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en-AU"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/handicap-calculator#faq",
+   "url": "https://golfcalculators.com/handicap-calculator",
+   "inLanguage": "en-AU",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How is a golf handicap calculated?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Each round becomes a Gross Differential: (adjusted gross score − Scratch Rating − PCC) × 113 ÷ Slope Rating, to one decimal place. Your GA Handicap is the average of the lowest 8 of your most recent 20 differentials, rounded to one decimal place (Golf Australia WHS guide, January 2026, §3(B) and §3(C))."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What if I have fewer than 20 rounds?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "You need at least 3. With 3 rounds the lowest counts, minus 2.0; with 4, the lowest minus 1.0; with 5, the lowest; with 6, the lowest 2 averaged, minus 1.0. Then the number counted grows: 2 at 7, 3 at 9, 4 at 12, 5 at 15, 6 at 17, 7 at 19, 8 at 20 (§3(D))."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is a GA Handicap the same as a Handicap Index?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Golf Australia calls the World Handicap System Handicap Index your GA Handicap. Your Daily Handicap is different: it is the strokes you get on one course and set of tees, worked out from your GA Handicap. Use the Daily Handicap calculator for that."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is an adjusted gross score?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Your gross score with each hole capped at net double bogey: par plus 2 plus any strokes you get on that hole. If you played Stableford, it is Par + Daily Handicap + (36 − your points), which is how Golf Australia works it out (§3(B))."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Why might my official GA Handicap differ?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Golf Australia also applies the soft and hard caps on how far it can rise above your Low GA Handicap, exceptional score reductions, the daily PCC and 9-hole score combining. This calculator uses only the rounds you enter, so check the Golf Australia app for your official figure."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the highest handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "54.0. Any calculation above that is capped at 54.0 (Golf Australia WHS guide, §3(E); Rules of Handicapping, Rule 5.3). There is no lower limit: a result below zero is a plus handicap, written with a plus sign, such as +1.2."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do I lower my handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A new round lowers it only if its differential beats one that counts by enough to bring the average down. The calculator shows your next round to beat: the highest differential, and roughly the score at your last course, that would lower your estimate."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/handicap-calculator#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Golf Handicap Calculator",
+     "item": "https://golfcalculators.com/handicap-calculator"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
+     out; never the scores, differentials or the index itself). Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool) {
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    gtag('event', name, { tool: tool });
+    return true;
+  };
+})();
+</script>
+<script>if (/^#d=/.test(location.hash)) document.documentElement.classList.add('hi-view'); // a shared index: read-only, no flash of your own rounds</script>
+</head>
+<body data-gc="handicap-v1">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+<main class="gc-main">
+<div class="gc-card hi-shared" id="hi-shared" role="status"><h2 style="margin:0">Shared Handicap estimate</h2><p class="gc-muted" style="margin-top:var(--s1)">Read-only, from the rounds the sender entered.</p>
+  <button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="hi-own" style="margin-top:var(--s3)">Work out your own</button></div>
+<div class="hi-title"><h1 id="hi-h">Golf handicap calculator</h1><button type="button" class="gc-btn gc-btn-ghost hi-own" id="btn-example">Load example</button></div>
+<p class="hi-lede hi-own">Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds.</p>
+
+<section class="gc-card hi-own" id="entry" aria-labelledby="entry-h">
+  <h2 id="entry-h" class="sr-only">Add your rounds</h2>
+  <div class="gc-seg hi-tabs" role="radiogroup" aria-label="How to add rounds">
+    <label><input type="radio" name="mode" value="round" checked><span>Add a round</span></label>
+    <label><input type="radio" name="mode" value="paste"><span>Paste differentials</span></label>
+  </div>
+  <div id="mode-round">
+    <div class="hi-grid">
+      <div><label class="gc-label" for="score">Score</label><input class="gc-input" id="score" type="text" inputmode="numeric" autocomplete="off" placeholder="88" aria-describedby="score-help"></div>
+      <div><label class="gc-label" for="cr">Scratch</label><input class="gc-input" id="cr" type="text" inputmode="decimal" autocomplete="off" placeholder="71.0" aria-describedby="score-help"></div>
+      <div><label class="gc-label" for="sl">Slope</label><input class="gc-input" id="sl" type="text" inputmode="numeric" autocomplete="off" placeholder="128" aria-describedby="score-help"></div>
+    </div>
+    <details class="hi-more"><summary>PCC (optional)</summary>
+      <div class="hi-pcc"><label class="gc-label" for="pcc" style="margin:0">Playing Conditions Calculation for the day (−1 to +3)</label><input class="gc-input" id="pcc" type="text" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    </details>
+    <p class="hi-err" id="round-err" role="alert"></p>
+    <button type="button" class="gc-btn gc-btn-primary gc-btn-block hi-add" id="btn-add">Add round</button>
+    <p class="gc-muted hi-help" id="score-help">Adjusted gross score (no worse than net double bogey on a hole), and the tees' Scratch and Slope Ratings.</p>
+  </div>
+  <div id="mode-paste" hidden>
+    <label class="gc-label" for="paste">Gross Differentials, oldest first</label>
+    <textarea class="gc-input" id="paste" inputmode="decimal" autocomplete="off" rows="3" placeholder="18.1 20.8 16.4 18.1 21.6 17.3" aria-describedby="paste-help"></textarea>
+    <p class="gc-muted hi-help" id="paste-help">From your handicap record in the Golf Australia app. Spaces, commas or new lines; write a plus differential as +1.2. Replaces the rounds below.</p>
+    <p class="hi-err" id="paste-err" role="alert"></p>
+    <button type="button" class="gc-btn gc-btn-primary gc-btn-block hi-add" id="btn-paste">Use these differentials</button>
+  </div>
+</section>
+
+<section id="result" aria-labelledby="result-h" style="margin-top:var(--s3)">
+  <h2 id="result-h" class="sr-only">Your Handicap Index</h2>
+  <div class="gc-hero hi-hero" id="hero"><p class="gc-kicker">Your estimate</p><p class="gc-big">Add 3 rounds</p><p class="hi-sub">A Handicap Index needs at least 3 scores (WHS Rule 5.2a).</p></div>
+  <div class="hi-actions" id="actions" hidden>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-share">Share</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-copy">Copy link</button>
+  </div>
+  <a class="hi-bridge" id="bridge" href="/daily-handicap" hidden><strong id="bridge-t">Use in Daily Handicap →</strong><span>Today's strokes for your course and tees, Golf Australia formula.</span></a>
+  <p class="gc-muted" style="margin-top:var(--s3)">An estimate: Golf Australia calculates your official GA Handicap, including caps and exceptional score reductions. <a href="#how-h">How it's calculated</a></p>
+  <div class="gc-card" style="margin-top:var(--s3)" id="rounds-card" hidden>
+    <div class="hi-roundshead"><h2 id="rounds-h">Your rounds</h2><button type="button" class="gc-btn gc-btn-ghost hi-own" id="btn-clear">Clear all</button></div>
+    <p class="gc-muted" id="rounds-note" style="margin-top:var(--s1)"></p>
+    <ol class="hi-rounds" id="rounds" aria-labelledby="rounds-h"></ol>
+  </div>
+  <p class="gc-muted gc-fb hi-own" id="fb-after">How did the calculator go? <a href="/feedback?from=handicap-calculator">Send feedback</a></p>
+</section>
+
+<h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
+<div class="gc-next">
+  <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Turn your GA Handicap into today's strokes.</span></a>
+  <a href="/stableford"><strong>Stableford calculator →</strong><span>Score your next round with that handicap.</span></a>
+</div>
+
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Each round becomes a Gross Differential: (adjusted gross score − Scratch Rating − PCC) × 113 ÷ Slope Rating, rounded to one decimal place. Your GA Handicap (the World Handicap System Handicap Index) is the average of the lowest 8 of your most recent 20 differentials, rounded to one decimal place. With fewer than 20 rounds, a smaller number counts:</p>
+  <ul class="gc-learn-list">
+    <li>3 rounds: the lowest 1, minus 2.0. 4 rounds: the lowest 1, minus 1.0. 5 rounds: the lowest 1.</li>
+    <li>6 rounds: the average of the lowest 2, minus 1.0. 7 or 8 rounds: the lowest 2.</li>
+    <li>9 to 11 rounds: the lowest 3. 12 to 14: the lowest 4. 15 or 16: the lowest 5. 17 or 18: the lowest 6. 19: the lowest 7. 20: the lowest 8.</li>
+  </ul>
+  <h3>Worked example</h3>
+  <p>Round 1: a score of <span data-ex="r1-score">92</span> off a Scratch Rating of <span data-ex="r1-cr">71.3</span> and a Slope Rating of <span data-ex="r1-sl">129</span>, with no PCC. <span data-ex="r1-score-b">92</span> − 71.3 = <span data-ex="r1-step">20.7</span>, and 20.7 × 113 ÷ 129 = <span data-ex="r1-raw">18.133</span>, so the Gross Differential is <strong data-ex="r1-diff">18.1</strong>.</p>
+  <p>After <span data-ex="n">8</span> rounds the differentials are <span data-ex="diffs">18.1, 20.8, 16.4, 18.1, 21.6, 17.3, 21.8, 23.6</span>. With 7 or 8 rounds the lowest <span data-ex="count">2</span> count: <span data-ex="low">16.4 and 17.3</span>. Their average is <span data-ex="avg">16.85</span>, which rounds up to:</p>
+  <p class="gc-learn-result">GA Handicap estimate <span data-ex="hi">16.9</span></p>
+  <p>Round 9 lowers it if its differential is <span data-ex="beat">16.8</span> or better, because the lowest 3 of 9 rounds count from then on. Tap <strong>Load example</strong> at the top to see every round.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §3(B) Gross Differential, §3(C) and §3(D) the GA Handicap calculation, §3(E) rounding and the 54.0 limit; <a href="https://www.randa.org/roh/the-rules-of-handicapping/rule-5" rel="noopener">R&amp;A Rules of Handicapping, Rule 5</a>. This is an estimate: Golf Australia calculates your official GA Handicap.</p>
+  <p>Got your GA Handicap? <a href="/daily-handicap">Work out your Daily Handicap for today's tees</a>, then <a href="/stableford">count your Stableford points for the round</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>How is a golf handicap calculated?</h3><p>Each round becomes a Gross Differential: (adjusted gross score − Scratch Rating − PCC) × 113 ÷ Slope Rating, to one decimal place. Your GA Handicap is the average of the lowest 8 of your most recent 20 differentials, rounded to one decimal place (Golf Australia WHS guide, January 2026, §3(B) and §3(C)).</p></div>
+  <div class="gc-faq-item"><h3>What if I have fewer than 20 rounds?</h3><p>You need at least 3. With 3 rounds the lowest counts, minus 2.0; with 4, the lowest minus 1.0; with 5, the lowest; with 6, the lowest 2 averaged, minus 1.0. Then the number counted grows: 2 at 7, 3 at 9, 4 at 12, 5 at 15, 6 at 17, 7 at 19, 8 at 20 (§3(D)).</p></div>
+  <div class="gc-faq-item"><h3>Is a GA Handicap the same as a Handicap Index?</h3><p>Yes. Golf Australia calls the World Handicap System Handicap Index your GA Handicap. Your Daily Handicap is different: it is the strokes you get on one course and set of tees, worked out from your GA Handicap. Use the <a href="/daily-handicap">Daily Handicap calculator</a> for that.</p></div>
+  <div class="gc-faq-item"><h3>What is an adjusted gross score?</h3><p>Your gross score with each hole capped at net double bogey: par plus 2 plus any strokes you get on that hole. If you played Stableford, it is Par + Daily Handicap + (36 − your points), which is how Golf Australia works it out (§3(B)).</p></div>
+  <div class="gc-faq-item"><h3>Why might my official GA Handicap differ?</h3><p>Golf Australia also applies the soft and hard caps on how far it can rise above your Low GA Handicap, exceptional score reductions, the daily PCC and 9-hole score combining. This calculator uses only the rounds you enter, so check the Golf Australia app for your official figure.</p></div>
+  <div class="gc-faq-item"><h3>What is the highest handicap?</h3><p>54.0. Any calculation above that is capped at 54.0 (Golf Australia WHS guide, §3(E); Rules of Handicapping, Rule 5.3). There is no lower limit: a result below zero is a plus handicap, written with a plus sign, such as +1.2.</p></div>
+  <div class="gc-faq-item"><h3>How do I lower my handicap?</h3><p>A new round lowers it only if its differential beats one that counts by enough to bring the average down. The calculator shows your next round to beat: the highest differential, and roughly the score at your last course, that would lower your estimate.</p></div>
+<!-- seo:content:end --></section>
+</main>
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer"><a href="/feedback?from=handicap-calculator">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<script>
+(function () {
+/* Handicap Index engine (v10 P1). Rules: WHS Rules of Handicapping (R&A/USGA, 2024) Rule 5.1, 5.2a, 5.2b, 5.3, as
+   applied in Australia by Golf Australia, WHS Official reference guide for Australian administrators, Edition
+   January 2026, §3(B) Gross Differential, §3(C) 20 or more scores, §3(D) fewer than 20 scores, §3(E) rounding + 54.0. */
+var TABLE = { 3: [1, -2], 4: [1, -1], 5: [1, 0], 6: [2, -1], 7: [2, 0], 8: [2, 0], 9: [3, 0], 10: [3, 0], 11: [3, 0], 12: [4, 0], 13: [4, 0], 14: [4, 0], 15: [5, 0], 16: [5, 0], 17: [6, 0], 18: [6, 0], 19: [7, 0], 20: [8, 0] };
+function r1(x) { var v = Math.round(+(x * 10).toFixed(6)) / 10; return v === 0 ? 0 : v; } // GA §3(B)/(E): 0.35 -> 0.4, +0.35 (i.e. -0.35) -> +0.3
+function diffOf(r) { // §3(B): (AGS - (Scratch Rating + PCC)) x (113 / Slope Rating), to 1 dp; or a differential entered directly
+  if (r && r.d != null) return r1(+r.d);
+  return r1((r.s - (r.cr + (r.pcc || 0))) * 113 / r.sl);
+}
+function calc(rounds) { // rounds oldest first; only the most recent 20 count (§3(C), Rule 5.2b)
+  var recent = rounds.slice(-20), diffs = recent.map(diffOf), n = diffs.length;
+  if (n < 3) return { n: n, diffs: diffs, index: null, need: 3 - n };
+  var t = TABLE[n], order = diffs.map(function (d, i) { return { d: d, i: i }; }).sort(function (a, b) { return a.d - b.d || b.i - a.i; }); // ties: the more recent round counts
+  var use = order.slice(0, t[0]), sum = use.reduce(function (s, x) { return s + x.d; }, 0), avg = sum / t[0];
+  var index = Math.min(54, r1(avg + t[1]));
+  return { n: n, diffs: diffs, count: t[0], adj: t[1], avg: avg, index: index, counting: use.map(function (x) { return x.i; }).sort(function (a, b) { return a - b; }), capped: r1(avg + t[1]) > 54 };
+}
+function nextToBeat(rounds) { // the highest differential (1 dp) for the next round that lowers the index; null if none in -20..60
+  var now = calc(rounds); if (now.index == null) return null;
+  for (var k = 600; k >= -200; k--) { var x = k / 10, r = calc(rounds.concat([{ d: x }])); if (r.index < now.index) return { d: x, any: k === 600 }; }
+  return null;
+}
+function scoreFor(d, cr, sl, pcc) { // the highest whole gross score whose differential is d or lower at these ratings
+  var best = null; for (var s = 40; s <= 200; s++) if (diffOf({ s: s, cr: cr, sl: sl, pcc: pcc || 0 }) <= d) best = s; return best;
+}
+
+function fmt(x) { return x < 0 ? '+' + (-x).toFixed(1) : x.toFixed(1); } // GA writes plus handicaps and differentials with a +
+function parseDiff(t) { // "+1.2" is a plus differential (-1.2); "-1.2" is read the same way
+  var m = /^([+\-\u2212]?)(\d{1,2}(?:\.\d)?)$/.exec(String(t).trim()); if (!m) return null;
+  var v = +m[2]; if (v > 60) return null; return m[1] ? -v : v;
+}
+var EXAMPLE = [[92, 71.3, 129], [95, 71.3, 129], [90, 71.3, 129], [93, 72, 131], [97, 72, 131], [92, 72, 131], [94, 70.1, 124], [96, 70.1, 124]].map(function (a) { return { s: a[0], cr: a[1], sl: a[2] }; });
+
+window.GCHandicap = { TABLE: TABLE, r1: r1, diffOf: diffOf, calc: calc, nextToBeat: nextToBeat, scoreFor: scoreFor, fmt: fmt, parseDiff: parseDiff, EXAMPLE: EXAMPLE };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_handicap_v1', URL = 'https://golfcalculators.com/handicap-calculator';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function cleanRound(r) {
+  if (!r || typeof r !== 'object') return null;
+  if (r.d != null) { var d = +r.d; return isFinite(d) && d >= -20 && d <= 60 ? { d: r1(d) } : null; }
+  var s = +r.s, cr = +r.cr, sl = +r.sl, p = +(r.pcc || 0);
+  return s === Math.round(s) && s >= 30 && s <= 200 && cr >= 50 && cr <= 85 && sl === Math.round(sl) && sl >= 55 && sl <= 155 && [-1, 0, 1, 2, 3].indexOf(p) >= 0 ? { s: s, cr: r1(cr), sl: sl, pcc: p } : null;
+}
+function load() { try { var o = JSON.parse(localStorage.getItem(KEY) || '{}'); return { rounds: (Array.isArray(o.rounds) ? o.rounds : []).map(cleanRound).filter(Boolean).slice(-20), last: o.last && typeof o.last === 'object' ? o.last : {} }; } catch (e) { return { rounds: [], last: {} }; } }
+var VIEW = null; // a shared index (#d=): read-only rounds, never saved
+var S = load();
+function save() { if (VIEW) return; try { localStorage.setItem(KEY, JSON.stringify({ v: 1, rounds: S.rounds, last: S.last })); } catch (e) {} }
+function rounds() { return VIEW || S.rounds; }
+function track(name) { if (window.gcTrack) gcTrack(name, 'handicap'); } // anonymous: the event and the tool only, never scores or the index
+var CALCED = false, EXAMPLE_ON = false;
+
+function render() {
+  var rs = rounds(), r = calc(rs), hero = $('hero'), nx = r.index != null ? nextToBeat(rs) : null;
+  if (r.index == null) {
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared estimate' : 'Your estimate') + '</p><p class="gc-big">' + (r.n ? 'Add ' + r.need + ' more round' + (r.need === 1 ? '' : 's') : 'Add 3 rounds') + '</p><p class="hi-sub">A Handicap Index needs at least 3 scores (WHS Rule 5.2a).</p>';
+  } else {
+    var basis = r.n >= 20 ? 'best 8 of 20' : (r.count === 1 ? 'lowest' : 'best ' + r.count) + ' of ' + r.n + (r.adj ? ', ' + (r.adj < 0 ? '\u2212' : '+') + Math.abs(r.adj).toFixed(1) : '');
+    var last = null; for (var i = rs.length - 1; i >= 0; i--) if (rs[i].d == null) { last = rs[i]; break; }
+    var beat = '';
+    if (nx && nx.any) beat = 'Your next round lowers it whatever you score (the table changes at ' + (Math.min(r.n, 19) + 1) + ' rounds).';
+    else if (nx) { var sc = last ? scoreFor(nx.d, last.cr, last.sl, last.pcc) : null;
+      beat = 'Next round to beat: a differential of <b>' + fmt(nx.d) + '</b> or better' + (sc ? ' (about <b>' + sc + '</b> or better off ' + last.cr.toFixed(1) + ' / ' + last.sl + ')' : '') + '.'; }
+    else beat = 'One round can\'t lower it next time: your oldest counting round drops out.';
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared estimate' : 'Estimated GA Handicap') + ' \u00b7 ' + basis + '</p><p class="gc-big" id="hi-out">' + fmt(r.index) + '</p>' +
+      '<p class="hi-sub">' + beat + '</p>' + (r.capped ? '<p class="hi-sub">Capped at 54.0, the maximum (Rule 5.3).</p>' : '');
+    if (!VIEW && !EXAMPLE_ON && !CALCED) { CALCED = true; track('hi_calculate'); }
+  }
+  $('actions').hidden = r.index == null;
+  var br = $('bridge'); br.hidden = r.index == null || !!VIEW;
+  if (r.index != null) { br.href = '/daily-handicap?ga=' + encodeURIComponent(fmt(r.index).replace(/\.0$/, '')); $('bridge-t').textContent = 'Use ' + fmt(r.index) + ' in Daily Handicap \u2192'; }
+  $('rounds-card').hidden = !rs.length;
+  var cnt = r.counting || [], first = rounds().length - r.n; // only the latest 20 are in r
+  $('rounds-note').textContent = r.index == null ? rs.length + ' of at least 3 rounds.' : 'Highlighted: the ' + cnt.length + ' round' + (cnt.length === 1 ? '' : 's') + ' that count' + (cnt.length === 1 ? 's' : '') + '. Oldest first; only the latest 20 count.';
+  $('rounds').innerHTML = rs.map(function (x, i) {
+    var k = i - first, counts = k >= 0 && cnt.indexOf(k) >= 0, d = diffOf(x);
+    var what = x.d != null ? '<b>Round ' + (i + 1) + '</b> \u00b7 differential entered' : '<b>Round ' + (i + 1) + '</b> \u00b7 ' + x.s + ' off ' + x.cr.toFixed(1) + ' / ' + x.sl + (x.pcc ? ', PCC ' + (x.pcc > 0 ? '+' : '\u2212') + Math.abs(x.pcc) : '');
+    return '<li' + (counts ? ' class="is-count"' : '') + '><span class="hi-what">' + what + '</span><span class="hi-d">' + fmt(d) + (counts ? '<span class="hi-tag">Counts</span>' : '') + '</span>' +
+      (VIEW ? '<span></span>' : '<button type="button" class="gc-btn gc-btn-ghost hi-del" data-del="' + i + '" aria-label="Delete round ' + (i + 1) + '">\u00d7</button>') + '</li>';
+  }).join('');
+  $('btn-example').hidden = !!rs.length || !!VIEW;
+}
+function num(id) { return $(id).value.trim().replace(',', '.'); }
+function addRound() {
+  var s = num('score'), cr = num('cr'), sl = num('sl'), p = num('pcc') || '0', err = '';
+  if (!/^\d{2,3}$/.test(s) || +s < 30 || +s > 200) err = 'Enter your adjusted gross score, e.g. 88.';
+  else if (!/^\d{2}(\.\d)?$/.test(cr) || +cr < 50 || +cr > 85) err = 'Enter the Scratch Rating from the scorecard, e.g. 71.0.';
+  else if (!/^\d{2,3}$/.test(sl) || +sl < 55 || +sl > 155) err = 'Enter the Slope Rating (55 to 155), e.g. 128.';
+  else if (!/^[+]?-?[0-3]$/.test(p) || +p < -1 || +p > 3) err = 'PCC is a whole number from \u22121 to +3, usually 0.';
+  $('round-err').textContent = err;
+  if (err) return false;
+  EXAMPLE_ON = false;
+  S.rounds.push({ s: +s, cr: r1(+cr), sl: +sl, pcc: +p }); S.rounds = S.rounds.slice(-20);
+  S.last = { cr: cr, sl: sl }; $('score').value = ''; $('pcc').value = '';
+  save(); render(); return true;
+}
+function usePaste() {
+  var parts = $('paste').value.split(/[\s,;]+/).filter(Boolean), out = [], bad = null;
+  parts.forEach(function (t) { var v = parseDiff(t); if (v == null) bad = bad || t; else out.push({ d: v }); });
+  var err = bad != null ? '\u201c' + bad.slice(0, 12) + '\u201d isn\'t a differential. Use numbers like 18.1 or +1.2.' : !out.length ? 'Paste at least 3 differentials.' : '';
+  $('paste-err').textContent = err;
+  if (err) return false;
+  EXAMPLE_ON = false;
+  S.rounds = out.slice(-20); save(); render();
+  if (out.length > 20) toast('Only the latest 20 count: the oldest ' + (out.length - 20) + ' dropped');
+  return true;
+}
+function setMode(m) { $('mode-round').hidden = m !== 'round'; $('mode-paste').hidden = m !== 'paste'; }
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; }
+function shareLink() { // #d= the differentials in tenths, oldest first (no scores, names or ratings); GA never sees the fragment
+  var r = calc(rounds()); if (r.index == null) return linkBase();
+  return linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=handicap#d=' + r.diffs.map(function (d) { return Math.round(d * 10); }).join('.');
+}
+function shareText() {
+  var r = calc(rounds());
+  return ['My estimated GA Handicap: ' + fmt(r.index), (r.n >= 20 ? 'Best 8 of my last 20 rounds' : 'From ' + r.n + ' rounds') + ' (WHS). Golf Australia calculates the official one.', 'Work out yours: ' + shareLink()].join('\n');
+}
+function share() {
+  track('result_shared');
+  var text = shareText();
+  if (navigator.share) return navigator.share({ title: 'My GA Handicap estimate', text: text }).catch(function () {});
+  return copyText(text, 'Copied');
+}
+function copyText(t, msg) {
+  window._copied = t;
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { toast(msg); }, function () { toast('Copy failed'); });
+  toast(msg); return Promise.resolve();
+}
+function fromHash(h) { // whitelist: 3 to 20 differentials in tenths, -20.0..60.0
+  var m = /^#d=(-?\d{1,3}(?:\.-?\d{1,3}){2,19})$/.exec(h || ''); if (!m) return null;
+  var out = m[1].split('.').map(function (x) { return +x / 10; });
+  return out.every(function (d) { return d >= -20 && d <= 60; }) ? out.map(function (d) { return { d: d }; }) : null;
+}
+function leaveView() { VIEW = null; document.documentElement.classList.remove('hi-view'); if (history.replaceState) history.replaceState(null, '', location.pathname); render(); }
+
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'btn-add') addRound();
+  else if (t.id === 'btn-paste') usePaste();
+  else if (t.id === 'btn-share') share();
+  else if (t.id === 'btn-copy') { track('result_shared'); copyText(shareLink(), 'Link copied'); }
+  else if (t.id === 'btn-example') { S.rounds = EXAMPLE.map(function (x) { return { s: x.s, cr: x.cr, sl: x.sl, pcc: 0 }; }); EXAMPLE_ON = true; save(); render(); }
+  else if (t.id === 'btn-clear') { if (confirm('Clear all your rounds on this device?')) { S.rounds = []; EXAMPLE_ON = false; save(); render(); } }
+  else if (t.id === 'hi-own') leaveView();
+  else if (t.dataset.del != null) { S.rounds.splice(+t.dataset.del, 1); save(); render(); }
+});
+document.addEventListener('change', function (e) { if (e.target.name === 'mode') setMode(e.target.value); });
+['score', 'cr', 'sl', 'pcc'].forEach(function (id) { $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addRound(); } }); });
+if (S.last.cr) $('cr').value = S.last.cr;
+if (S.last.sl) $('sl').value = S.last.sl;
+var shared = fromHash(location.hash);
+if (shared) { VIEW = shared; track('shared_link_opened'); }
+else if (/^#d=/.test(location.hash)) { document.documentElement.classList.remove('hi-view'); toast('That shared link is damaged'); }
+render();
+window.GCHandicapUI = { state: function () { return S; }, render: render, addRound: addRound, usePaste: usePaste, share: share, shareText: shareText, shareLink: shareLink, viewing: function () { return !!VIEW; }, leaveView: leaveView };
+})();
+</script>
+</body>
+</html>

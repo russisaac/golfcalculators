@@ -188,11 +188,12 @@
    - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
    - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
      carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
-   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
-     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
+     out; never the scores, differentials or the index itself). Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -268,6 +269,7 @@
       <div id="parErr" class="error" style="display:none"></div>
     </div>
   </div>
+  <p class="trust" id="hi-link">No GA Handicap yet? <a href="/handicap-calculator" style="display:inline-flex;align-items:center;min-height:44px">Estimate it from your rounds</a></p>
   <p class="trust">Formula: ((GA Handicap × Slope ÷ 113) + (Scratch − Par)) × 0.93 × Consistency Factor. <a href="https://www.golf.org.au/your-handicap-has-changed/" target="_blank" rel="noopener">Golf Australia guide</a></p>
 </div>
 
@@ -295,7 +297,7 @@
   </ol>
   <p>The calculator keeps full precision until the final rounding. The steps above are shown to 3 decimal places.</p>
   <p class="gc-learn-src" id="rules-source">Source: Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §3H (Daily Handicap formulas and rounding).</p>
-  <p>Got your strokes? <a href="/stableford">Count your Stableford points</a>, or <a href="/skins">settle skins with your group</a>.</p>
+  <p>Got your strokes? <a href="/stableford">Count your Stableford points</a>, or <a href="/skins">settle skins with your group</a>. No GA Handicap yet? <a href="/handicap-calculator">Estimate your GA Handicap from your rounds</a>.</p>
 
   <h2 id="faq-h">Frequently asked questions</h2>
   <div class="gc-faq-item"><h3>What is a Daily Handicap?</h3><p>It is the number of strokes you receive for one round on a particular course and set of tees. It comes from your GA Handicap, the tees' Slope Rating and Scratch Rating, and Par. Your GA Handicap stays the same, but your Daily Handicap changes with the course and tees.</p></div>
@@ -436,11 +438,14 @@ function loadSaved() {
     if (s.holes) document.getElementById('holes').value = s.holes;
     if (/[?&]from=(stableford|skins)(&|$)/.test(location.search) && /[?&]holes=9(&|$)/.test(location.search)) document.getElementById('holes').value = '9'; // a Stableford or Skins player's 9-hole link
     if (s.ga) document.getElementById('ga').value = s.ga;
+    const qGa = (location.search.match(/[?&]ga=([^&]*)/) || [])[1]; // v10: "Use in Daily Handicap" from /handicap-calculator
+    if (qGa != null) { const g = decodeURIComponent(qGa.replace(/\+/g, '%2B')).trim(); if (GA_RE.test(g)) { document.getElementById('ga').value = g; document.getElementById('plusToggle').setAttribute('aria-pressed', String(g.startsWith('+'))); } }
     if (s.slope) document.getElementById('slope').value = s.slope;
     if (s.scratch) document.getElementById('scratch').value = s.scratch;
     if (s.par) document.getElementById('par').value = s.par;
     updateLabels();
-    if (s.ga && s.slope && s.scratch && s.par) calculate();
+    const gaNow = document.getElementById('ga').value;
+    if (gaNow && s.slope && s.scratch && s.par) calculate();
   } catch(e) {}
 }
 
