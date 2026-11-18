@@ -6,6 +6,11 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Golf Skins Calculator – Carryovers &amp; Who Pays Whom</title>
 <meta name="description" content="Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.">
 <link rel="canonical" href="https://golfcalculators.com/skins">
@@ -127,6 +132,11 @@ a{color:var(--accent)}
 /* v9 P4 feedback: "Send feedback" line after a result */
 .gc-fb{margin-top:var(--s3)}
 .gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
 </style>
 
 <script>
@@ -512,6 +522,7 @@ a{color:var(--accent)}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
   <p class="gc-muted gc-fb" id="fb-after">How did the calculator go? <a href="/feedback?from=skins">Send feedback</a></p>
+  <div class="gc-card sk-pad gc-a2hs" id="a2hs" role="region" aria-label="Add to Home Screen" style="margin-top:var(--s3)" hidden></div>
   <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0.<span class="gc-own-only"> Your players and scores are saved on this device only.</span></p>
   <p class="gc-muted" style="margin-top:var(--s2)">Scoring: common club format (skins have no governing rulebook). <a href="#how-h">How it's calculated</a></p>
   <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
@@ -698,6 +709,49 @@ a{color:var(--accent)}
   }
   function par(c) { return c.par.reduce(function (s, x) { return s + x; }, 0); }
   window.GCCourses = { KEY: KEY, clean: clean, key: key, label: label, list: list, find: find, put: put, remove: remove, diff: diff, par: par, listHtml: listHtml, esc: esc };
+})();
+</script>
+<!-- Add to Home Screen tip (v9 P5): verbatim copy of /gc-a2hs.js. tests/run fails if it drifts from gc-a2hs.js. -->
+<script data-src="/gc-a2hs.js">/* gc-a2hs.js: golfcalculators.com "Add to Home Screen" tip (v9 P5, Nov 2026). Inlined verbatim into Skins and
+   Stableford as <script data-src="/gc-a2hs.js">; tests/run fails if a copy drifts from this file.
+   Shown once, below a result (low on the page, so it never shifts the result when the prompt arrives late), in #a2hs: on iPhone/iPad Safari ("tap Share, then Add to Home Screen")
+   or where the browser offers an install prompt (Android Chrome: beforeinstallprompt). Never when the site is
+   already open from the home screen. Dismissed, installed or shown once = never again (localStorage gc_a2hs_v1).
+   No service worker, no network, nothing sent anywhere. */
+(function () {
+  var KEY = 'gc_a2hs_v1', deferred = null, showing = false;
+  function get() { try { return localStorage.getItem(KEY); } catch (e) { return 'x'; } }
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function standalone() { return navigator.standalone === true || !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+  function iosSafari() {
+    var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return ios && /Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|FBAN|FBAV|Instagram|Line\//.test(ua);
+  }
+  function mode() { return deferred ? 'prompt' : iosSafari() ? 'ios' : null; }
+  var SHARE = '<svg class="gc-a2hs-ico" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 2v10M6 6l4-4 4 4M4 9v8h12V9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function hide(el) { el.hidden = true; el.innerHTML = ''; showing = false; }
+  function render() { // call after a result is on screen
+    var el = document.getElementById('a2hs'); if (!el) return;
+    var m = mode();
+    if (!m || standalone() || (get() && !showing)) { hide(el); return; }
+    if (!showing) set('shown'); // one-time: it is not offered again on a later visit
+    showing = true; el.hidden = false; el.setAttribute('data-mode', m);
+    el.innerHTML = '<p class="gc-a2hs-t"><strong>Keep it on your phone</strong></p>' +
+      (m === 'ios' ? '<p class="gc-a2hs-p">Tap Share ' + SHARE + ' at the bottom of Safari, then <b>Add to Home Screen</b>. It opens like an app, ready for the next round.</p>' :
+        '<p class="gc-a2hs-p">Add Golf Calculators to your home screen. It opens like an app, ready for the next round.</p>') +
+      '<div class="gc-a2hs-b">' + (m === 'prompt' ? '<button type="button" class="gc-btn gc-btn-primary" id="a2hs-add">Add to Home Screen</button>' : '') +
+      '<button type="button" class="gc-btn gc-btn-ghost" id="a2hs-no">' + (m === 'prompt' ? 'Not now' : 'Got it') + '</button></div>';
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#a2hs-add, #a2hs-no'), el = document.getElementById('a2hs'); if (!b || !el) return;
+    if (b.id === 'a2hs-no') { set('dismissed'); hide(el); return; }
+    var d = deferred; deferred = null; if (!d) { hide(el); return; }
+    d.prompt(); hide(el);
+    if (d.userChoice && d.userChoice.then) d.userChoice.then(function (c) { set(c && c.outcome === 'accepted' ? 'installed' : 'dismissed'); }, function () {});
+  });
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; var el = document.getElementById('a2hs'); if (el && el.parentElement && !el.parentElement.closest('[hidden]')) render(); }); // a result is on screen now
+  window.addEventListener('appinstalled', function () { set('installed'); deferred = null; var el = document.getElementById('a2hs'); if (el) hide(el); });
+  window.GCA2HS = { render: render, mode: mode, standalone: standalone, KEY: KEY };
 })();
 </script>
 <script>
@@ -951,6 +1005,7 @@ function show(screen, focus) {
   if (screen === 'setup') renderSetup();
   if (screen === 'hole') renderHole();
   if (screen === 'result') renderResult();
+  if (window.GCA2HS) { if (screen === 'result') GCA2HS.render(); else $('a2hs').hidden = true; } // v9 P5 one-time Add to Home Screen tip
   if (focus) { window.scrollTo(0, 0); var hd = $(screen === 'setup' ? 'setup-h' : screen === 'hole' ? 'hole-h' : 'result-h'); if (hd) hd.focus({ preventScroll: true }); }
 }
 

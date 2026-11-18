@@ -402,6 +402,19 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P4 privacy: feedback form section',w,'/privacy',async p=>{await p.evaluate(()=>document.getElementById('feedback').scrollIntoView());},`v9-p4-privacy-feedback-${sz}.png`,hgt);
     }
   }
+  // v9 P5 Add to Home Screen: the one-time tip after a result (iPhone Safari wording, Android install prompt)
+  if(fs.existsSync(path.join(SITE,'gc-a2hs.js'))){
+    const IPH='Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
+    const tip=(ui,mode)=>async p=>{await p.evaluate(([ui,mode,IPH])=>{localStorage.removeItem('gc_a2hs_v1');
+      if(mode==='ios')Object.defineProperty(navigator,'userAgent',{get:()=>IPH});else{const e=new Event('beforeinstallprompt',{cancelable:true});e.prompt=()=>{};e.userChoice=Promise.resolve({outcome:'dismissed'});dispatchEvent(e);}
+      window[ui].loadExample();},[ui,mode,IPH]);await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('a2hs').scrollIntoView({block:'end'}));};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P5 skins result: Add to Home Screen tip (iPhone)',w,'/skins',tip('GCSkinsUI','ios'),`v9-p5-skins-tip-iphone-${sz}.png`,hgt);
+      await check('v9 P5 skins result: Add to Home Screen tip (Android)',w,'/skins',tip('GCSkinsUI','android'),`v9-p5-skins-tip-android-${sz}.png`,hgt);
+      await check('v9 P5 stableford result: Add to Home Screen tip (iPhone)',w,'/stableford',tip('GCStablefordUI','ios'),`v9-p5-stableford-tip-iphone-${sz}.png`,hgt);
+      await check('v9 P5 stableford result: Add to Home Screen tip (Android)',w,'/stableford',tip('GCStablefordUI','android'),`v9-p5-stableford-tip-android-${sz}.png`,hgt);
+    }
+  }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
   // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
   if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){

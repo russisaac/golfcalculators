@@ -6,6 +6,12 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
 <title>Send Feedback | golfcalculators.com</title>
 <meta name="description" content="Tell us what worked, what didn't and what you'd want next on the free golf calculators. One minute; email optional.">
 <link rel="canonical" href="https://golfcalculators.com/feedback">
@@ -126,6 +132,11 @@ a{color:var(--accent)}
 /* v9 P4 feedback: "Send feedback" line after a result */
 .gc-fb{margin-top:var(--s3)}
 .gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
 </style>
 <style>
 .fb h1{font-size:var(--fs-xl);margin:var(--s2) 0 var(--s2)}
