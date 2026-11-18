@@ -35,12 +35,17 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // Netlify injects a feedback drawer (/.netlify/scripts/cdp, a fixed iframe) into Deploy Preview URLs only;
   // block it so previews are tested as production serves them.
   async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});await ctx.route('**/.netlify/scripts/**',r=>r.abort());return ctx.newPage();}
-  // A scrolled check must not leave a control half under the sticky header: axe then reports that control as
-  // "partially obscured" (target-size), which says where the test scrolled, not how big the target is. Nudge the page
-  // so any control straddling the header's bottom edge sits fully below it (a few px; every target is still checked).
+  // A scrolled check must not leave a control partly under the sticky header: axe then reports it as "partially
+  // obscured" (target-size), which says where the test scrolled, not how big the target is. axe also counts any part
+  // above the viewport top as unobscured, so a 48px control at -6..42 under a 49px header "has 6px". Move the page by
+  // the smallest amount (up to 160px either way) after which every control is fully below the header, fully under it,
+  // or fully above the viewport. Every target is still checked; only the test's resting scroll position changes.
   async function restClear(p){await p.evaluate(()=>{const hd=document.querySelector('.gc-header');if(!hd||getComputedStyle(hd).position!=='sticky'||scrollY===0)return;
-    for(let i=0;i<6;i++){const hb=hd.getBoundingClientRect().bottom;const t=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].find(e=>{if(hd.contains(e)||!e.offsetParent)return false;const r=e.getBoundingClientRect();return r.height>0&&r.top<hb&&r.bottom>hb;});
-      if(!t)return;window.scrollBy(0,t.getBoundingClientRect().top-hb-8);}});await p.waitForTimeout(50);}
+    const hb=hd.getBoundingClientRect().bottom,maxY=document.documentElement.scrollHeight-innerHeight;
+    const pinned=e=>{for(let a=e;a&&a!==document.body;a=a.parentElement){const ps=getComputedStyle(a).position;if(ps==='fixed'||ps==='sticky')return true;}return false;};
+    const rs=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].filter(e=>e.offsetParent&&!pinned(e)).map(e=>e.getBoundingClientRect()).filter(r=>r.height>0);
+    const ok=d=>rs.every(r=>{const t=r.top-d,b=r.bottom-d;return b<=0||t>=hb||(t>=0&&b<=hb);});
+    if(ok(0))return;for(let k=1;k<=160;k++)for(const d of [-k,k]){const y=scrollY+d;if(y<0||y>maxY)continue;if(ok(d)){window.scrollTo(0,y);return;}}});await p.waitForTimeout(50);}
   async function check(name,w,url,prep,shot,hgt){
     const p=await page(w,hgt||812);const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base+url,{waitUntil:'load'});if(prep)await prep(p);await p.waitForTimeout(250);
