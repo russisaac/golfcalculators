@@ -27,7 +27,7 @@ ok('banner markup identical in both pages (only the error card\'s sr-only H1 nam
 const acts=s=>(s.match(/<div class="gc-view-actions" id="view-actions">.*?<\/div><\/div>/)||[''])[0];
 ok('viewer actions identical in both pages: Start your own round (primary), then Share result and Copy link (secondary links)',acts(src)===acts(sfSrc)&&/gc-btn-primary gc-btn-block" id="gc-own">Start your own round<\/button><div class="gc-view-links"><button type="button" class="gc-btn gc-btn-ghost" id="gc-reshare">Share result<\/button><button type="button" class="gc-btn gc-btn-ghost" id="gc-copy">Copy link</.test(acts(src)));
 ok('…pre-rendered directly under the result (#hero) on both pages',[src,sfSrc].every(s=>/<div class="gc-hero" id="hero"><\/div>\n  <div class="gc-view-actions" id="view-actions">/.test(s)));
-ok('a head script marks #r= pages before first paint; GA page_location stripped (same as Stableford)',/<script>if \(\/\^#r=\/\.test\(location\.hash\)\) document\.documentElement\.classList\.add\('gc-view', 'gc-wait'\)/.test(src)&&/gtag\('config', 'G-DH32H3GWKE', gaStrip\(\)\)/.test(src));
+ok('a head script marks #r= pages before first paint; GA page_location stripped (same as Stableford)',/<script>if \(\/\^#r=\/\.test\(location\.hash\)\) document\.documentElement\.classList\.add\('gc-view', 'gc-wait'\)/.test(src)&&/<script data-src="\/gc-ga\.js">/.test(src)&&/page_location: pageLocation\(\)/.test(src));
 
 // ---- round trip: 300 random rounds per tag ----
 const rnd=(()=>{let s=4242;return n=>{s=(s*1103515245+12345)%2147483648;return s%n;};})();
@@ -66,9 +66,9 @@ later(async()=>{const ex=E.exampleState(),link=linkOf(E.toPayload(ex)),reads=[];
   ok('Edit scores, New round, the primary Share button, the playoff picker and "saved on this device" are hidden',['own-actions','share-row','playoff'].every(id=>cs(h.$(id))==='none')&&[...h.d.querySelectorAll('#scr-result .gc-own-only')].every(e=>cs(e)==='none'));
   ok('your saved round (and the legacy key) were never read while opening the link',!reads.includes(KEY)&&!reads.includes(LEGACY),reads.join());
   let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};h.$('gc-reshare').click();await new Promise(r=>setTimeout(r,5));
-  ok('Share result (secondary) re-shares the same link, unchanged, as the last line',!!shared&&shared.text.split('\n').pop()==='Settled at '+link&&shared.url===undefined,shared&&shared.text);
+  ok('Share result (secondary) re-shares the same link, unchanged, as the last line',!!shared&&shared.text.split('\n').pop()==='Settled at '+link.replace('#r=','?utm_source=share&utm_medium=link&utm_campaign=skins#r=')&&shared.url===undefined,shared&&shared.text);
   let copied=null;Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:t=>{copied=t;return Promise.resolve();}},configurable:true});h.$('gc-copy').click();await new Promise(r=>setTimeout(r,5));
-  ok('Copy link copies exactly the link',copied===link,copied);
+  ok('Copy link copies exactly the link (with the share utm_* tags before #r=, v9 P6)',copied===link.replace('#r=','?utm_source=share&utm_medium=link&utm_campaign=skins#r='),copied);
   ok('localStorage byte-identical after opening, sharing and copying',h.w.localStorage.getItem(KEY)===mine&&h.w.localStorage.getItem(LEGACY)==='{"names":["Old"]}'&&h.w.localStorage.length===2);
   const re=open({url:link,storage:{[KEY]:mine}});await re.w.GCSkinsUI.opened();ok('reload (same URL) stays in viewer mode',re.w.GCSkinsUI.viewing()&&!re.$('scr-result').hidden);
   h.$('gc-own').click();

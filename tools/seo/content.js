@@ -33,7 +33,8 @@ module.exports = {
       ['What happens to skins still carried after the 18th?', 'Your group decides before the round. Common choices are that nobody wins them, or that a playoff, such as a chip-off or an extra hole, decides who takes them all. Both are under More options, and the calculator asks for the playoff winner when one is needed.'],
       ['How much should a skin be worth?', 'Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.'],
       ['How are skins payouts split?', 'Each player\'s balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.'],
-      ['How are handicap strokes given in net skins?', 'Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player\'s 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one.', {text:'Daily Handicap calculator', href:'/daily-handicap'}]
+      ['How are handicap strokes given in net skins?', 'Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player\'s 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one.', {text:'Daily Handicap calculator', href:'/daily-handicap'}],
+      ['Can players on different tees play skins together?', 'Yes. Each player gets shots by their own tee\'s stroke index, and a hole is decided on net score against each player\'s own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup.']
     ]
   },
   stableford: {
@@ -60,6 +61,7 @@ module.exports = {
       ['How does Stableford work over 9 holes?', 'Use your 9-hole Daily Handicap, which is usually about half your 18-hole one. Your shots go to the 9 holes in order of their 18-hole stroke index, lowest first. A 9-hole countback compares the last 6 holes, then the last 3, then hole by hole from the 9th (Golf Australia, §3H and §11).'],
       ['What is a good Stableford score?', 'Two points a hole is net par, so 36 points over 18 holes means you played exactly to your handicap. Anything above 36 is better than your handicap, and below 36 is worse. Over 9 holes, 18 points is playing to handicap.'],
       ['What if players are still tied after the countback?', 'If the last 9, last 6 and last 3 holes and every single hole are all level, the calculator shows the players as tied after countback (joint). Golf Australia says the Terms of the Competition should say what happens then, such as a shared prize or a playoff (WHS reference guide, January 2026, §11).'],
+      ['What if players are on different tees?', 'Each player scores points from their own tee\'s par and stroke index, and no extra strokes are added for the par difference (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup, enter the second tee\'s card, and pick each player\'s tee.'],
     ]
   },
   'daily-handicap': {

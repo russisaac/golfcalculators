@@ -6,6 +6,12 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
 <title>Daily Handicap Calculator Australia (Golf Australia 2026)</title>
 <meta name="description" content="Work out your Golf Australia Daily Handicap from your GA Handicap, slope and scratch rating, using the current 0.93 and Consistency Factor formula.">
 <link rel="canonical" href="https://golfcalculators.com/daily-handicap">
@@ -176,6 +182,42 @@
 }
 </script>
 <!-- seo:jsonld:end -->
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool) {
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    gtag('event', name, { tool: tool });
+    return true;
+  };
+})();
+</script>
 </head>
 <body>
 <header><nav class="site-nav" aria-label="Calculators"><a href="/">Home</a><a href="/skins">Skins</a><a href="/stableford">Stableford</a><a href="/daily-handicap" aria-current="page">Daily Hcp</a></nav></header>
@@ -234,6 +276,7 @@
   <p class="big" id="dailyOut">—</p>
   <p class="how" id="howOut"></p>
   <p class="how">Formula: Golf Australia WHS reference guide, Edition January 2026, §3H. <a href="#how-h">How it's calculated</a></p>
+  <p class="how" id="fb-after">How did the calculator go? <a href="/feedback?from=daily-handicap" style="display:inline-flex;align-items:center;min-height:44px">Send feedback</a></p>
   <a class="next-card" id="sfBack" href="/stableford" hidden><strong id="sfBackT">Use this in Stableford →</strong><span>Back to your Stableford round to pick the player.</span></a>
 </div>
 
@@ -264,7 +307,7 @@
   <div class="gc-faq-item"><h3>How does rounding work?</h3><p>The result is rounded to the nearest whole number, and .5 rounds up: 10.5 becomes 11. For plus handicaps .5 rounds towards scratch: +0.5 is scratch and +1.5 is +1, but +1.501 is +2 (Golf Australia, §3H).</p></div>
 <!-- seo:content:end --></section>
 </main>
-<footer class="site-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="site-footer"><a href="/feedback?from=daily-handicap">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 
 <script>
 const CF = { men: 0.9986, women: 1.0483 };

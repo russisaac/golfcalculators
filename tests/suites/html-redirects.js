@@ -16,6 +16,7 @@ const want={
   '/daily-handicap.html':'/daily-handicap',
   '/privacy.html':'/privacy'
 };
+if(fs.existsSync(path.join(SITE,'feedback.html')))Object.assign(want,{'/feedback.html':'/feedback','/feedback-thanks.html':'/feedback-thanks'}); // v9 P4
 for(const [from,to] of Object.entries(want)){
   const r=rules.find(x=>x.from===from);
   ok(`${from} 301 to ${to} (forced)`,!!r&&r.to===to&&r.status.replace('!','')==='301'&&r.force);

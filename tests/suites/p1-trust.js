@@ -15,7 +15,7 @@ ok('privacy (5): contact russ@simplifyy.com (mailto)',mail&&mail.getAttribute('h
 ok('privacy mentions local storage stays on device',/local storage/.test(ptxt)&&/not sent to us or to Google/.test(ptxt));
 const withEmail=pages.filter(n=>rd(n).includes('russ@simplifyy.com'));
 ok('contact email lives in one file only',withEmail.length===1&&withEmail[0]==='privacy.html',withEmail.join());
-ok('privacy page has no analytics',!/gtag|googletagmanager/.test(rd('privacy.html')));
+ok('privacy page: analytics only via the shared gc-ga.js (v9 P6, Russ approved GA on every page)',(rd('privacy.html').match(/googletagmanager/g)||[]).length===1&&/<script data-src="\/gc-ga\.js">/.test(rd('privacy.html')));
 for(const n of pages){const s=rd(n);const d=new JSDOM(s).window.document;
   ok(`${n}: footer links to /privacy`,!!d.querySelector('footer a[href="/privacy"]'));
   ok(`${n}: link rel=icon /favicon.ico`,!!d.querySelector('link[rel="icon"][href="/favicon.ico"]'));}
@@ -28,7 +28,8 @@ const ga=s=>(s.match(/<script async src="https:\/\/www\.googletagmanager\.com\/g
 for(const [n,b] of [['skins.html','skins'],['stableford.html','stableford']]){const live=ga(read(path.join(BASE,b)));
   if(/location\.hostname === 'golfcalculators\.com'/.test(rd(n)))ok(`${n}: GA4 tag hostname-gated (P2a change; see ga-gate suite)`,true);
   else ok(`${n}: GA4 tag byte-identical to live`,live&&ga(rd(n))===live);}
-for(const n of ['index.html','daily-handicap.html','privacy.html'])ok(`${n}: no analytics added`,!/googletagmanager|gtag\(/.test(rd(n)));
+// v9 P6 (Russ approved, 18 Nov): GA4 on every page through one shared, hostname-gated loader (gc-ga.js); see ga-gate.
+const gaSrc=rd('gc-ga.js');for(const n of pages){const m=rd(n).match(/<script data-src="\/gc-ga\.js">([\s\S]*?)<\/script>/);ok(`${n}: GA4 only through gc-ga.js, inlined byte-identical`,!!m&&m[1]===gaSrc&&(rd(n).match(/googletagmanager/g)||[]).length===1);}
 const allTracking=pages.map(n=>(rd(n).match(/googletagmanager|gtag\/js|plausible|fbq\(|clarity/g)||[]).length).reduce((a,b)=>a+b,0);
-ok('no extra tracking anywhere (2 GA loaders total: skins + stableford)',(pages.map(n=>(rd(n).match(/gtag\/js\?id=/g)||[]).length).reduce((a,b)=>a+b,0))===2,`${allTracking} tracking refs`);
+ok('no extra tracking anywhere (one GA loader per page, nothing else)',(pages.map(n=>(rd(n).match(/gtag\/js\?id=/g)||[]).length).reduce((a,b)=>a+b,0))===pages.length&&!pages.some(n=>/plausible|fbq\(|clarity/.test(rd(n))),`${allTracking} tracking refs`);
 process.exitCode=report('p1-trust')?1:0;

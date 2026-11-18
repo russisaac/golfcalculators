@@ -28,3 +28,9 @@
   to = "/404"
   status = 404
   force = true
+
+# v9 P5: serve the web app manifest with its proper type (Netlify defaults .webmanifest to octet-stream).
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json; charset=utf-8"
