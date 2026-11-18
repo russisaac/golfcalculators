@@ -8,6 +8,7 @@ const rd=n=>fs.readFileSync(path.join(SITE,n),'utf8');
 const png=n=>{const b=fs.readFileSync(path.join(SITE,n));return b.slice(0,8).toString('hex')==='89504e470d0a1a0a'?[b.readUInt32BE(16),b.readUInt32BE(20),b[25]]:null;};
 let M=null;try{M=JSON.parse(rd('manifest.webmanifest'));}catch(e){}
 ok('manifest.webmanifest parses',!!M);
+ok('netlify.toml serves the manifest as application/manifest+json',/for = "\/manifest\.webmanifest"\s*\n\s*\[headers\.values\]\s*\n\s*Content-Type = "application\/manifest\+json/.test(rd('netlify.toml')));
 ok('manifest: name and short_name',M.name==='Golf Calculators'&&!!M.short_name&&M.short_name.length<=12);
 ok('manifest: opens standalone at the home page (start_url /, scope /)',M.display==='standalone'&&M.start_url==='/'&&M.scope==='/');
 ok('manifest: theme colour #166534 (the site accent) and a background colour',M.theme_color==='#166534'&&/^#[0-9a-f]{6}$/i.test(M.background_color));
