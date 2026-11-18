@@ -23,7 +23,7 @@ Suites (`tests/suites/*.js`, each skips itself when not applicable):
 | skins-regression | standard example Alex 0, Blake 4, Casey 8, Drew 12, $5: -75/-75/-35/+185 (legacy or v2 Skins) |
 | p1-parity | calculator behaviour identical to the live source (`tests/baseline` = main @ c54e467) |
 | p1-trust | /privacy wording + contact, footer link, favicon, sitemap, robots, GA tag |
-| ga-gate | GA4 loads only on golfcalculators.com / www (skips on branches without the gate); on pages with `gaStrip`, a `#r=` share fragment never reaches GA (page_location is origin+path on load and on hashchange) |
+| ga-gate | v9 P6: GA4 on every page through the shared gc-ga.js (inlined byte-identical); loads only on golfcalculators.com / www (never previews, drafts, localhost); page_location never has a fragment and keeps only utm_* values; events round_settled / result_shared / shared_link_opened / start_own_from_viewer carry only {tool} (no names, scores, amounts, #r= data, checked on real flows); share links carry utm_* outside #r= and still open; /privacy line |
 | og-tags | every page's static OG/Twitter tags, og:url = canonical, each og:image 200 image/png 1200×630 ≤ 300 KB (local server, or `OG_BASE=<url>`) |
 | skins-v2 | Skins rebuild: engine cross-check vs legacy, flow, escaping, share, storage, SI dupes (skips on legacy Skins) |
 | skins-share-pin | Skins share text for the standard example pinned to `skins-share-link-12nov.json` (moved on purpose twice: ASCII/GSM-7, then the result link as the last line "Settled at <link>", no separate url); the link reopens −75/−75/−35/+185; GSM-7 for 60 varied rounds; the per-player balance line only for 2–5 players |

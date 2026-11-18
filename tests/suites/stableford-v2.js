@@ -98,7 +98,7 @@ const click=(h,sel)=>{const b=h.d.querySelector(sel);if(!b)throw new Error('no '
  let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};click(h,'#btn-share');
  const lines=(shared&&shared.text||'').split('\n');
  ok('share: one tap calls navigator.share (synchronously, inside the tap)',!!shared&&shared.title==='Stableford result');
- ok('share text ≤ 6 lines and ends with the result link https://golfcalculators.com/stableford#r=1… (share-link PR)',lines.length<=6&&lines[lines.length-1].startsWith(URL+'#r=1'),lines.length+' lines');
+ ok('share text ≤ 6 lines and ends with the result link https://golfcalculators.com/stableford#r=1… (share-link PR)',lines.length<=6&&lines[lines.length-1].startsWith(URL+'?utm_source=share&utm_medium=link&utm_campaign=stableford#r=1'),lines.length+' lines');
  ok('share text has places, points and the countback, in plain ASCII (PO: GSM-7)',lines[0]==='Stableford - 18 holes'&&lines[1]==='1st Mel 37 pts (countback: 20 v 18 on holes 10-18)'&&lines[2]==='2nd Sam 37 pts'&&lines[4]==='4th Al 32 pts',lines.join(' / '));
  // reload restores state
  const h2=open({storage:{gc_stableford_v1:stored}});

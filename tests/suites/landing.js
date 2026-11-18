@@ -31,7 +31,7 @@ ok('sample kicker matches the Skins stake ($5.00 a skin)',/\$5\.00 a skin/.test(
 ok('regression anchor still holds (-75/-75/-35/+185)',r.balances.join()==='-75,-75,-35,185');
 const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];let g=null;try{g=JSON.parse(lds[0].textContent);}catch(e){}
 ok('WebSite JSON-LD kept',lds.length===1&&g&&g['@type']==='WebSite'&&g.url==='https://golfcalculators.com/');
-ok('no analytics or third-party scripts',!/googletagmanager|gtag\(|<script[^>]+src=/.test(src));
+ok('no third-party scripts; the only analytics is the shared, hostname-gated gc-ga.js (v9 P6)',!/<script[^>]+\ssrc=/.test(src)&&(src.match(/googletagmanager/g)||[]).length===1&&src.includes('<script data-src="/gc-ga.js">'));
 ok('no inline event handlers / no JS needed to render',!/\son[a-z]+=/.test(src));
 ok('footer links /privacy',!!d.querySelector('footer a[href="/privacy"]'));
 process.exitCode=report('landing')?1:0;

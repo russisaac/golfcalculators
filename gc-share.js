@@ -90,7 +90,7 @@
   // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
   // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
   // listener never sees a URL holding names (PO, 12 Nov).
-  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); }
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]utm_[a-z]+=[^&]*/g, '').replace(/^&/, '?')); } // v9 P6: the share link's utm_* tags go too
   window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
     TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
 })();

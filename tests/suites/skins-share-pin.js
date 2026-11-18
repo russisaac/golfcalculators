@@ -10,13 +10,15 @@ const html=fs.readFileSync(path.join(SITE,'skins.html'),'utf8');
 if(!/data-gc="skins-v2"/.test(html)){console.log('SKIP  legacy skins page: share pin not applicable');process.exit(0);}
 const B=f=>JSON.parse(fs.readFileSync(path.join(__dirname,'../baseline/'+f),'utf8'));
 const old=B('skins-share-cbb93c8.json'),ascii=B('skins-share-ascii-12nov.json'),want=B('skins-share-link-12nov.json');
+// 3. v9 P6 (18 Nov, Russ approved): the result link gains ?utm_source=share&utm_medium=link&utm_campaign=skins before #r=. Nothing else moved.
+const U6=s=>s.replace('/skins#r=','/skins?utm_source=share&utm_medium=link&utm_campaign=skins#r=');const want6={share:Object.assign({},want.share,{text:U6(want.share.text)}),copyText:U6(want.copyText)};
 const GSM7=/^[\n\r @£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ!"#¤%&'()*+,\-./0-9:;<=>?¡A-ZÄÖÑÜ§¿a-zäöñüà|^€{}\[\]~\\]*$/;
 (async()=>{
 const got={};const h=boot(path.join(SITE,'skins.html'),{url:'https://golfcalculators.com/skins',beforeParse(w){w.CompressionStream=CompressionStream;w.DecompressionStream=DecompressionStream;Object.defineProperty(w.navigator,'share',{value:d=>{got.share=d;return Promise.resolve();},configurable:true});}});
 h.w.GCSkinsUI.loadExample();await h.w.GCSkinsUI.link();h.w.GCSkinsUI.share();await new Promise(r=>setTimeout(r,10));got.copyText=h.w._shareText;
 const E=h.w.GCSkins,link=(want.share.text.match(/Settled at (\S+)$/)||[])[1]||'';
-ok('share title/text byte-identical to the link pin (12 Nov)',JSON.stringify(got.share)===JSON.stringify(want.share),JSON.stringify(got.share).slice(0,120));
-ok('copy-fallback text byte-identical to the pin (the same text as shared)',got.copyText===want.copyText&&want.copyText===want.share.text);
+ok('share title/text byte-identical to the link pin (12 Nov)',JSON.stringify(got.share)===JSON.stringify(want6.share),JSON.stringify(got.share).slice(0,120));
+ok('copy-fallback text byte-identical to the pin (the same text as shared)',got.copyText===want6.copyText&&want.copyText===want.share.text);
 ok('the link pin is the ASCII pin\'s copy text with only the site URL replaced by the result link, and no separate url',
   ascii.copyText.replace(/Settled at https:\/\/golfcalculators\.com\/skins$/,'Settled at '+link)===want.share.text&&want.share.url===undefined&&want.share.title===ascii.share.title&&/^https:\/\/golfcalculators\.com\/skins#r=1z\.[A-Za-z0-9_-]+$/.test(link));
 const asc=t=>t.replace(/\u2212/g,'-').split(' \u00b7 ').join(' | ');
