@@ -97,3 +97,5 @@ a{color:var(--accent)}
 .gc-ask{border-left:4px solid var(--accent)}
 .gc-ask h2{margin-bottom:var(--s1)}
 .gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
