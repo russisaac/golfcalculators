@@ -433,7 +433,12 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v10 P1 handicap: 20 pasted, hero',w,'/handicap-calculator',async p=>{await paste(p);await p.evaluate(()=>document.getElementById('hero').scrollIntoView({block:'start'}));},`v10-p1-handicap-20-hero-${sz}.png`,hgt);
       await check('v10 P1 handicap: 20 pasted, rounds list',w,'/handicap-calculator',async p=>{await paste(p);await p.evaluate(()=>document.getElementById('rounds-card').scrollIntoView({block:'start'}));},`v10-p1-handicap-20-rounds-${sz}.png`,hgt);
       await check('v10 P1 handicap: shared view',w,'/handicap-calculator?utm_source=share&utm_medium=link&utm_campaign=handicap#d=181.208.164.181.216.173.218.236',null,`v10-p1-handicap-shared-${sz}.png`,hgt);
+      {const q=await page(w,hgt);await q.goto(base+'/handicap-calculator#d=181.208.164.181.216.173.218.236',{waitUntil:'load'});await q.waitForTimeout(150);
+        const bv=await q.evaluate(()=>document.getElementById('bridge').getClientRects().length>0);if(bv)fail=1;
+        console.log(`${gate(bv)}  v10 P1 handicap shared view @${sz}: no "Use in Daily Handicap" bridge for someone else's index`);await q.context().close();}
       const p=await page(w,hgt);await p.goto(base+'/handicap-calculator',{waitUntil:'load'});await p.waitForTimeout(150);
+      const vis=await p.evaluate(()=>['actions','bridge','rounds-card'].filter(id=>{const e=document.getElementById(id);return e&&e.getClientRects().length>0;}));
+      {const bad=vis.length>0;if(bad)fail=1;console.log(`${gate(bad)}  v10 P1 handicap empty @${sz}: no Share/Copy, bridge or rounds list before 3 rounds${bad?' (visible: '+vis.join(',')+')':''}`);}
       const r=await p.evaluate(()=>{const a=document.getElementById('score').getBoundingClientRect(),b=document.getElementById('btn-add').getBoundingClientRect();return {scoreTop:Math.round(a.top),addBottom:Math.round(b.bottom),vh:innerHeight};});
       const bad=!(r.scoreTop>=0&&r.addBottom<=r.vh);if(bad)fail=1;rows.push({name:`handicap fold ${sz}`,width:w,fold:r});
       console.log(`${gate(bad)}  v10 P1 handicap fold @${sz}: Score field top ${r.scoreTop}px, Add round bottom ${r.addBottom}px of ${r.vh}px (both on the first screen)`);

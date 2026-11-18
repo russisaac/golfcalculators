@@ -156,6 +156,7 @@ html{scroll-padding-top:60px}
   .hi-hero .gc-big{font-size:var(--fs-xl)}
   .hi-sub{margin-top:var(--s2);font-size:var(--fs-sm);opacity:.95}
   .hi-sub b{font-weight:800}
+  main [hidden]{display:none!important} /* .hi-actions/.hi-bridge/.gc-card set display, which beats the UA [hidden] rule */
   .hi-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
   .hi-bridge{display:block;margin-top:var(--s3);padding:var(--s3) var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--accent-line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
   .hi-bridge strong{display:block;color:var(--accent)}
