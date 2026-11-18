@@ -28,6 +28,11 @@ ok('descriptions unique across pages',Object.values(descs).every(n=>n===1));
 const QUERY={skins:/golf skins calculator/i,stableford:/stableford (points )?calculator/i,'daily-handicap':/daily handicap calculator/i,index:/golf calculators/i};
 for(const [p,re] of Object.entries(QUERY)){const d=docs[p+'.html'];ok(`${p}: title keeps the primary query (${re.source})`,re.test(d.title));}
 ok('home title is "Golf Calculators – Skins, Stableford & Daily Handicap (AU)"',docs['index.html'].title==='Golf Calculators – Skins, Stableford & Daily Handicap (AU)');
+{const d=docs['index.html'];const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];
+  ok('home: exactly one JSON-LD block',lds.length===1);
+  let g=null;try{g=JSON.parse(lds[0].textContent);}catch(e){}
+  ok('home: WebSite JSON-LD parses',!!g);
+  ok('home: schema.org WebSite with name and url https://golfcalculators.com/',!!g&&g['@context']==='https://schema.org'&&g['@type']==='WebSite'&&!!g.name&&g.url==='https://golfcalculators.com/');}
 
 for(const p of TOOLS){const f=p+'.html',d=docs[f],url='https://golfcalculators.com/'+p;
   const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];ok(`${p}: exactly one JSON-LD block`,lds.length===1);

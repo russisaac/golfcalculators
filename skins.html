@@ -192,9 +192,14 @@ a{color:var(--accent)}
   .sk-pay span:last-child{flex:none}
   .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
   /* 4+ payments: compact lines, so the next action stays on the first screen at 375x812 (PO, 12 Nov): Share result on
-     your own result, Start your own round in the shared viewer */
+     your own result, Start your own round in the shared viewer. At ≤360px the same 7-payment result wraps more, so
+     tighten the hero padding and line type to keep Share result on the first screen at 320x568 (P3). */
   .sk-many .sk-pay{display:block;font-size:var(--fs-md);font-weight:600;line-height:1.35;margin-top:var(--s1)}
   .sk-many .sk-pay span:last-child{white-space:nowrap;font-weight:800;margin-left:var(--s1)}
+  @media (max-width:360px){
+    .sk-many{padding:var(--s3) var(--s3)}
+    .sk-many .sk-pay{font-size:var(--fs-sm);line-height:1.3;margin-top:2px}
+  }
   .sk-ledger{list-style:none;margin:0;padding:0}
   .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
   .sk-ledger li+li{border-top:1px solid var(--line)}
