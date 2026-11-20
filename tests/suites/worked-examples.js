@@ -49,4 +49,11 @@ if(!['skins.html','stableford.html','daily-handicap.html'].some(has)){console.lo
  compare('daily-handicap',ex,w);
  ok('daily-handicap: example is labelled illustrative',/illustrative/i.test(fs.readFileSync(path.join(SITE,'daily-handicap.html'),'utf8').match(/<h3>[^<]*Worked example[^<]*<\/h3>/)[0]));
 }
+// v10 P1 Handicap Index: every number in the worked example through the page's own engine (GCHandicap).
+// Rules: GA WHS reference guide (Edition January 2026) §3(B) Gross Differential, §3(D) table for fewer than 20 scores.
+if(fs.existsSync(path.join(SITE,'handicap-calculator.html'))){const h=boot(path.join(SITE,'handicap-calculator.html'),{url:'https://golfcalculators.com/handicap-calculator'});const G=h.w.GCHandicap;const ex=exMap(h.d);
+ const E=G.EXAMPLE,r0=E[0],c=G.calc(E),nx=G.nextToBeat(E),f=x=>x.toFixed(1);const low=c.counting.map(i=>c.diffs[i]).sort((a,b)=>a-b);
+ compare('handicap-calculator',ex,{'r1-score':r0.s,'r1-score-b':r0.s,'r1-cr':f(r0.cr),'r1-sl':r0.sl,'r1-step':f(r0.s-r0.cr),'r1-raw':((r0.s-r0.cr)*113/r0.sl).toFixed(3),'r1-diff':f(G.diffOf(r0)),
+   n:c.n,diffs:c.diffs.map(f).join(', '),count:c.count,low:low.map(f).join(' and '),avg:String(c.avg),hi:G.fmt(c.index),beat:G.fmt(nx.d)});
+ ok('handicap-calculator: the example is 8 rounds with no PCC, so 7-or-8 → lowest 2, no adjustment (§3(D))',E.length===8&&E.every(x=>!x.pcc)&&c.count===2&&c.adj===0);}
 process.exit(report('worked-examples')?1:0);

@@ -49,11 +49,12 @@
    - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
    - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
      carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
-   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
-     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
+     out; never the scores, differentials or the index itself). Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -88,7 +89,7 @@
 
 <h2>Analytics</h2>
 <p>golfcalculators.com uses Google Analytics to show us how the site is used. Google Analytics sets cookies in your browser.</p>
-<p id="usage-events">We also count a few anonymous events: when a round is settled, when a result is shared, when a shared result is opened, and when someone starts their own round from one. Each event records only which calculator it was (Skins or Stableford), never names, scores or amounts. Shared links carry a short tag saying they came from a share.</p>
+<p id="usage-events">We also count a few anonymous events: when a round is settled, when a result is shared, when a shared result is opened, when someone starts their own round from one, and when a Handicap Index is worked out. Each event records only which calculator it was (Skins, Stableford or Handicap), never names, scores or amounts, and never a handicap. Shared links carry a short tag saying they came from a share.</p>
 
 <h2>What is collected</h2>
 <p>Google Analytics collects the pages you view, the type of device you use (for example phone or computer, and its browser) and your approximate location (such as your city or region). It does not collect your name or email address. The names and scores you type into a calculator are not sent to Google or to us.</p>

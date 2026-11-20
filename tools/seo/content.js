@@ -34,6 +34,7 @@ module.exports = {
       ['How much should a skin be worth?', 'Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.'],
       ['How are skins payouts split?', 'Each player\'s balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.'],
       ['How are handicap strokes given in net skins?', 'Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player\'s 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one.', {text:'Daily Handicap calculator', href:'/daily-handicap'}],
+      ['Pot or pay each other?', 'Paying each other is the classic way: every skin is worth the stake from each of the other players. With a pot, everyone puts in an equal share of the skins won × the stake, and each winner takes the stake for every skin. Pot amounts are smaller: a quarter of pay-each-other in a four-ball. Choose under More options.'],
       ['Can players on different tees play skins together?', 'Yes. Each player gets shots by their own tee\'s stroke index, and a hole is decided on net score against each player\'s own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup.']
     ]
   },
@@ -64,6 +65,33 @@ module.exports = {
       ['What if players are on different tees?', 'Each player scores points from their own tee\'s par and stroke index, and no extra strokes are added for the par difference (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup, enter the second tee\'s card, and pick each player\'s tee.'],
     ]
   },
+  'handicap-calculator': {
+    name: 'Golf Handicap Calculator',
+    how: `
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Each round becomes a Gross Differential: (adjusted gross score − Scratch Rating − PCC) × 113 ÷ Slope Rating, rounded to one decimal place. Your GA Handicap (the World Handicap System Handicap Index) is the average of the lowest 8 of your most recent 20 differentials, rounded to one decimal place. With fewer than 20 rounds, a smaller number counts:</p>
+  <ul class="gc-learn-list">
+    <li>3 rounds: the lowest 1, minus 2.0. 4 rounds: the lowest 1, minus 1.0. 5 rounds: the lowest 1.</li>
+    <li>6 rounds: the average of the lowest 2, minus 1.0. 7 or 8 rounds: the lowest 2.</li>
+    <li>9 to 11 rounds: the lowest 3. 12 to 14: the lowest 4. 15 or 16: the lowest 5. 17 or 18: the lowest 6. 19: the lowest 7. 20: the lowest 8.</li>
+  </ul>
+  <h3>Worked example</h3>
+  <p>Round 1: a score of <span data-ex="r1-score">92</span> off a Scratch Rating of <span data-ex="r1-cr">71.3</span> and a Slope Rating of <span data-ex="r1-sl">129</span>, with no PCC. <span data-ex="r1-score-b">92</span> − 71.3 = <span data-ex="r1-step">20.7</span>, and 20.7 × 113 ÷ 129 = <span data-ex="r1-raw">18.133</span>, so the Gross Differential is <strong data-ex="r1-diff">18.1</strong>.</p>
+  <p>After <span data-ex="n">8</span> rounds the differentials are <span data-ex="diffs">18.1, 20.8, 16.4, 18.1, 21.6, 17.3, 21.8, 23.6</span>. With 7 or 8 rounds the lowest <span data-ex="count">2</span> count: <span data-ex="low">16.4 and 17.3</span>. Their average is <span data-ex="avg">16.85</span>, which rounds up to:</p>
+  <p class="gc-learn-result">GA Handicap estimate <span data-ex="hi">16.9</span></p>
+  <p>Round 9 lowers it if its differential is <span data-ex="beat">16.8</span> or better, because the lowest 3 of 9 rounds count from then on. Tap <strong>Load example</strong> at the top to see every round.</p>
+  <p class="gc-learn-src" id="rules-source">Rules source: ${GA_CITE}, §3(B) Gross Differential, §3(C) and §3(D) the GA Handicap calculation, §3(E) rounding and the 54.0 limit; <a href="https://www.randa.org/roh/the-rules-of-handicapping/rule-5" rel="noopener">R&amp;A Rules of Handicapping, Rule 5</a>. This is an estimate: Golf Australia calculates your official GA Handicap.</p>
+  <p>Got your GA Handicap? <a href="/daily-handicap">Work out your Daily Handicap for today's tees</a>, then <a href="/stableford">count your Stableford points for the round</a>.</p>`,
+    faq: [
+      ['How is a golf handicap calculated?', 'Each round becomes a Gross Differential: (adjusted gross score − Scratch Rating − PCC) × 113 ÷ Slope Rating, to one decimal place. Your GA Handicap is the average of the lowest 8 of your most recent 20 differentials, rounded to one decimal place (Golf Australia WHS guide, January 2026, §3(B) and §3(C)).'],
+      ['What if I have fewer than 20 rounds?', 'You need at least 3. With 3 rounds the lowest counts, minus 2.0; with 4, the lowest minus 1.0; with 5, the lowest; with 6, the lowest 2 averaged, minus 1.0. Then the number counted grows: 2 at 7, 3 at 9, 4 at 12, 5 at 15, 6 at 17, 7 at 19, 8 at 20 (§3(D)).'],
+      ['Is a GA Handicap the same as a Handicap Index?', 'Yes. Golf Australia calls the World Handicap System Handicap Index your GA Handicap. Your Daily Handicap is different: it is the strokes you get on one course and set of tees, worked out from your GA Handicap. Use the Daily Handicap calculator for that.', {text:'Daily Handicap calculator', href:'/daily-handicap'}],
+      ['What is an adjusted gross score?', 'Your gross score with each hole capped at net double bogey: par plus 2 plus any strokes you get on that hole. If you played Stableford, it is Par + Daily Handicap + (36 − your points), which is how Golf Australia works it out (§3(B)).'],
+      ['Why might my official GA Handicap differ?', 'Golf Australia also applies the soft and hard caps on how far it can rise above your Low GA Handicap, exceptional score reductions, the daily PCC and 9-hole score combining. This calculator uses only the rounds you enter, so check the Golf Australia app for your official figure.'],
+      ['What is the highest handicap?', '54.0. Any calculation above that is capped at 54.0 (Golf Australia WHS guide, §3(E); Rules of Handicapping, Rule 5.3). There is no lower limit: a result below zero is a plus handicap, written with a plus sign, such as +1.2.'],
+      ['How do I lower my handicap?', 'A new round lowers it only if its differential beats one that counts by enough to bring the average down. The calculator shows your next round to beat: the highest differential, and roughly the score at your last course, that would lower your estimate.']
+    ]
+  },
   'daily-handicap': {
     name: 'Daily Handicap Calculator',
     how: `
@@ -80,7 +108,7 @@ module.exports = {
   </ol>
   <p>The calculator keeps full precision until the final rounding. The steps above are shown to 3 decimal places.</p>
   <p class="gc-learn-src" id="rules-source">Source: ${GA_CITE}, §3H (Daily Handicap formulas and rounding).</p>
-  <p>Got your strokes? <a href="/stableford">Count your Stableford points</a>, or <a href="/skins">settle skins with your group</a>.</p>`,
+  <p>Got your strokes? <a href="/stableford">Count your Stableford points</a>, or <a href="/skins">settle skins with your group</a>. No GA Handicap yet? <a href="/handicap-calculator">Estimate your GA Handicap from your rounds</a>.</p>`,
     faq: [
       ['What is a Daily Handicap?', 'It is the number of strokes you receive for one round on a particular course and set of tees. It comes from your GA Handicap, the tees\' Slope Rating and Scratch Rating, and Par. Your GA Handicap stays the same, but your Daily Handicap changes with the course and tees.'],
       ['How is a Daily Handicap calculated in 2026?', '((GA Handicap × Slope Rating ÷ 113) + (Scratch Rating − Par)) × 0.93 × Consistency Factor, rounded to the nearest whole number (Golf Australia WHS reference guide, Edition January 2026, §3H). The 0.93 is called the Multiplier.'],

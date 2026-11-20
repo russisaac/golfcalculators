@@ -422,6 +422,29 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P4 privacy: feedback form section',w,'/privacy',async p=>{await p.evaluate(()=>document.getElementById('feedback').scrollIntoView());},`v9-p4-privacy-feedback-${sz}.png`,hgt);
     }
   }
+  // v10 P1 Handicap Index calculator: empty, 3 rounds entered, 20 differentials pasted (rounds list), a shared #d= view;
+  // and the first control + hero on the first screen at 375x812 and 320x568 (usable in 30 s).
+  if(pages.some(p=>p[0]==='handicap-calculator')){
+    const P20='12.1 15.4 9.8 11.2 14.7 10.5 13.3 16.0 8.9 12.6 17.2 11.9 10.1 14.0 13.8 9.5 15.1 12.4 18.3 11.0';
+    const three=async p=>{for(const s of ['92','95','90']){await p.fill('#score',s);await p.fill('#cr','71.3');await p.fill('#sl','129');await p.click('#btn-add');}await p.waitForTimeout(100);};
+    const paste=async p=>{await p.check('input[name=mode][value=paste]');await p.fill('#paste',P20);await p.click('#btn-paste');await p.waitForTimeout(100);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v10 P1 handicap: 3 rounds entered',w,'/handicap-calculator',three,`v10-p1-handicap-3-rounds-${sz}.png`,hgt);
+      await check('v10 P1 handicap: 20 pasted, hero',w,'/handicap-calculator',async p=>{await paste(p);await p.evaluate(()=>document.getElementById('hero').scrollIntoView({block:'start'}));},`v10-p1-handicap-20-hero-${sz}.png`,hgt);
+      await check('v10 P1 handicap: 20 pasted, rounds list',w,'/handicap-calculator',async p=>{await paste(p);await p.evaluate(()=>document.getElementById('rounds-card').scrollIntoView({block:'start'}));},`v10-p1-handicap-20-rounds-${sz}.png`,hgt);
+      await check('v10 P1 handicap: shared view',w,'/handicap-calculator?utm_source=share&utm_medium=link&utm_campaign=handicap#d=181.208.164.181.216.173.218.236',null,`v10-p1-handicap-shared-${sz}.png`,hgt);
+      {const q=await page(w,hgt);await q.goto(base+'/handicap-calculator#d=181.208.164.181.216.173.218.236',{waitUntil:'load'});await q.waitForTimeout(150);
+        const bv=await q.evaluate(()=>document.getElementById('bridge').getClientRects().length>0);if(bv)fail=1;
+        console.log(`${gate(bv)}  v10 P1 handicap shared view @${sz}: no "Use in Daily Handicap" bridge for someone else's index`);await q.context().close();}
+      const p=await page(w,hgt);await p.goto(base+'/handicap-calculator',{waitUntil:'load'});await p.waitForTimeout(150);
+      const vis=await p.evaluate(()=>['actions','bridge','rounds-card'].filter(id=>{const e=document.getElementById(id);return e&&e.getClientRects().length>0;}));
+      {const bad=vis.length>0;if(bad)fail=1;console.log(`${gate(bad)}  v10 P1 handicap empty @${sz}: no Share/Copy, bridge or rounds list before 3 rounds${bad?' (visible: '+vis.join(',')+')':''}`);}
+      const r=await p.evaluate(()=>{const a=document.getElementById('score').getBoundingClientRect(),b=document.getElementById('btn-add').getBoundingClientRect();return {scoreTop:Math.round(a.top),addBottom:Math.round(b.bottom),vh:innerHeight};});
+      const bad=!(r.scoreTop>=0&&r.addBottom<=r.vh);if(bad)fail=1;rows.push({name:`handicap fold ${sz}`,width:w,fold:r});
+      console.log(`${gate(bad)}  v10 P1 handicap fold @${sz}: Score field top ${r.scoreTop}px, Add round bottom ${r.addBottom}px of ${r.vh}px (both on the first screen)`);
+      await p.context().close();
+    }
+  }
   // v9 P5 Add to Home Screen: the one-time tip after a result (iPhone Safari wording, Android install prompt)
   if(fs.existsSync(path.join(SITE,'gc-a2hs.js'))){
     const IPH='Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
@@ -433,6 +456,25 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v9 P5 skins result: Add to Home Screen tip (Android)',w,'/skins',tip('GCSkinsUI','android'),`v9-p5-skins-tip-android-${sz}.png`,hgt);
       await check('v9 P5 stableford result: Add to Home Screen tip (iPhone)',w,'/stableford',tip('GCStablefordUI','ios'),`v9-p5-stableford-tip-iphone-${sz}.png`,hgt);
       await check('v9 P5 stableford result: Add to Home Screen tip (Android)',w,'/stableford',tip('GCStablefordUI','android'),`v9-p5-stableford-tip-android-${sz}.png`,hgt);
+    }
+  }
+  // v10 P2 Skins polish + pot: the example result's 3 payment lines are one line each at 320 and 375, smaller than the
+  // hero headline; "learn more" links in How it's calculated are >= 44px tall; pot setup and pot result screenshots.
+  if(/name="pay" value="pot"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    const potRound=async p=>{await p.evaluate(()=>{const U=GCSkinsUI,s=U.state();s.players=['Alex','Blake','Casey','Drew'].map(n=>({name:n,hcp:0}));s.scoring='gross';s.carry=false;s.pay='pot';s.scores={};
+      const c=[7,5,3,3];let h=1;c.forEach((k,i)=>{for(let j=0;j<k;j++,h++)s.scores[h]=c.map((_,x)=>x===i?3:5);});U.show('result');});await p.waitForTimeout(150);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v10 P2 skins example result (polish)',w,'/skins',async p=>{await p.evaluate(()=>GCSkinsUI.loadExample());await p.waitForTimeout(150);},`v10-p2-skins-result-${sz}.png`,hgt);
+      await check('v10 P2 skins pot result',w,'/skins',potRound,`v10-p2-skins-pot-result-${sz}.png`,hgt);
+      await check('v10 P2 skins setup: How is a skin paid? (More options open, From a pot)',w,'/skins',async p=>{await p.click('details.sk-more summary');await p.check('input[name=pay][value=pot]');await p.evaluate(()=>document.getElementById('pay-l').scrollIntoView({block:'center'}));},`v10-p2-skins-pay-option-${sz}.png`,hgt);
+      const p=await page(w,hgt);await p.goto(base+'/skins',{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.loadExample());await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const lines=[...document.querySelectorAll('#hero .sk-pay')].map(e=>{const cs=getComputedStyle(e);return {h:Math.round(e.getBoundingClientRect().height),lh:parseFloat(cs.lineHeight),fs:parseFloat(cs.fontSize),cut:e.firstElementChild.scrollWidth>e.firstElementChild.clientWidth};});
+        const big=document.querySelector('#hero .gc-big'),bfs=big?parseFloat(getComputedStyle(big).fontSize):0;
+        const links=[...document.querySelectorAll('#learn p a')].map(a=>Math.round(a.getBoundingClientRect().height));return {lines,bfs,links};});
+      const one=r.lines.length===3&&r.lines.every(x=>x.h<=Math.ceil(x.lh)+1&&!x.cut),sub=r.lines.every(x=>x.fs<r.bfs&&x.fs<=16),tall=r.links.length>0&&r.links.every(x=>x>=44);
+      const bad=!(one&&sub&&tall);if(bad)fail=1;rows.push({name:`skins polish ${sz}`,width:w,polish:r});
+      console.log(`${gate(bad)}  v10 P2 skins polish @${sz}: 3 payment lines on one line each, not cut (${r.lines.map(x=>x.h+'px').join('/')}) · ${r.lines[0]&&r.lines[0].fs}px under a ${r.bfs}px headline · ${r.links.length} learn-more links ${Math.min(...r.links)}–${Math.max(...r.links)}px tall`);
+      await p.context().close();
     }
   }
   // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
@@ -452,8 +494,8 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
   const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
-    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare))continue;
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['handicap-calculator','/handicap-calculator'],['handicap-shared','/handicap-calculator#d=181.208.164.181.216.173.218.236'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
+    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare)&&!(n==='handicap-shared'&&pages.some(p=>p[0]==='handicap-calculator')))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;
     let runs=[runLh(0)];if(!budget(runs[0]))runs.push(runLh(1),runLh(2));
