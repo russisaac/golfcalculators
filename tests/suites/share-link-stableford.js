@@ -64,9 +64,9 @@ later(async()=>{const ex=G.exampleState();const link=linkOf(G.toPayload(ex));con
   ok('the per-hole why is there for every player',h.d.querySelectorAll('#why details').length===4);
   ok('your saved round was never read while opening the link',!reads.includes(KEY)&&!reads.includes(CKEY),reads.join());
   let shared=null;h.w.navigator.share=o=>{shared=o;return Promise.resolve();};h.$('gc-reshare').click();await new Promise(r=>setTimeout(r,5));
-  ok('Share result (secondary link) re-shares the same link, unchanged',!!shared&&shared.text.split('\n').pop()===link&&shared.text.split('\n')[0]==='Stableford - Example card - 18 holes',shared&&shared.text);
+  ok('Share result (secondary link) re-shares the same link, unchanged',!!shared&&shared.text.split('\n').pop()===link.replace('#r=','?utm_source=share&utm_medium=link&utm_campaign=stableford#r=')&&shared.text.split('\n')[0]==='Stableford - Example card - 18 holes',shared&&shared.text);
   let copied=null;Object.defineProperty(h.w.navigator,'clipboard',{value:{writeText:t=>{copied=t;return Promise.resolve();}},configurable:true});h.$('gc-copy').click();await new Promise(r=>setTimeout(r,5));
-  ok('Copy link copies exactly the link',copied===link,copied);
+  ok('Copy link copies exactly the link (with the share utm_* tags before #r=, v9 P6)',copied===link.replace('#r=','?utm_source=share&utm_medium=link&utm_campaign=stableford#r='),copied);
   ok('localStorage byte-identical after opening, sharing and copying',h.w.localStorage.getItem(KEY)===mine&&h.w.localStorage.getItem(CKEY)===courses&&h.w.localStorage.length===2);
   const re=open({url:link,storage:{[KEY]:mine}});await re.w.GCStablefordUI.opened();ok('reload (same URL) stays in viewer mode',re.w.GCStablefordUI.viewing()&&!re.$('scr-result').hidden);
   h.$('gc-own').click();

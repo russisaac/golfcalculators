@@ -28,6 +28,11 @@ ok('descriptions unique across pages',Object.values(descs).every(n=>n===1));
 const QUERY={skins:/golf skins calculator/i,stableford:/stableford (points )?calculator/i,'daily-handicap':/daily handicap calculator/i,index:/golf calculators/i};
 for(const [p,re] of Object.entries(QUERY)){const d=docs[p+'.html'];ok(`${p}: title keeps the primary query (${re.source})`,re.test(d.title));}
 ok('home title is "Golf Calculators – Skins, Stableford & Daily Handicap (AU)"',docs['index.html'].title==='Golf Calculators – Skins, Stableford & Daily Handicap (AU)');
+{const d=docs['index.html'];const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];
+  ok('home: exactly one JSON-LD block',lds.length===1);
+  let g=null;try{g=JSON.parse(lds[0].textContent);}catch(e){}
+  ok('home: WebSite JSON-LD parses',!!g);
+  ok('home: schema.org WebSite with name and url https://golfcalculators.com/',!!g&&g['@context']==='https://schema.org'&&g['@type']==='WebSite'&&!!g.name&&g.url==='https://golfcalculators.com/');}
 
 for(const p of TOOLS){const f=p+'.html',d=docs[f],url='https://golfcalculators.com/'+p;
   const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];ok(`${p}: exactly one JSON-LD block`,lds.length===1);
@@ -67,11 +72,16 @@ for(const p of TOOLS){const f=p+'.html',d=docs[f],url='https://golfcalculators.c
 ok('Next step: daily-handicap → stableford',!!docs['daily-handicap.html'].querySelector('a.next-card[href="/stableford"]'));
 ok('Next step: stableford → skins',!!docs['stableford.html'].querySelector('a.next-card[href="/skins"]'));
 ok('Next step: skins → daily-handicap',!!docs['skins.html'].querySelector('.gc-next a[href="/daily-handicap"]'));
-{const cards=[...docs['index.html'].querySelectorAll('main a.card')];ok('home links all three tools with a one-line description',TOOLS.every(t=>cards.some(a=>a.getAttribute('href')==='/'+t&&norm((a.querySelector('p')||{}).textContent).length>10)));}
+{const dh=docs['index.html'],v2=dh.body.dataset.gc==='home-v2';
+ if(!v2){const cards=[...dh.querySelectorAll('main a.card')];ok('home links all three tools with a one-line description',TOOLS.every(t=>cards.some(a=>a.getAttribute('href')==='/'+t&&norm((a.querySelector('p')||{}).textContent).length>10)));}
+ else{const cta=dh.getElementById('lp-cta'),cards=[...dh.querySelectorAll('main .lp-cards a')]; // v9 P1 landing: Skins is the primary CTA, the other two are cards
+  ok('home links all three tools with a one-line description (Skins CTA + lede, Stableford and DH cards)',!!cta&&cta.getAttribute('href')==='/skins'&&norm(dh.querySelector('.lp-sub').textContent).length>10&&['stableford','daily-handicap'].every(t=>cards.some(a=>a.getAttribute('href')==='/'+t&&norm((a.querySelector('span')||{}).textContent).length>10)));}}
 // sitemap + robots
 {const sm=fs.readFileSync(path.join(SITE,'sitemap.xml'),'utf8');const urls=[...sm.matchAll(/<url><loc>([^<]+)<\/loc><lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod><\/url>/g)].map(m=>m[1]);
- const canon=files.map(f=>docs[f].querySelector('link[rel=canonical]').href);
+ const noindex=f=>/noindex/.test(meta(docs[f],'meta[name="robots"]')||''); // v9 P4: the feedback "thanks" page is noindex, so it stays out of the sitemap
+ const canon=files.filter(f=>!noindex(f)).map(f=>docs[f].querySelector('link[rel=canonical]').href);
  ok('sitemap lists every canonical URL, each with lastmod',canon.every(c=>urls.includes(c))&&urls.length===(sm.match(/<url>/g)||[]).length,urls.join(' '));
+ ok('noindex pages are not in the sitemap, and only the feedback thanks page is noindex',files.filter(noindex).every(f=>f==='feedback-thanks.html'&&!urls.includes(docs[f].querySelector('link[rel=canonical]').href)),files.filter(noindex).join());
  ok('robots.txt references the sitemap',/^Sitemap: https:\/\/golfcalculators\.com\/sitemap\.xml$/m.test(fs.readFileSync(path.join(SITE,'robots.txt'),'utf8')));}
 // generator in sync
 if(fs.existsSync(path.join(SITE,'tools/seo/build.js'))){let inSync=true;try{execFileSync(process.execPath,[path.join(SITE,'tools/seo/build.js'),'--check'],{stdio:'pipe'});}catch(e){inSync=false;}ok('pages match tools/seo/build.js output (content.js + pages.json)',inSync);}

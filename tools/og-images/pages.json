@@ -58,5 +58,29 @@
     "ogDescription": "How golfcalculators.com uses Google Analytics and what stays on your device.",
     "alt": "Privacy: How we use Google Analytics, and what stays on your device. golfcalculators.com",
     "tagline": ""
+  },
+  {
+    "page": "feedback",
+    "file": "feedback.html",
+    "url": "https://golfcalculators.com/feedback",
+    "kicker": "golfcalculators.com",
+    "title": "Feedback",
+    "value": "What worked, what didn't, and what you'd want next.",
+    "ogTitle": "Send Feedback | golfcalculators.com",
+    "ogDescription": "Tell us what worked, what didn't and what you'd want next on the free golf calculators. One minute; email optional.",
+    "alt": "Feedback: What worked, what didn't, and what you'd want next. golfcalculators.com",
+    "tagline": ""
+  },
+  {
+    "page": "feedback-thanks",
+    "file": "feedback-thanks.html",
+    "url": "https://golfcalculators.com/feedback-thanks",
+    "kicker": "golfcalculators.com",
+    "title": "Thanks",
+    "value": "Your feedback is on its way.",
+    "ogTitle": "Thanks for Your Feedback | golfcalculators.com",
+    "ogDescription": "Your feedback reached golfcalculators.com. Thanks for helping make the golf calculators better.",
+    "alt": "Thanks: Your feedback is on its way. golfcalculators.com",
+    "tagline": ""
   }
 ]

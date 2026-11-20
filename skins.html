@@ -6,6 +6,11 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Golf Skins Calculator – Carryovers &amp; Who Pays Whom</title>
 <meta name="description" content="Free golf skins calculator: hole-by-hole scores, carryovers, net or gross, and an instant settle-up of who pays whom. Share it to the group chat.">
 <link rel="canonical" href="https://golfcalculators.com/skins">
@@ -110,24 +115,67 @@ a{color:var(--accent)}
 /* Footer */
 .gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
 .gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
 </style>
 
-<script>
-  // GA4 (G-DH32H3GWKE) on the production hostnames only: previews and localhost send nothing.
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  if (location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com') {
-    var gaTag = document.createElement('script');
-    gaTag.async = true;
-    gaTag.src = 'https://www.googletagmanager.com/gtag/js?id=G-DH32H3GWKE';
-    document.head.appendChild(gaTag);
-    gtag('js', new Date());
-    // Shared result links (#r=...) carry names and scores in the fragment: GA gets the page without it.
-    var gaStrip = function () { return /^#r=/.test(location.hash) ? { page_location: location.origin + location.pathname } : null; };
-    if (gaStrip()) gtag('config', 'G-DH32H3GWKE', gaStrip()); else gtag('config', 'G-DH32H3GWKE');
-    addEventListener('popstate', function () { if (gaStrip()) gtag('set', gaStrip()); });
-    addEventListener('hashchange', function () { if (gaStrip()) gtag('set', gaStrip()); });
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
   }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool) {
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    gtag('event', name, { tool: tool });
+    return true;
+  };
+})();
 </script>
 <script>if (/^#r=/.test(location.hash)) document.documentElement.classList.add('gc-view', 'gc-wait'); // shared result: banner first, no setup flash</script>
 <style>
@@ -136,6 +184,11 @@ a{color:var(--accent)}
   /* Setup: Start sits in the flow right after the setup card, as on Stableford (PO, 12 Nov), so it never covers
      the players, holes or scoring controls at any scroll position. */
   .sk-actions.sk-start{position:static;background:none}
+  .sk-cname{display:grid;grid-template-columns:1fr 7.5em;gap:var(--s2)}
+  .sk-cname.sk-tee2{grid-template-columns:1fr}
+  .sk-teeseg{grid-column:1/-1}
+  .sk-course2{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--line)}
+  .sk-course2[hidden]{display:none}
   .gc-next[hidden]{display:none} /* gc.css sets display:grid, which beat [hidden]: the next-step card showed on the hole and result screens */
   html{scroll-padding-top:56px;scroll-padding-bottom:96px}
   .sk-player{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s2);align-items:center}
@@ -192,9 +245,14 @@ a{color:var(--accent)}
   .sk-pay span:last-child{flex:none}
   .sk-hero-sub{margin-top:var(--s3);font-size:var(--fs-sm);opacity:.95}
   /* 4+ payments: compact lines, so the next action stays on the first screen at 375x812 (PO, 12 Nov): Share result on
-     your own result, Start your own round in the shared viewer */
+     your own result, Start your own round in the shared viewer. At ≤360px the same 7-payment result wraps more, so
+     tighten the hero padding and line type to keep Share result on the first screen at 320x568 (P3). */
   .sk-many .sk-pay{display:block;font-size:var(--fs-md);font-weight:600;line-height:1.35;margin-top:var(--s1)}
   .sk-many .sk-pay span:last-child{white-space:nowrap;font-weight:800;margin-left:var(--s1)}
+  @media (max-width:360px){
+    .sk-many{padding:var(--s3) var(--s3)}
+    .sk-many .sk-pay{font-size:var(--fs-sm);line-height:1.3;margin-top:2px}
+  }
   .sk-ledger{list-style:none;margin:0;padding:0}
   .sk-ledger li{display:grid;grid-template-columns:44px 1fr;gap:var(--s2);padding:var(--s2) 0;font-size:var(--fs-sm)}
   .sk-ledger li+li{border-top:1px solid var(--line)}
@@ -308,6 +366,14 @@ a{color:var(--accent)}
       "@type": "Answer",
       "text": "Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the Daily Handicap calculator), not half the 18-hole one."
      }
+    },
+    {
+     "@type": "Question",
+     "name": "Can players on different tees play skins together?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Each player gets shots by their own tee's stroke index, and a hole is decided on net score against each player's own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup."
+     }
     }
    ]
   },
@@ -392,6 +458,24 @@ a{color:var(--accent)}
     </div>
   </div>
   <div class="sk-actions sk-start"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start">Start round</button></div>
+  <div class="gc-card sk-pad" id="course-card" style="margin-bottom:var(--s3)">
+    <h2 id="course-h2">Course <span class="gc-muted" style="font-weight:400">(optional)</span></h2>
+    <div id="saved-wrap" style="margin-top:var(--s3)" hidden><h3 class="gc-label" id="saved-l">Your courses</h3>
+      <div id="saved" role="group" aria-labelledby="saved-l"></div></div>
+    <div class="sk-cname" style="margin-top:var(--s3)">
+      <div><label class="gc-label" for="cname">Course name</label><input class="gc-input" id="cname" type="text" autocomplete="off" autocapitalize="words" maxlength="40" placeholder="e.g. Royal Pines"></div>
+      <div><label class="gc-label" for="ctee">Tee</label><input class="gc-input" id="ctee" type="text" autocomplete="off" autocapitalize="words" maxlength="20" placeholder="e.g. Blue"></div>
+    </div>
+    <p class="gc-muted" id="course-help" style="margin-top:var(--s2)">Par and stroke index go in hole by hole. Name the course and you can save the card at the end, so next time it fills in with one tap.</p>
+    <label class="sk-switch" id="mixed-wrap" style="margin-top:var(--s2)"><input type="checkbox" id="mixed" aria-describedby="mixed-help"> Players on different tees</label>
+    <p class="gc-muted" id="mixed-help">Each player uses their own tee’s par and stroke index, and skins compare net scores against each player’s own par (Golf Australia §3(I)).</p>
+    <div id="tee2-box" style="margin-top:var(--s2)" hidden>
+      <div class="sk-cname sk-tee2"><div><label class="gc-label" for="t2name">Second tee</label><input class="gc-input" id="t2name" type="text" autocomplete="off" autocapitalize="words" maxlength="20" placeholder="e.g. Red"></div></div>
+      <div id="saved2-wrap" style="margin-top:var(--s3)" hidden><h3 class="gc-label" id="saved2-l">Second tee card from Your courses</h3>
+        <div id="saved2" role="group" aria-labelledby="saved2-l"></div></div>
+      <p class="gc-muted" style="margin-top:var(--s2)">Choose each player’s tee under their name. Second-tee par and stroke index go in hole by hole too.</p>
+    </div>
+  </div>
   <p class="gc-muted">Set up once, then score hole by hole. We work out the skins, the carryovers and who pays whom.</p>
 </section>
 
@@ -411,6 +495,16 @@ a{color:var(--accent)}
         </div></div>
       <div id="si-wrap"><span class="gc-label" id="si-l">Stroke index</span>
         <span class="gc-stepper" role="group" aria-labelledby="si-l"><button type="button" data-si="-1" aria-label="Lower stroke index">−</button><input id="si" type="text" inputmode="numeric" aria-label="Stroke index" autocomplete="off"><button type="button" data-si="1" aria-label="Raise stroke index">+</button></span></div>
+    </div>
+    <div class="sk-course sk-course2" id="tee2-row" hidden>
+      <div><span class="gc-label" id="par2-l">Par</span>
+        <div class="gc-seg" role="radiogroup" aria-labelledby="par2-l" id="par2-seg">
+          <label><input type="radio" name="par2" value="3"><span>3</span></label>
+          <label><input type="radio" name="par2" value="4"><span>4</span></label>
+          <label><input type="radio" name="par2" value="5"><span>5</span></label>
+        </div></div>
+      <div id="si2-wrap"><span class="gc-label" id="si2-l">Stroke index</span>
+        <span class="gc-stepper" role="group" aria-labelledby="si2-l"><button type="button" data-si2="-1" aria-label="Lower stroke index, second tee">−</button><input id="si2" type="text" inputmode="numeric" aria-label="Stroke index, second tee" autocomplete="off"><button type="button" data-si2="1" aria-label="Raise stroke index, second tee">+</button></span></div>
     </div>
     <p class="sk-note" id="si-warn" role="alert" style="margin-top:var(--s3)" hidden></p>
     <div class="sk-progress" id="progress" aria-hidden="true"></div>
@@ -434,6 +528,7 @@ a{color:var(--accent)}
   <div class="gc-view-actions" id="view-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="gc-own">Start your own round</button><div class="gc-view-links"><button type="button" class="gc-btn gc-btn-ghost" id="gc-reshare">Share result</button><button type="button" class="gc-btn gc-btn-ghost" id="gc-copy">Copy link</button></div></div>
   <div id="playoff" class="gc-card gc-own-only" style="margin-top:var(--s3)" hidden></div>
   <div class="sk-actions gc-own-only" id="share-row" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
+  <div class="gc-card sk-pad gc-ask gc-own-only" id="course-ask" style="margin-top:var(--s3)" hidden></div>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Totals</h2>
     <div class="sk-totals" id="totals"></div>
@@ -447,6 +542,8 @@ a{color:var(--accent)}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-edit">Edit scores</button>
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
+  <p class="gc-muted gc-fb" id="fb-after">How did the calculator go? <a href="/feedback?from=skins">Send feedback</a></p>
+  <div class="gc-card sk-pad gc-a2hs" id="a2hs" role="region" aria-label="Add to Home Screen" style="margin-top:var(--s3)" hidden></div>
   <p class="gc-muted">How it works: each skin is worth the stake from every other player, so the totals always add to $0.<span class="gc-own-only"> Your players and scores are saved on this device only.</span></p>
   <p class="gc-muted" style="margin-top:var(--s2)">Scoring: common club format (skins have no governing rulebook). <a href="#how-h">How it's calculated</a></p>
   <h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
@@ -482,10 +579,11 @@ a{color:var(--accent)}
   <div class="gc-faq-item"><h3>How much should a skin be worth?</h3><p>Whatever your group agrees. Remember that each skin is paid by every other player: at $5 a skin in a four-ball, winning one skin collects $15. Small stakes keep it social, and the calculator handles any amount.</p></div>
   <div class="gc-faq-item"><h3>How are skins payouts split?</h3><p>Each player's balance is the stake × (number of players × their skins − total skins won), so the balances always add up to $0. The calculator then lists who pays whom, matching the biggest debts with the biggest winnings so the group needs only a few payments.</p></div>
   <div class="gc-faq-item"><h3>How are handicap strokes given in net skins?</h3><p>Players get one stroke on each hole whose stroke index is at or below their Daily Handicap, and a second on the hardest holes if it is over 18. A plus handicap gives strokes back from stroke index 18. For 9 holes, use each player's 9-hole Daily Handicap (from the <a href="/daily-handicap">Daily Handicap calculator</a>), not half the 18-hole one.</p></div>
+  <div class="gc-faq-item"><h3>Can players on different tees play skins together?</h3><p>Yes. Each player gets shots by their own tee's stroke index, and a hole is decided on net score against each player's own par, so a net 6 on a par 5 ties a net 5 on a par 4 (Golf Australia WHS guide, January 2026, §3(I)). Turn on “Players on different tees” in setup.</p></div>
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
-<footer class="gc-footer"><a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="gc-footer"><a href="/feedback?from=skins">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <!-- Shared result links: verbatim copy of /gc-share.js. tests/run fails if it drifts from gc-share.js. -->
 <script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
    page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
@@ -579,9 +677,102 @@ a{color:var(--accent)}
   // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
   // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
   // listener never sees a URL holding names (PO, 12 Nov).
-  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search); }
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]utm_[a-z]+=[^&]*/g, '').replace(/^&/, '?')); } // v9 P6: the share link's utm_* tags go too
   window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
     TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
+})();
+</script>
+<!-- Your courses: verbatim copy of /gc-courses.js. tests/run fails if it drifts from gc-courses.js. -->
+<script data-src="/gc-courses.js">/* gc-courses.js: golfcalculators.com "Your courses" (v1, Nov 2026). Inlined verbatim into skins.html and
+   stableford.html as <script data-src="/gc-courses.js">; tests/run fails if a copy drifts from this file.
+   Saved course cards live in this browser's localStorage only (key gc_courses_v1, shared by both tools), by
+   course name and tee. No server, nothing is sent anywhere. A saved card is only replaced when the golfer says
+   so ("Update saved course?"); today's edits change today's round only. */
+(function () {
+  var KEY = 'gc_courses_v1', MAX = 20;
+  function str(v, n) { return String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/g, '').trim().slice(0, n); }
+  function clean(c) { // whitelist rebuild of one card; null if it is not a usable card
+    if (!c || typeof c !== 'object') return null;
+    var name = str(c.name, 40), holes = +c.holes === 9 ? 9 : 18;
+    if (!name) return null;
+    var nums = function (a, lo, hi) { return Array.isArray(a) && a.length === holes && a.every(function (x) { return +x === Math.round(+x) && +x >= lo && +x <= hi; }) ? a.map(Number) : null; };
+    var par = nums(c.par, 3, 6), si = nums(c.si, 1, holes);
+    if (!par || !si) return null;
+    return { name: name, tee: str(c.tee, 20), holes: holes, par: par, si: si };
+  }
+  function key(c) { return str(c && c.name, 40).toLowerCase() + '|' + str(c && c.tee, 20).toLowerCase(); }
+  function label(c) { return str(c.name, 40) + (str(c.tee, 20) ? ' \u00b7 ' + str(c.tee, 20) : ''); }
+  function list() {
+    try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); if (!Array.isArray(a)) return []; var seen = {}, out = [];
+      a.forEach(function (x) { var c = clean(x); if (c && !seen[key(c)]) { seen[key(c)] = 1; out.push(c); } }); return out; } catch (e) { return []; }
+  }
+  function write(a) { try { localStorage.setItem(KEY, JSON.stringify(a.slice(0, MAX))); return true; } catch (e) { return false; } }
+  function find(c) { var k = key(c), a = list(); for (var i = 0; i < a.length; i++) if (key(a[i]) === k) return a[i]; return null; }
+  function put(c) { var x = clean(c); if (!x) return null; var k = key(x); write([x].concat(list().filter(function (y) { return key(y) !== k; }))); return x; }
+  function remove(k) { var a = list(), b = a.filter(function (y) { return key(y) !== k; }); write(b); return a.length !== b.length; }
+  function diff(a, b) { // holes whose par or SI differ (1-based); null if the cards are not comparable
+    if (!a || !b || +a.holes !== +b.holes) return null; var out = [];
+    for (var i = 0; i < a.par.length; i++) if (+a.par[i] !== +b.par[i] || +a.si[i] !== +b.si[i]) out.push(i + 1);
+    return out;
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]; }); }
+  // "Your courses" list: one tap fills the card (data-cuse=<index in list()>), a delete asks first (data-cdel, then
+  // data-cdel-yes / data-cdel-no). Course names are escaped (they are typed by the golfer).
+  function listHtml(cards, asking, use) { // use: data attribute for the fill button (default "cuse"); a custom one has no delete
+    var ua = use || 'cuse';
+    return '<ul class="gc-courses">' + cards.map(function (c, i) {
+      var l = esc(label(c));
+      if (asking === key(c)) return '<li class="gc-courses-ask"><span id="cdq' + i + '">Delete <b>' + l + '</b> from Your courses?</span>' +
+        '<span class="gc-courses-yn" role="group" aria-labelledby="cdq' + i + '"><button type="button" class="gc-btn gc-btn-secondary" data-cdel-yes="' + i + '">Delete</button><button type="button" class="gc-btn gc-btn-ghost" data-cdel-no="' + i + '">Keep</button></span></li>';
+      return '<li><button type="button" class="gc-btn gc-btn-secondary gc-courses-use" data-' + ua + '="' + i + '"><b>' + l + '</b> <span>' + c.holes + ' holes · par ' + par(c) + '</span></button>' +
+        (use ? '' : '<button type="button" class="gc-btn gc-btn-ghost gc-courses-del" data-cdel="' + i + '" aria-label="Delete ' + l + ' from Your courses">✕</button>') + '</li>';
+    }).join('') + '</ul>';
+  }
+  function par(c) { return c.par.reduce(function (s, x) { return s + x; }, 0); }
+  window.GCCourses = { KEY: KEY, clean: clean, key: key, label: label, list: list, find: find, put: put, remove: remove, diff: diff, par: par, listHtml: listHtml, esc: esc };
+})();
+</script>
+<!-- Add to Home Screen tip (v9 P5): verbatim copy of /gc-a2hs.js. tests/run fails if it drifts from gc-a2hs.js. -->
+<script data-src="/gc-a2hs.js">/* gc-a2hs.js: golfcalculators.com "Add to Home Screen" tip (v9 P5, Nov 2026). Inlined verbatim into Skins and
+   Stableford as <script data-src="/gc-a2hs.js">; tests/run fails if a copy drifts from this file.
+   Shown once, below a result (low on the page, so it never shifts the result when the prompt arrives late), in #a2hs: on iPhone/iPad Safari ("tap Share, then Add to Home Screen")
+   or where the browser offers an install prompt (Android Chrome: beforeinstallprompt). Never when the site is
+   already open from the home screen. Dismissed, installed or shown once = never again (localStorage gc_a2hs_v1).
+   No service worker, no network, nothing sent anywhere. */
+(function () {
+  var KEY = 'gc_a2hs_v1', deferred = null, showing = false;
+  function get() { try { return localStorage.getItem(KEY); } catch (e) { return 'x'; } }
+  function set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} }
+  function standalone() { return navigator.standalone === true || !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+  function iosSafari() {
+    var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return ios && /Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|FBAN|FBAV|Instagram|Line\//.test(ua);
+  }
+  function mode() { return deferred ? 'prompt' : iosSafari() ? 'ios' : null; }
+  var SHARE = '<svg class="gc-a2hs-ico" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 2v10M6 6l4-4 4 4M4 9v8h12V9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function hide(el) { el.hidden = true; el.innerHTML = ''; showing = false; }
+  function render() { // call after a result is on screen
+    var el = document.getElementById('a2hs'); if (!el) return;
+    var m = mode();
+    if (!m || standalone() || (get() && !showing)) { hide(el); return; }
+    if (!showing) set('shown'); // one-time: it is not offered again on a later visit
+    showing = true; el.hidden = false; el.setAttribute('data-mode', m);
+    el.innerHTML = '<p class="gc-a2hs-t"><strong>Keep it on your phone</strong></p>' +
+      (m === 'ios' ? '<p class="gc-a2hs-p">Tap Share ' + SHARE + ' at the bottom of Safari, then <b>Add to Home Screen</b>. It opens like an app, ready for the next round.</p>' :
+        '<p class="gc-a2hs-p">Add Golf Calculators to your home screen. It opens like an app, ready for the next round.</p>') +
+      '<div class="gc-a2hs-b">' + (m === 'prompt' ? '<button type="button" class="gc-btn gc-btn-primary" id="a2hs-add">Add to Home Screen</button>' : '') +
+      '<button type="button" class="gc-btn gc-btn-ghost" id="a2hs-no">' + (m === 'prompt' ? 'Not now' : 'Got it') + '</button></div>';
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('#a2hs-add, #a2hs-no'), el = document.getElementById('a2hs'); if (!b || !el) return;
+    if (b.id === 'a2hs-no') { set('dismissed'); hide(el); return; }
+    var d = deferred; deferred = null; if (!d) { hide(el); return; }
+    d.prompt(); hide(el);
+    if (d.userChoice && d.userChoice.then) d.userChoice.then(function (c) { set(c && c.outcome === 'accepted' ? 'installed' : 'dismissed'); }, function () {});
+  });
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; var el = document.getElementById('a2hs'); if (el && el.parentElement && !el.parentElement.closest('[hidden]')) render(); }); // a result is on screen now
+  window.addEventListener('appinstalled', function () { set('installed'); deferred = null; var el = document.getElementById('a2hs'); if (el) hide(el); });
+  window.GCA2HS = { render: render, mode: mode, standalone: standalone, KEY: KEY };
 })();
 </script>
 <script>
@@ -626,25 +817,37 @@ function hcp9Of(p) { return p.hcp9 != null && p.hcp9 !== '' ? parseHcp(p.hcp9) :
 function hcpFor(st, p) { return isNine(st) ? hcp9Of(p) : parseHcp(p.hcp); }
 function needsCheck9(st, p) { return isNine(st) && (p.hcp9 == null || p.hcp9 === '') && parseHcp(p.hcp) !== 0; }
 function check9Note(p) { return 'Half of 18-hole DH ' + fmtHcp(parseHcp(p.hcp)) + ': please check'; } // one line at 320 px
+// Mixed tees (v9 P3, Golf Australia WHS reference guide, January 2026, §3(I)): each player plays their own tee's par
+// and stroke index (st.tee2 for players with tee 1). The Daily Handicap already allows for the tees, so no strokes are
+// added for the par difference; a skin is won on net score relative to each player's own par (a net 6 on a par 5 ties
+// a net 5 on a par 4). Off (or no tee2): exactly the previous rule.
+function isMixed(st) { var t = st && st.tee2; return !!(st && st.mixed && t && Array.isArray(t.par) && t.par.length === 18 && Array.isArray(t.si) && t.si.length === 18); }
+function teeOf(st, p) { return isMixed(st) && p && p.tee === 1 ? 1 : 0; }
+function parAt(st, t, h) { return +(t ? st.tee2.par : st.par)[h - 1]; }
+function siAt(st, t, h) { return +(t ? st.tee2.si : st.si)[h - 1]; }
 function compute(st) {
   var n = st.players.length, names = st.players.map(nameOf);
+  var mixed = isMixed(st), tees = st.players.map(function (p) { return teeOf(st, p); });
   var stake = parseFloat(String(st.stake).replace(/[^0-9.]/g, ''));
   var rg = holeRange(st.holes), a = rg[0], b = rg[1], total = b - a + 1;
   var allow = Math.min(100, Math.max(50, +st.allowance || 100)) / 100;
   var net = st.scoring !== 'gross', offlow = st.scoring === 'offlow';
   var playing = st.players.map(function (p) { if (!net) return 0; return rh(hcpFor(st, p) * allow); });
   var minP = Math.min.apply(null, playing);
-  var holeSis = []; for (var x = a; x <= b; x++) holeSis.push(+st.si[x - 1]);
+  var holeSis = [], holeSis2 = []; for (var x = a; x <= b; x++) { holeSis.push(+st.si[x - 1]); if (mixed) holeSis2.push(+st.tee2.si[x - 1]); }
   var skins = names.map(function () { return 0; }), carry = 0, played = 0, ledger = [];
   for (var h = a; h <= b; h++) {
     var sc = st.scores[h], si = +st.si[h - 1];
-    var strokes = playing.map(function (p) { return net ? strokesOnHole(offlow ? p - minP : p, total === 9 ? rankSI(si, holeSis) : si, total) : 0; });
+    var strokes = playing.map(function (p, i) { var s2 = mixed ? siAt(st, tees[i], h) : si; return net ? strokesOnHole(offlow ? p - minP : p, total === 9 ? rankSI(s2, mixed && tees[i] ? holeSis2 : holeSis) : s2, total) : 0; });
     var e = { hole: h, par: +st.par[h - 1], si: si, strokes: strokes, played: false };
+    if (mixed) e.pars = tees.map(function (t) { return parAt(st, t, h); });
     if (!sc || sc.length !== n || sc.some(function (v) { return !(v >= 1); })) { ledger.push(e); continue; }
     played++; e.played = true; e.gross = sc.slice();
     e.net = sc.map(function (g, i) { return g - strokes[i]; });
-    var low = Math.min.apply(null, e.net);
-    var win = []; e.net.forEach(function (v, i) { if (v === low) win.push(i); });
+    var cmp = e.net;
+    if (mixed) { e.rel = e.net.map(function (v, i) { return v - e.pars[i]; }); cmp = e.rel; } // §3(I): versus own par
+    var low = Math.min.apply(null, cmp);
+    var win = []; cmp.forEach(function (v, i) { if (v === low) win.push(i); });
     e.low = low; e.carryIn = carry;
     if (win.length === 1) { e.winner = win[0]; e.value = 1 + carry; skins[win[0]] += e.value; carry = 0; }
     else { e.tied = win; if (st.carry) carry += 1; e.carryOut = st.carry ? carry : 0; }
@@ -673,8 +876,10 @@ function compute(st) {
   }
   return { names: names, stake: stake, stakeOk: ok, skins: skins, balances: balances, payments: payments, ledger: ledger,
     carry: carry, leftover: leftover, playoffWinner: playoffWinner, needsPlayoff: needsPlayoff, played: played, total: total,
-    range: rg, playing: playing, totalSkins: totalSkins };
+    range: rg, playing: playing, totalSkins: totalSkins, mixed: mixed, tees: tees };
 }
+function relText(d) { return d === 0 ? 'level par' : Math.abs(d) + (d < 0 ? ' under' : ' over'); }
+function teeName(st, t) { var n = t ? st.tee2 && st.tee2.name : st.course && st.course.tee; return String(n || '').trim() || (t ? 'Tee 2' : 'Tee 1'); }
 
 function defaultState() {
   return { v: 1, players: [{ name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }, { name: '', hcp: 0 }],
@@ -692,7 +897,7 @@ function exampleState() {
 }
 function shareText(st, r, link) { // plain ASCII (GSM-7 for SMS); the last line is the result link when there is one
   var mode = st.scoring === 'gross' ? 'gross' : (st.scoring === 'offlow' ? 'net off the low' : 'net full handicaps') + (+st.allowance !== 100 ? ' ' + st.allowance + '%' : '');
-  var holes = st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '';
+  var holes = (st.holes === 'front' ? ', front 9' : st.holes === 'back' ? ', back 9' : '') + (isMixed(st) ? ', mixed tees (vs own par)' : '');
   var lines = ['Skins: ' + money(r.stake) + '/skin, ' + mode + holes + ', carryovers ' + (st.carry ? 'on' : 'off') + (r.played < r.total ? ' (thru ' + r.played + ' of ' + r.total + ')' : '')];
   if (r.payments.length) r.payments.forEach(function (p) { lines.push(r.names[p.from] + ' pays ' + r.names[p.to] + ' ' + money(p.amount)); });
   else lines.push('All square');
@@ -709,7 +914,8 @@ function shareText(st, r, link) { // plain ASCII (GSM-7 for SMS); the last line 
 var HMIN = -10, HMAX = 54;
 function stakeNum(st) { return parseFloat(String(st.stake).replace(/[^0-9.]/g, '')); }
 function toPayload(st) {
-  var stake = stakeNum(st), rg = holeRange(st.holes), n = st.players.length;
+  var stake = stakeNum(st), rg = holeRange(st.holes), n = st.players.length, mixed = isMixed(st);
+  if (mixed && (st.tee2.si.some(function (x) { return !(+x >= 1 && +x <= 18); }) || st.tee2.par.some(function (x) { return !(+x >= 3 && +x <= 6); }))) return null;
   if (!(stake > 0) || !/^\d{1,7}(\.\d{1,6})?$/.test(String(stake))) return null;
   if (st.si.some(function (x) { return !(+x >= 1 && +x <= 18); }) || st.par.some(function (x) { return !(+x >= 3 && +x <= 6); })) return null;
   var hc = function (v) { return Math.max(HMIN, Math.min(HMAX, Math.round(+v || 0))); };
@@ -720,13 +926,15 @@ function toPayload(st) {
     pl: st.players.map(function (p, i) {
       var sc = '';
       for (var h = 1; h <= 18; h++) { var v = h >= rg[0] && h <= rg[1] ? (st.scores[h] || [])[i] : null; sc += v >= 1 && v <= 20 ? (+v).toString(36) : '-'; }
-      return [String(p.name || '').trim(), hc(p.hcp), p.hcp9 == null || p.hcp9 === '' ? null : hc(p.hcp9), sc];
-    }) };
+      var row = [String(p.name || '').trim(), hc(p.hcp), p.hcp9 == null || p.hcp9 === '' ? null : hc(p.hcp9), sc];
+      if (mixed) row.push(teeOf(st, p)); // v9 P3: 5th field = tee (0 first, 1 second) only on mixed-tee links
+      return row;
+    }), tees: mixed ? { a: String((st.course && st.course.tee) || '').trim().slice(0, 20), b: String(st.tee2.name || '').trim().slice(0, 20), par: st.tee2.par.map(Number).join(''), si: st.tee2.si.map(function (x) { return (+x).toString(36); }).join('') } : undefined };
 }
 function fromPayload(o) { // whitelist rebuild; null on anything out of range (share-link design §6)
   var G = window.GCShare, get = G.get;
   if (!o || typeof o !== 'object' || get(o, 'v') !== 1 || get(o, 't') !== 'sk') return null;
-  var st$ = get(o, '$'), r = get(o, 'r'), m = get(o, 'm'), a = get(o, 'a'), c = get(o, 'c'), e = get(o, 'e'), po = get(o, 'o'), par = get(o, 'par'), si = get(o, 'si'), pl = get(o, 'pl');
+  var st$ = get(o, '$'), r = get(o, 'r'), m = get(o, 'm'), a = get(o, 'a'), c = get(o, 'c'), e = get(o, 'e'), po = get(o, 'o'), par = get(o, 'par'), si = get(o, 'si'), pl = get(o, 'pl'), tz = get(o, 'tees');
   if (typeof st$ !== 'string' || !/^\d{1,7}(\.\d{1,6})?$/.test(st$) || !(parseFloat(st$) > 0)) return null;
   if (['18', 'f', 'b'].indexOf(r) < 0 || ['f', 'o', 'g'].indexOf(m) < 0 || ['n', 'p'].indexOf(e) < 0 || (c !== 0 && c !== 1)) return null;
   if (typeof a !== 'number' || a !== Math.round(a) || a < 50 || a > 100) return null;
@@ -734,6 +942,12 @@ function fromPayload(o) { // whitelist rebuild; null on anything out of range (s
   if (!Array.isArray(pl) || pl.length < MIN_PLAYERS || pl.length > MAX_PLAYERS) return null;
   if (po !== null && po !== undefined && !(typeof po === 'number' && po === Math.round(po) && po >= 0 && po < pl.length)) return null;
   var okH = function (v) { return typeof v === 'number' && v === Math.round(v) && v >= HMIN && v <= HMAX; };
+  var mixed = tz !== undefined && tz !== null;
+  if (mixed) { // v9 P3 second tee card: {a: first tee name, b: second tee name, par, si}
+    if (typeof tz !== 'object' || Array.isArray(tz)) return null;
+    var ta = get(tz, 'a'), tb = get(tz, 'b'), tp = get(tz, 'par'), ts = get(tz, 'si');
+    if (typeof ta !== 'string' || typeof tb !== 'string' || typeof tp !== 'string' || !/^[3-6]{18}$/.test(tp) || typeof ts !== 'string' || !/^[1-9a-i]{18}$/.test(ts)) return null;
+  }
   var s = defaultState(), cols = [];
   s.stake = st$; s.holes = r === 'f' ? 'front' : r === 'b' ? 'back' : '18'; s.scoring = { f: 'full', o: 'offlow', g: 'gross' }[m];
   s.allowance = a; s.carry = c === 1; s.endRule = e === 'p' ? 'playoff' : 'nobody'; s.playoff = po == null ? null : po;
@@ -741,18 +955,21 @@ function fromPayload(o) { // whitelist rebuild; null on anything out of range (s
   s.players = [];
   for (var i = 0; i < pl.length; i++) {
     var p = pl[i];
-    if (!Array.isArray(p) || p.length !== 4 || typeof p[0] !== 'string' || !okH(p[1]) || !(p[2] === null || okH(p[2])) || typeof p[3] !== 'string' || !/^[1-9a-k-]{18}$/.test(p[3])) return null;
-    s.players.push({ name: G.cleanText(p[0], 24), hcp: p[1], hcp9: p[2] }); cols.push(p[3]);
+    if (!Array.isArray(p) || p.length !== (mixed ? 5 : 4) || typeof p[0] !== 'string' || !okH(p[1]) || !(p[2] === null || okH(p[2])) || typeof p[3] !== 'string' || !/^[1-9a-k-]{18}$/.test(p[3])) return null;
+    if (mixed && p[4] !== 0 && p[4] !== 1) return null;
+    var pp = { name: G.cleanText(p[0], 24), hcp: p[1], hcp9: p[2] }; if (mixed) pp.tee = p[4];
+    s.players.push(pp); cols.push(p[3]);
   }
   var rg = holeRange(s.holes);
   for (var h = rg[0]; h <= rg[1]; h++) {
     var row = cols.map(function (sc) { var ch = sc.charAt(h - 1); return ch === '-' ? null : parseInt(ch, 36); });
     if (row.some(function (v) { return v != null; })) s.scores[h] = row;
   }
+  if (mixed) { s.mixed = true; s.course = { name: '', tee: G.cleanText(ta, 20) }; s.tee2 = { name: G.cleanText(tb, 20), par: tp.split('').map(Number), si: ts.split('').map(function (ch) { return parseInt(ch, 36); }) }; }
   s.hole = rg[1]; s.screen = 'result';
   return s;
 }
-window.GCSkins = { compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
+window.GCSkins = { isMixed: isMixed, teeOf: teeOf, compute: compute, exampleState: exampleState, defaultState: defaultState, strokesOnHole: strokesOnHole,
   parseHcp: parseHcp, fmtHcp: fmtHcp, plusNote: plusNote, hcpFor: hcpFor, hcp9Of: hcp9Of, needsCheck9: needsCheck9, check9Note: check9Note, isNine: isNine, signed: signed, esc: esc, shareText: shareText, holeRange: holeRange, DEF_PAR: DEF_PAR, DEF_SI: DEF_SI,
   toPayload: toPayload, fromPayload: fromPayload };
 
@@ -776,6 +993,11 @@ function load() {
         if (!Array.isArray(s.par) || s.par.length !== 18) s.par = DEF_PAR.slice();
         if (!Array.isArray(s.si) || s.si.length !== 18) s.si = DEF_SI.slice();
         if (typeof s.scores !== 'object' || !s.scores) s.scores = {};
+        if (o.course && typeof o.course === 'object') s.course = { name: String(o.course.name || '').slice(0, 40), tee: String(o.course.tee || '').slice(0, 20) }; // v9 P2 (optional key)
+        if (typeof o.courseAsk === 'string') s.courseAsk = o.courseAsk.slice(0, 2000);
+        if (o.tee2 && typeof o.tee2 === 'object') { var t2 = o.tee2, okA = function (a, lo, hi) { return Array.isArray(a) && a.length === 18 && a.every(function (x) { return +x >= lo && +x <= hi; }); };
+          s.tee2 = { name: String(t2.name || '').slice(0, 20), par: okA(t2.par, 3, 6) ? t2.par.map(Number) : s.par.slice(), si: okA(t2.si, 1, 18) ? t2.si.map(Number) : s.si.slice() };
+          s.mixed = !!o.mixed; o.players.slice(0, MAX_PLAYERS).forEach(function (p, i) { if (p && p.tee === 1) s.players[i].tee = 1; }); }
         return s;
       }
     }
@@ -792,7 +1014,7 @@ function save() { if (VIEW || RAW != null) return; try { localStorage.setItem(KE
 function range() { return holeRange(S.holes); }
 function recorded(h) { var sc = S.scores[h]; return !!(sc && sc.length === S.players.length && sc.every(function (v) { return v >= 1; })); }
 function thru() { var rg = range(), c = 0; for (var h = rg[0]; h <= rg[1]; h++) if (recorded(h)) c++; return c; }
-function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return sc[i] >= 1 ? sc[i] : +S.par[h - 1]; }); }
+function shown(h) { var sc = S.scores[h] || []; return S.players.map(function (p, i) { return sc[i] >= 1 ? sc[i] : parAt(S, teeOf(S, p), h); }); }
 function record(h) { if (!recorded(h)) S.scores[h] = shown(h); }
 function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
@@ -804,6 +1026,8 @@ function show(screen, focus) {
   if (screen === 'setup') renderSetup();
   if (screen === 'hole') renderHole();
   if (screen === 'result') renderResult();
+  if (screen === 'result') settled(); // v9 P6 round_settled (own rounds only, once per round)
+  if (window.GCA2HS) { if (screen === 'result') GCA2HS.render(); else $('a2hs').hidden = true; } // v9 P5 one-time Add to Home Screen tip
   if (focus) { window.scrollTo(0, 0); var hd = $(screen === 'setup' ? 'setup-h' : screen === 'hole' ? 'hole-h' : 'result-h'); if (hd) hd.focus({ preventScroll: true }); }
 }
 
@@ -823,6 +1047,7 @@ function renderPlayers() {
       (nine ? '<a class="sk-dhlink" id="dhl' + i + '" href="/daily-handicap?from=skins&amp;holes=9&amp;p=' + i + '" aria-label="Work out ' + nm + '\u2019s 9-hole Daily Handicap">Work out 9-hole DH →</a>' +
         '<p class="sk-hcpnote" id="hn' + i + '" aria-live="polite">' + (needsCheck9(S, p) ? esc(check9Note(p)) : '') + '</p>' : '') +
       '<p class="sk-plusnote" id="pl' + i + '" aria-live="polite">' + esc(plusNote(hcpFor(S, p))) + '</p>') +
+      (isMixed(S) ? '<div class="gc-seg sk-teeseg" role="radiogroup" aria-label="' + nm + ' tee">' + [0, 1].map(function (t) { return '<label><input type="radio" name="pt' + i + '" value="' + t + '" data-i="' + i + '"' + (teeOf(S, p) === t ? ' checked' : '') + '><span>' + esc(teeName(S, t)) + '</span></label>'; }).join('') + '</div>' : '') +
       '</div>';
   }).join('');
   $('pcount').value = n; $('pcount').textContent = n;
@@ -840,7 +1065,58 @@ function renderSetup() {
   $('scoring-help').textContent = { full: 'Full handicap strokes, by stroke index.', offlow: 'Lowest handicap plays off scratch; others get the difference.', gross: 'Raw scores, no handicap strokes.' }[S.scoring];
   var t = thru();
   $('btn-start').textContent = t ? 'Resume round (thru ' + t + ')' : 'Start round';
+  renderCourses();
   renderPrompt();
+}
+/* Your courses (v9 P2, gc-courses.js shared with Stableford): Skins plays 18-hole cards (front/back 9 use holes 1–9 / 10–18). */
+var askDel = null;
+function skCourses() { return GCCourses.list().filter(function (c) { return c.holes === 18; }); }
+function curCourse() { var c = S.course || {}; return { name: String(c.name || '').trim(), tee: String(c.tee || '').trim(), holes: 18, par: S.par.map(Number), si: S.si.map(Number) }; }
+function courseLabel(c) { return GCCourses.label({ name: c.name, tee: c.tee }); }
+function renderCourses() {
+  var c = S.course || {}, list = skCourses();
+  if (document.activeElement !== $('cname')) $('cname').value = c.name || '';
+  if (document.activeElement !== $('ctee')) $('ctee').value = c.tee || '';
+  $('saved-wrap').hidden = !list.length;
+  $('saved').innerHTML = GCCourses.listHtml(list, askDel);
+  var mx = isMixed(S); $('mixed').checked = mx; $('tee2-box').hidden = !mx;
+  if (mx) { if (document.activeElement !== $('t2name')) $('t2name').value = S.tee2.name || ''; $('saved2-wrap').hidden = !list.length; $('saved2').innerHTML = GCCourses.listHtml(list, null, 'cuse2'); }
+}
+function setMixed(on) { // v9 P3: the second tee card starts as a copy of today's card; players start on the first tee
+  if (on && !S.tee2) S.tee2 = { name: '', par: S.par.slice(), si: S.si.slice() };
+  S.mixed = !!on; save(); renderSetup();
+}
+function useCourse(c) { // one tap fills today's par and SI; editing a hole later never changes the saved card
+  S.par = c.par.slice(); S.si = c.si.slice(); S.course = { name: c.name, tee: c.tee }; delete S.courseAsk;
+  save(); renderSetup(); toast('Course: ' + courseLabel(c));
+}
+function siUnique(c, rg) { var seen = {}; for (var h = rg[0]; h <= rg[1]; h++) { var v = +c.si[h - 1]; if (seen[v]) return false; seen[v] = 1; } return true; }
+function courseAskState(r) { // end of round: save a new named card (18 holes), or ask before updating the saved one
+  var c = curCourse(), rg = range();
+  if (VIEW || !c.name || !r.played || r.played < r.total || !siUnique(c, rg)) return null;
+  var saved = GCCourses.find(c), sig = JSON.stringify([GCCourses.key(c), c.par, c.si, S.holes]);
+  if (S.courseAsk === sig) return null;
+  if (!saved) return S.holes === '18' && siUnique(c, [1, 18]) ? { kind: 'new', sig: sig } : null; // a 9-hole round does not know the other nine
+  var d = (GCCourses.diff(saved, c) || []).filter(function (h) { return h >= rg[0] && h <= rg[1]; });
+  return d.length ? { kind: 'update', sig: sig, holes: d } : null;
+}
+function renderCourseAsk(r) {
+  var el = $('course-ask'), a = courseAskState(r); el.hidden = !a; if (!a) { el.innerHTML = ''; return; }
+  var l = esc(courseLabel(curCourse()));
+  el.innerHTML = a.kind === 'update'
+    ? '<h2 id="cask-h">Update saved course?</h2><p>Today\u2019s card for <b>' + l + '</b> differs from your saved one on hole' + (a.holes.length > 1 ? 's ' : ' ') + a.holes.join(', ') + '. Your saved card stays as it is unless you update it.</p>' +
+      '<div class="gc-ask-btns" role="group" aria-labelledby="cask-h"><button type="button" class="gc-btn gc-btn-primary" id="cask-yes">Update saved course</button><button type="button" class="gc-btn gc-btn-secondary" id="cask-no">Keep saved card</button></div>'
+    : '<h2 id="cask-h">Save this course?</h2><p>Save <b>' + l + '</b> to Your courses, so next time par and stroke index fill in with one tap. Stored on this device only.</p>' +
+      '<div class="gc-ask-btns" role="group" aria-labelledby="cask-h"><button type="button" class="gc-btn gc-btn-primary" id="cask-yes">Save course</button><button type="button" class="gc-btn gc-btn-secondary" id="cask-no">Not now</button></div>';
+  el.setAttribute('data-sig', a.sig); el.setAttribute('data-holes', a.holes ? a.holes.join(',') : '');
+}
+function courseAnswer(yes) {
+  var el = $('course-ask'), c = curCourse();
+  if (yes) { var saved = GCCourses.find(c), hs = (el.getAttribute('data-holes') || '').split(',').filter(Boolean).map(Number);
+    if (saved && hs.length) { hs.forEach(function (h) { saved.par[h - 1] = c.par[h - 1]; saved.si[h - 1] = c.si[h - 1]; }); saved.name = c.name; saved.tee = c.tee; GCCourses.put(saved); } // only the holes played today
+    else GCCourses.put(c);
+    toast('Saved ' + courseLabel(c)); }
+  S.courseAsk = el.getAttribute('data-sig'); save(); renderCourseAsk(compute(S)); $('btn-share').focus();
 }
 // DH return (/skins?dh=7&holes=9&p=2). Same question, wording, choices and focus as Stableford (a parity test checks the text).
 var pendingDH = null;
@@ -880,25 +1156,29 @@ function stripText(h) {
   var tmp = JSON.parse(JSON.stringify(S)); tmp.scores[h] = shown(h); tmp.endRule = 'nobody';
   var r = compute(tmp), e = r.ledger.filter(function (x) { return x.hole === h; })[0], line;
   var last = h === range()[1];
-  if (e.winner != null) line = 'Skin to ' + r.names[e.winner] + ' (' + e.net[e.winner] + (S.scoring === 'gross' ? '' : ' net') + ')' + (e.value > 1 ? ', worth ' + e.value + ' skins' : '');
-  else if (S.carry) line = 'Halved: carry ' + e.carryOut + (last ? ' (still carried after the last hole)' : ' to hole ' + (h + 1));
+  if (e.winner != null) line = 'Skin to ' + r.names[e.winner] + ' (' + e.net[e.winner] + (S.scoring === 'gross' ? '' : ' net') + (r.mixed ? ' on par ' + e.pars[e.winner] + ', ' + relText(e.rel[e.winner]) : '') + ')' + (e.value > 1 ? ', worth ' + e.value + ' skins' : '');
+  else if (S.carry) line = 'Halved' + (r.mixed ? ' at ' + relText(e.low) : '') + ': carry ' + e.carryOut + (last ? ' (still carried after the last hole)' : ' to hole ' + (h + 1));
   else line = 'Halved: no skin';
   var so = r.names.map(function (nm, i) { return r.skins[i] ? esc(nm) + ' ' + r.skins[i] : ''; }).filter(Boolean).join(' · ') || 'none yet';
   return '<strong>' + esc(line) + '</strong><span>Skins so far: ' + so + '</span>';
 }
 function strokesNote(n) { return n > 0 ? '●'.repeat(n) + ' gets ' + n + ' shot' + (n > 1 ? 's' : '') : n < 0 ? '○ gives 1 shot' : 'no shot'; }
-function siDupes() { // holes in play that share a stroke index (net modes only)
+function siDupes(t) { // holes in play that share a stroke index (net modes only), per tee card (t: 0 first, 1 second)
   var rg = range(), seen = {}, out = [];
-  if (S.scoring === 'gross') return out;
-  for (var h = rg[0]; h <= rg[1]; h++) { var v = +S.si[h - 1]; (seen[v] = seen[v] || []).push(h); }
-  for (var k in seen) if (seen[k].length > 1) out.push({ si: +k, holes: seen[k] });
+  if (S.scoring === 'gross' || (t && !isMixed(S))) return out;
+  for (var h = rg[0]; h <= rg[1]; h++) { var v = siAt(S, t ? 1 : 0, h); (seen[v] = seen[v] || []).push(h); }
+  for (var k in seen) if (seen[k].length > 1) out.push({ si: +k, holes: seen[k], tee: t ? 1 : 0 });
   return out;
 }
 function siWarn() {
-  var h = S.hole, d = siDupes().filter(function (x) { return x.holes.indexOf(h) >= 0; })[0], el = $('si-warn');
-  el.hidden = !d;
-  el.textContent = d ? 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '. Each hole needs a different stroke index, so check the card.' : '';
-  $('si').setAttribute('aria-invalid', d ? 'true' : 'false');
+  var h = S.hole, el = $('si-warn'), mx = isMixed(S), msgs = [];
+  [0, 1].forEach(function (t) {
+    var d = siDupes(t).filter(function (x) { return x.holes.indexOf(h) >= 0; })[0];
+    $(t ? 'si2' : 'si').setAttribute('aria-invalid', d ? 'true' : 'false');
+    if (d) msgs.push((mx ? teeName(S, t) + ': ' : '') + 'SI ' + d.si + ' is also on hole ' + d.holes.filter(function (x) { return x !== h; }).join(', ') + '.');
+  });
+  el.hidden = !msgs.length;
+  el.textContent = msgs.length ? msgs.join(' ') + ' Each hole needs a different stroke index' + (mx ? ' on each tee' : '') + ', so check the card.' : '';
 }
 function renderHole() {
   var rg = range(), h = Math.min(rg[1], Math.max(rg[0], S.hole || rg[0])); S.hole = h;
@@ -907,6 +1187,10 @@ function renderHole() {
   setRadio('par', S.par[h - 1]);
   $('si').value = S.si[h - 1];
   $('si-wrap').hidden = S.scoring === 'gross';
+  var mx = isMixed(S); $('tee2-row').hidden = !mx;
+  $('par-l').textContent = mx ? 'Par \u00b7 ' + teeName(S, 0) : 'Par'; $('si-l').textContent = mx ? 'Stroke index \u00b7 ' + teeName(S, 0) : 'Stroke index';
+  if (mx) { setRadio('par2', S.tee2.par[h - 1]); $('si2').value = S.tee2.si[h - 1]; $('si2-wrap').hidden = S.scoring === 'gross';
+    $('par2-l').textContent = 'Par \u00b7 ' + teeName(S, 1); $('si2-l').textContent = 'Stroke index \u00b7 ' + teeName(S, 1); }
   var pr = ''; for (var x = rg[0]; x <= rg[1]; x++) pr += '<i class="' + (x === h ? 'cur' : recorded(x) ? 'done' : '') + '"></i>'; $('progress').innerHTML = pr;
   var r = compute(S), e = r.ledger.filter(function (x) { return x.hole === h; })[0];
   var vals = shown(h), def = !recorded(h);
@@ -970,15 +1254,17 @@ function renderResult() {
   var li = r.ledger.map(function (e) {
     var t;
     if (!e.played) t = '<span class="gc-muted">Not scored</span>';
-    else if (e.winner != null) t = '<span class="win">' + esc(r.names[e.winner]) + '</span> ' + e.net[e.winner] + g + ', skin' + (e.carryIn ? ' + ' + e.carryIn + ' carry' : '');
+    else if (e.winner != null) t = '<span class="win">' + esc(r.names[e.winner]) + '</span> ' + e.net[e.winner] + g + (r.mixed ? ' on par ' + e.pars[e.winner] + ' (' + relText(e.rel[e.winner]) + ')' : '') + ', skin' + (e.carryIn ? ' + ' + e.carryIn + ' carry' : '');
+    else if (r.mixed) t = 'Halved at ' + relText(e.low) + ' (' + e.tied.map(function (i) { return esc(r.names[i]) + ' ' + e.net[i] + g + ' on par ' + e.pars[i]; }).join(', ') + ')' + (S.carry ? ', carry ' + e.carryOut : ', no skin');
     else t = 'Halved on ' + e.low + g + ' (' + e.tied.map(function (i) { return esc(r.names[i]); }).join(', ') + ')' + (S.carry ? ', carry ' + e.carryOut : ', no skin');
     return '<li><span class="h">H' + e.hole + '</span><span>' + t + '</span></li>';
   });
   if (r.leftover && r.played === r.total) li.push('<li><span class="h">End</span><span>' + (r.playoffWinner != null ? '<span class="win">' + esc(r.names[r.playoffWinner]) + '</span> wins the playoff: ' + r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') : r.needsPlayoff ? r.leftover + ' skins go to the playoff winner' : r.leftover + ' skin' + (r.leftover === 1 ? '' : 's') + ' still carried: nobody wins') + '</span></li>');
   $('ledger').innerHTML = li.join('');
-  var dup = siDupes(), sn = $('si-note');
+  var dup = siDupes(0).concat(siDupes(1)), sn = $('si-note');
   sn.hidden = !dup.length;
-  sn.textContent = dup.length ? 'Check stroke indexes: ' + dup.map(function (x) { return 'holes ' + x.holes.join(' and ') + ' share SI ' + x.si; }).join('; ') + '. Shots are given by SI, so fix the card for a fair result.' : '';
+  renderCourseAsk(r);
+  sn.textContent = dup.length ? 'Check stroke indexes: ' + dup.map(function (x) { return (r.mixed ? teeName(S, x.tee) + ' ' : '') + 'holes ' + x.holes.join(' and ') + ' share SI ' + x.si; }).join('; ') + '. Shots are given by SI, so fix the card for a fair result.' : '';
   var po = $('playoff');
   if (S.endRule === 'playoff' && r.leftover && r.played === r.total) {
     po.hidden = false;
@@ -988,20 +1274,30 @@ function renderResult() {
   } else po.hidden = true;
 }
 var LINK = null; // { key, url } prepared when the result renders, so Share stays inside the tap (iOS)
+var TOOL = 'skins', UTM = '?utm_source=share&utm_medium=link&utm_campaign=' + TOOL; // v9 P6: share links say where the visit came from, outside the #r= fragment
+function track(name) { if (window.gcTrack) gcTrack(name, TOOL); } // anonymous: the event name and the tool, nothing else (gc-ga.js)
+var SETTLED = null; // the last own result counted as round_settled (kept in memory only, never sent)
+function settled() {
+  if (VIEW) return; var sig = JSON.stringify([S.players.length, S.scores]);
+  if (sig === SETTLED || sig === JSON.stringify([exampleState().players.length, exampleState().scores])) return; // once per round; the example is not a round
+  var any = Object.keys(S.scores).some(function (h) { return (S.scores[h] || []).some(function (v) { return v != null; }); });
+  if (any) { SETTLED = sig; track('round_settled'); }
+}
 function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; } // drafts link to themselves
 function prepareLink() {
   if (VIEW) { LINK = { key: 'view', url: VIEW.url }; return Promise.resolve(LINK); }
   var pay = toPayload(S); if (!pay) { LINK = null; return Promise.resolve(null); }
   var key = JSON.stringify(pay);
   if (LINK && LINK.key === key) return Promise.resolve(LINK);
-  return GCShare.encode(pay).then(function (t) { LINK = { key: key, url: linkBase() + '#r=' + t }; return LINK; }, function () { return null; });
+  return GCShare.encode(pay).then(function (t) { LINK = { key: key, url: linkBase() + UTM + '#r=' + t }; return LINK; }, function () { return null; });
 }
 function share() {
+  track('result_shared');
   var pay = VIEW ? null : toPayload(S), key = pay ? JSON.stringify(pay) : 'view';
   if (LINK && LINK.key === key) return shareNow(LINK.url);
   return prepareLink().then(function (l) { return shareNow(l ? l.url : URL); });
 }
-function copyLink() { return prepareLink().then(function (l) { var u = l ? l.url : URL; window._copied = u; copyText(u, 'Link copied'); }); }
+function copyLink() { track('result_shared'); return prepareLink().then(function (l) { var u = l ? l.url : URL; window._copied = u; copyText(u, 'Link copied'); }); }
 function copyText(text, msg) {
   var done = function () { toast(msg); };
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
@@ -1034,6 +1330,12 @@ document.addEventListener('click', function (ev) {
   if (b.hasAttribute('data-h')) { setHcp(i, hcpFor(S, S.players[i]) + +b.getAttribute('data-h')); $('ph' + i).value = fmtHcp(hcpFor(S, S.players[i])); return; }
   if (b.hasAttribute('data-dhr')) { dhRound(b.getAttribute('data-dhr')); return; }
   if (b.hasAttribute('data-po')) { S.playoff = +b.getAttribute('data-po'); save(); renderResult(); return; }
+  if (b.hasAttribute('data-cuse2')) { var c2 = skCourses()[+b.getAttribute('data-cuse2')]; if (c2 && S.tee2) { S.tee2.par = c2.par.slice(); S.tee2.si = c2.si.slice(); if (!S.tee2.name) S.tee2.name = c2.tee || ''; save(); renderSetup(); toast(teeName(S, 1) + ' card: ' + courseLabel(c2)); } return; }
+  if (b.hasAttribute('data-si2')) { var s2v = Math.max(1, Math.min(18, (+S.tee2.si[S.hole - 1] || 1) + +b.getAttribute('data-si2'))); S.tee2.si[S.hole - 1] = s2v; save(); var sel2 = b.getAttribute('data-si2'); renderHole(); var nb3 = document.querySelector('button[data-si2="' + sel2 + '"]'); if (nb3) nb3.focus(); return; }
+  if (b.hasAttribute('data-cuse')) { var cu = skCourses()[+b.getAttribute('data-cuse')]; askDel = null; if (cu) useCourse(cu); return; }
+  if (b.hasAttribute('data-cdel')) { var cd = skCourses()[+b.getAttribute('data-cdel')]; if (cd) { askDel = GCCourses.key(cd); renderCourses(); var y = document.querySelector('[data-cdel-yes]'); if (y) y.focus(); } return; }
+  if (b.hasAttribute('data-cdel-yes')) { var cy = skCourses()[+b.getAttribute('data-cdel-yes')]; askDel = null; if (cy) { GCCourses.remove(GCCourses.key(cy)); toast('Deleted ' + courseLabel(cy)); } renderCourses(); $('cname').focus(); return; }
+  if (b.hasAttribute('data-cdel-no')) { var cn = +b.getAttribute('data-cdel-no'); askDel = null; renderCourses(); var nb2 = document.querySelector('[data-cuse="' + cn + '"]'); if (nb2) nb2.focus(); return; }
   if (b.hasAttribute('data-si')) { var sv = Math.max(1, Math.min(18, (+S.si[S.hole - 1] || 1) + +b.getAttribute('data-si'))); S.si[S.hole - 1] = sv; $('si').value = sv; save(); renderHoleKeepFocus(b); return; }
   if (b.hasAttribute('data-allow')) { S.allowance = Math.max(50, Math.min(100, S.allowance + +b.getAttribute('data-allow'))); $('allowance').value = S.allowance + '%'; save(); return; }
   switch (b.id) {
@@ -1048,6 +1350,8 @@ document.addEventListener('click', function (ev) {
     case 'btn-share': share(); break;
     case 'btn-edit': var r2 = range(), last = r2[0]; for (var x = r2[0]; x <= r2[1]; x++) if (recorded(x)) last = x; S.hole = last; show('hole', true); break;
     case 'btn-new': newRound(); break;
+    case 'cask-yes': courseAnswer(true); break;
+    case 'cask-no': courseAnswer(false); break;
   }
 });
 function renderHoleKeepFocus(btn) { var sel = btn && btn.getAttribute('data-si'); renderHole(); if (sel) { var nb = document.querySelector('button[data-si="' + sel + '"]'); if (nb) nb.focus(); } }
@@ -1057,6 +1361,9 @@ document.addEventListener('input', function (ev) {
   else if (/^ph\d/.test(t.id)) { var v = t.value.trim(); if (/^[+\-−]?\d{1,2}$/.test(v)) setHcp(i, parseHcp(v)); else setPlusNote(i); } // + - − all mean plus
   else if (/^sc\d/.test(t.id)) { var n = parseInt(t.value, 10); if (n >= 1 && n <= 15) setScore(i, n); }
   else if (t.id === 'si') { var s = parseInt(t.value, 10); if (s >= 1 && s <= 18) { S.si[S.hole - 1] = s; save(); siWarn(); } }
+  else if (t.id === 'si2') { var s2 = parseInt(t.value, 10); if (s2 >= 1 && s2 <= 18) { S.tee2.si[S.hole - 1] = s2; save(); siWarn(); } }
+  else if (t.id === 't2name') { S.tee2.name = t.value.slice(0, 20); save(); renderPlayers(); }
+  else if (t.id === 'cname' || t.id === 'ctee') { S.course = S.course || { name: '', tee: '' }; S.course[t.id === 'cname' ? 'name' : 'tee'] = t.value.slice(0, t.id === 'cname' ? 40 : 20); save(); if (t.id === 'ctee' && isMixed(S)) renderPlayers(); }
   else if (t.id === 'stake') { S.stake = t.value.trim(); save(); }
 });
 document.addEventListener('change', function (ev) {
@@ -1065,7 +1372,9 @@ document.addEventListener('change', function (ev) {
   else if (t.name === 'scoring') { S.scoring = t.value; save(); renderSetup(); }
   else if (t.name === 'endRule') { S.endRule = t.value; S.playoff = null; save(); }
   else if (t.id === 'carry') { S.carry = t.checked; save(); }
-  else if (t.name === 'par') { var h = S.hole; S.par[h - 1] = +t.value; if (!recorded(h)) { S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = +t.value; }); } save(); updateStrip(); }
+  else if (t.name === 'par' || t.name === 'par2') { var h = S.hole; (t.name === 'par2' ? S.tee2.par : S.par)[h - 1] = +t.value; if (!recorded(h)) { var dv = shown(h); S.players.forEach(function (p, i) { var el = $('sc' + i); if (el) el.value = dv[i]; }); } save(); updateStrip(); }
+  else if (t.id === 'mixed') setMixed(t.checked);
+  else if (/^pt\d/.test(t.name)) { var pi = +t.getAttribute('data-i'); if (+t.value === 1) S.players[pi].tee = 1; else delete S.players[pi].tee; save(); }
   else if (t.id === 'si') { renderHole(); }
 });
 document.addEventListener('focusout', function (ev) {
@@ -1073,6 +1382,7 @@ document.addEventListener('focusout', function (ev) {
   if (/^ph\d/.test(t.id)) { t.value = fmtHcp(hcpFor(S, S.players[i])); setPlusNote(i); }
   else if (/^sc\d/.test(t.id)) t.value = shown(S.hole)[i];
   else if (t.id === 'si') t.value = S.si[S.hole - 1];
+  else if (t.id === 'si2' && S.tee2) t.value = S.tee2.si[S.hole - 1];
   else if (t.id === 'stake') stakeValid();
 });
 document.addEventListener('focusin', function (ev) { if (ev.target.matches && ev.target.matches('.gc-stepper input:not([readonly]), #stake')) { try { ev.target.select(); } catch (e) {} } });
@@ -1104,7 +1414,7 @@ function openShared(raw) {
   var mine = opening = GCShare.decode(raw).then(function (o) {
     var st = fromPayload(o); if (!st) { var e = new Error('bad'); e.code = 'bad'; throw e; }
     if (mine !== opening) return;
-    VIEW = { raw: raw, url: linkBase() + '#r=' + raw }; S = st; GCShare.banner('ok'); show('result');
+    VIEW = { raw: raw, url: linkBase() + UTM + '#r=' + raw }; S = st; GCShare.banner('ok'); show('result'); track('shared_link_opened');
   }).catch(function (e) {
     if (mine !== opening) return;
     VIEW = null; S = defaultState(); GCShare.banner(e && e.code === 'browser' ? 'browser' : 'bad');
@@ -1122,7 +1432,7 @@ addEventListener('hashchange', function () {
   else if (raw == null && RAW != null) leaveShared(false);
 });
 // Start your own round: clearing the #r= fragment is the FIRST step (GCShare.clearHash, PO/GA); the only history call in viewer mode.
-$('gc-own').addEventListener('click', function () { GCShare.clearHash(); leaveShared(true); });
+$('gc-own').addEventListener('click', function () { GCShare.clearHash(); leaveShared(true); track('start_own_from_viewer'); });
 $('gc-reshare').addEventListener('click', function () { share(); });
 $('gc-copy').addEventListener('click', copyLink);
 window.GCSkinsUI = { loadExample: loadExample, show: show, state: function () { return S; }, setScore: setScore, go: go, share: share, copyLink: copyLink,

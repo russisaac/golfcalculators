@@ -18,6 +18,9 @@ const arg=k=>{const a=process.argv.find(x=>x.startsWith('--'+k+'='));return a?a.
 const CI=process.argv.includes('--ci'),noLh=process.argv.includes('--no-lh');
 const SITE=path.resolve(process.env.SITE||path.join(__dirname,'../..'));
 const CHROME=process.env.CHROME_PATH||'/usr/bin/google-chrome';
+// Same text metrics as the GitHub runner: its fontconfig resolves system-ui / sans-serif to DejaVu Sans, while a dev box
+// may use Noto Sans or Roboto (narrower). Chrome and Lighthouse (child processes) inherit this. Opt out: GC_SYSTEM_FONTS=1.
+if(!process.env.FONTCONFIG_FILE&&!process.env.GC_SYSTEM_FONTS)process.env.FONTCONFIG_FILE=path.join(__dirname,'fonts-ci.conf');
 const label=arg('label')||(CI?'ci':'local');const OUT=path.resolve(arg('out')||path.join(__dirname,'../out',label));fs.mkdirSync(OUT,{recursive:true});
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort().map(n=>[n==='index.html'?'home':n.slice(0,-5),n==='index.html'?'/':'/'+n.slice(0,-5)]);
 let base=arg('url'),srv=null,fail=0;const warn=[];let isV2=false,hasShare=false,hasSkShare=false;
@@ -32,9 +35,21 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // Netlify injects a feedback drawer (/.netlify/scripts/cdp, a fixed iframe) into Deploy Preview URLs only;
   // block it so previews are tested as production serves them.
   async function page(w,h=812){const ctx=await b.newContext({viewport:{width:w,height:h},isMobile:true,hasTouch:true,deviceScaleFactor:2});await ctx.route('**/.netlify/scripts/**',r=>r.abort());return ctx.newPage();}
-  async function check(name,w,url,prep,shot){
-    const p=await page(w);const errs=[];p.on('pageerror',e=>errs.push(e.message));
+  // A scrolled check must not leave a control partly under the sticky header: axe then reports it as "partially
+  // obscured" (target-size), which says where the test scrolled, not how big the target is. axe also counts any part
+  // above the viewport top as unobscured, so a 48px control at -6..42 under a 49px header "has 6px". Move the page by
+  // the smallest amount (up to 160px either way) after which every control is fully below the header, fully under it,
+  // or fully above the viewport. Every target is still checked; only the test's resting scroll position changes.
+  async function restClear(p){await p.evaluate(()=>{const hd=document.querySelector('.gc-header');if(!hd||getComputedStyle(hd).position!=='sticky'||scrollY===0)return;
+    const hb=hd.getBoundingClientRect().bottom,maxY=document.documentElement.scrollHeight-innerHeight;
+    const pinned=e=>{for(let a=e;a&&a!==document.body;a=a.parentElement){const ps=getComputedStyle(a).position;if(ps==='fixed'||ps==='sticky')return true;}return false;};
+    const rs=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].filter(e=>e.offsetParent&&!pinned(e)).map(e=>e.getBoundingClientRect()).filter(r=>r.height>0);
+    const ok=d=>rs.every(r=>{const t=r.top-d,b=r.bottom-d;return b<=0||t>=hb||(t>=0&&b<=hb);});
+    if(ok(0))return;for(let k=1;k<=160;k++)for(const d of [-k,k]){const y=scrollY+d;if(y<0||y>maxY)continue;if(ok(d)){window.scrollTo(0,y);return;}}});await p.waitForTimeout(50);}
+  async function check(name,w,url,prep,shot,hgt){
+    const p=await page(w,hgt||812);const errs=[];p.on('pageerror',e=>errs.push(e.message));
     await p.goto(base+url,{waitUntil:'load'});if(prep)await prep(p);await p.waitForTimeout(250);
+    await restClear(p);
     const ax=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa','best-practice']).analyze();
     const m=await p.evaluate(()=>{const els=[...document.querySelectorAll('a,button,input,select,textarea,summary,[role=button]')].filter(e=>e.offsetParent&&getComputedStyle(e).visibility!=='hidden');
       const inline=e=>e.tagName==='A'&&getComputedStyle(e).display==='inline';
@@ -157,9 +172,10 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       const back=await p.evaluate(()=>({viewing:GCStablefordUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
       const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
       const firstScreen=w===375?r.podBottom<=r.vh&&r.ownBottom<=r.vh:true;
-      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>300||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
+      const noUtm=own.url.replace('?utm_source=share&utm_medium=link&utm_campaign=stableford',''); // v9 P6: the utm tags add 58 chars; the 300-char budget is for the link itself
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||noUtm.length>300||(noUtm!==own.url&&!/\?utm_source=share&utm_medium=link&utm_campaign=stableford#r=/.test(own.url))||!r.viewing||r.t!=='Shared result'||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
       if(bad)fail=1;rows.push({name:`stableford share link ${w}`,width:w,link:own.url.length,r,back});
-      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, podium and Start your own round on the first screen (bottoms ${r.podBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
+      console.log(`${gate(bad)}  stableford share link @${w}x${hgt}: Chrome writes a 1z. link (${noUtm.length} chars + ${own.url.length-noUtm.length} utm); it opens read-only ("${r.t}")${w===375?`, podium and Start your own round on the first screen (bottoms ${r.podBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, query "${back.search}", focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}${histOk?'':' (expected exactly one replaceState clearing #r= first)'}`);
       await p.context().close();}
   }
   if(isV2&&hasSkShare){ // share-link-skins in a real browser: fresh load of the link, history calls, storage untouched, own round back
@@ -171,16 +187,20 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await p.goto(own.url,{waitUntil:'load'});await p.evaluate(()=>GCSkinsUI.opened());
       const r=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),heroBottom:Math.round(document.getElementById('hero').getBoundingClientRect().bottom),ownBottom:Math.round(document.getElementById('gc-own').getBoundingClientRect().bottom),vh:innerHeight,saved:localStorage.getItem('gc_skins_v2'),t:document.getElementById('gc-shared-t').textContent,hero:document.getElementById('hero').textContent}));
       await p.click('#gc-own');
-      const back=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
+      const back=await p.evaluate(()=>({viewing:GCSkinsUI.viewing(),name:document.getElementById('pn0').value,hash:location.hash,search:location.search,focus:document.activeElement&&document.activeElement.id,hist:window.__hist}));
       const histOk=back.hist.length===1&&back.hist[0].fn==='replaceState'&&back.hist[0].view&&/^#r=/.test(back.hist[0].before)&&!/r=/.test(back.hist[0].after);
       const firstScreen=w===375?r.ownBottom<=r.vh:true;
-      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||own.url.length>320||!r.viewing||r.t!=='Shared result'||!/Alex pays Drew/.test(r.hero)||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
-      if(bad)fail=1;rows.push({name:`skins share link ${w}`,width:w,link:own.url.length,r,back});
+      // v9 P6: links carry ?utm_source=share&utm_medium=link&utm_campaign=skins (58 chars) before #r=; the 320-char budget
+      // is for the link itself, as before P6. Start your own round must drop the utm tags as well as #r= (no stale campaign).
+      const noUtm=own.url.replace('?utm_source=share&utm_medium=link&utm_campaign=skins','');
+      const utmOk=noUtm===own.url||(/\?utm_source=share&utm_medium=link&utm_campaign=skins#r=/.test(own.url)&&!/utm_/.test(back.search||''));
+      const bad=!/#r=1z\.[A-Za-z0-9_-]+$/.test(own.url)||noUtm.length>320||!utmOk||!r.viewing||r.t!=='Shared result'||!/Alex pays Drew/.test(r.hero)||r.saved!==own.saved||!firstScreen||back.viewing||back.name!=='Me'||back.hash!==''||back.focus!=='setup-h'||!histOk;
+      if(bad)fail=1;rows.push({name:`skins share link ${w}`,width:w,link:own.url.length,linkNoUtm:noUtm.length,r,back});
       console.log(`${gate(bad)}  skins share link @${w}x${hgt}: Chrome writes a 1z. link (${own.url.length} chars); it opens read-only ("${r.t}")${w===375?`, result and Start your own round on the first screen (bottoms ${r.heroBottom} and ${r.ownBottom} of ${r.vh}px)`:''}; saved round untouched; Start your own round brings "${back.name}" back, fragment cleared, focus ${back.focus}; history calls in viewer mode: ${back.hist.map(c=>c.fn+(c.view?' (first, viewer still showing)':'')+' -> hash "'+c.after+'"').join(', ')||'none'}`);
       await p.context().close();}
   }
   const hasSkCompact=isV2&&await (async()=>{const p=await page(375);await p.goto(base+'/skins');const r=await p.evaluate(()=>[...document.styleSheets].some(ss=>{try{return [...ss.cssRules].some(r=>r.selectorText==='.sk-many .sk-pay');}catch(e){return false;}}));await p.context().close();return r;})();
-  if(hasSkCompact){ // skins-result-compact (PO, 12 Nov): on your own Skins result, Share result is on the first screen at 375x812
+  if(hasSkCompact){ // skins-result-compact (PO, 12 Nov + P3): on your own Skins result, Share result is on the first screen at 375x812, and at 320x568 with 7 payments
     const own=[['example',async p=>p.evaluate(()=>GCSkinsUI.loadExample())],
       ['8 long names',async p=>p.evaluate(L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map((n,i)=>({name:n,hcp:i*3,hcp9:null}));for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>3+((x*7+i*3)%5));U.set(s);U.show('result');},SKLONG8)],
       ['8 long names, 7 payments',async p=>p.evaluate(L=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.players=L.map(n=>({name:n,hcp:0,hcp9:null}));s.endRule='nobody';for(let x=1;x<=18;x++)s.scores[x]=s.players.map((_,i)=>x<=7?(i===7?3:5):x<=16?4:(i===x%8?3:5));U.set(s);U.show('result');},SKLONG8)],
@@ -194,9 +214,21 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       if(bad)fail=1;rows.push({name:`skins own result fold ${label}`,width:375,r});
       console.log(`${gate(bad)}  skins own result fold @375x812 (${label}: ${r.pays||'no'} payment lines${r.compact?', compact':''}): Share result on the first screen: result bottom ${r.heroBottom}px, button ${r.top}-${r.bottom}px of ${r.vh}px`);
       await p.context().close();}
+    { // P3: Share result fully visible above the fold at 320x568 with 7 payment lines
+      const [label,mk]=own[2];
+      const p=await page(320,568);await p.goto(base+'/skins',{waitUntil:'load'});await mk(p);await p.evaluate(()=>scrollTo(0,0));await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const b=document.getElementById('btn-share').getBoundingClientRect(),h=document.getElementById('hero').getBoundingClientRect();
+        return {heroBottom:Math.round(h.bottom),top:Math.round(b.top),bottom:Math.round(b.bottom),vh:innerHeight,vw:innerWidth,docScroll:document.documentElement.scrollWidth,pays:document.querySelectorAll('#hero .sk-pay').length,compact:document.getElementById('hero').classList.contains('sk-many'),enabled:!document.getElementById('btn-share').disabled,viewing:GCSkinsUI.viewing()};});
+      const shot='fold-own-skins-8-long-names-7-payments-320x568.png';await p.screenshot({path:path.join(OUT,shot)});
+      const hs=r.docScroll>r.vw;
+      const bad=!(r.enabled&&!r.viewing&&r.pays===7&&r.compact&&r.bottom>0&&r.bottom<=r.vh&&r.top>=r.heroBottom)||hs;
+      if(bad)fail=1;rows.push({name:`skins own result fold ${label} 320x568`,width:320,r});
+      console.log(`${gate(bad)}  skins own result fold @320x568 (${label}: ${r.pays||'no'} payment lines${r.compact?', compact':''}): Share result on the first screen: result bottom ${r.heroBottom}px, button ${r.top}-${r.bottom}px of ${r.vh}px${hs?' · sideways scroll':''}`);
+      await p.context().close();}
+    {const p=await page(320,568);await p.goto(base+'/',{waitUntil:'load'});await p.screenshot({path:path.join(OUT,'home-320x568.png')});await p.context().close();}
     for(const w of [375,320]){ // axe + screenshots of the compact own result
       await check('skins own result, 8 long names, compact payment lines',w,'/skins',own[1][1],`skins-9-own-compact-${w}.png`);
-      await check('skins own result, 8 long names, 7 payments',w,'/skins',own[2][1],w===375?'skins-9b-own-compact-7pay-375.png':null);
+      await check('skins own result, 8 long names, 7 payments',w,'/skins',own[2][1],w===375?'skins-9b-own-compact-7pay-375.png':'skins-9b-own-compact-7pay-320.png');
     }
   }
   if(hasShare){ // PO 12 Nov, both tools: in the shared viewer, Start your own round is on the first screen at 375x812 with the longest data
@@ -344,12 +376,83 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     if(bad)fail=1;rows.push({name:`${n} fold 375x812`,width:375,fold:r});
     console.log(`${gate(bad)}  ${n} calculator first @375x812: H1 bottom ${r.h1}px, first control #${r.ctl} bottom ${r.ctlBottom}px (viewport ${r.vh}), search content starts at ${r.learnTop===null?'n/a':r.learnTop+'px'}`);
     await p.context().close();}
+  // v9 P2 Your courses: every new screen at 375x812 and 320x568 (axe, sideways scroll, screenshots)
+  const hasCourses=fs.existsSync(path.join(SITE,'gc-courses.js'));
+  if(hasCourses){
+    const CARDS=JSON.stringify([{name:'Royal Sydney Golf Club',tee:'Blue',holes:18,par:[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],si:[5,3,17,1,9,11,15,7,13,6,4,18,2,10,12,16,8,14]},{name:'Moore Park',tee:'White',holes:18,par:[4,4,3,5,4,4,3,4,5,4,4,3,5,4,4,3,4,5],si:[5,3,17,1,9,11,15,7,13,6,4,18,2,10,12,16,8,14]},{name:'Bartholomew-Fitzgerald Memorial Links',tee:'Championship',holes:9,par:[4,4,3,5,4,4,3,4,5],si:[1,2,3,4,5,6,7,8,9]}]);
+    const withCards=async p=>{await p.evaluate(c=>{localStorage.clear();localStorage.setItem('gc_courses_v1',c);},CARDS);await p.reload({waitUntil:'load'});};
+    const skAskUpd=async p=>{await withCards(p);await p.click('[data-cuse="1"]');await p.evaluate(()=>{const U=GCSkinsUI,s=U.state();s.players=[{name:'Alex',hcp:0},{name:'Blake',hcp:4},{name:'Casey',hcp:8},{name:'Drew',hcp:12}];s.par[4]=3;s.scores={};for(let x=1;x<=18;x++)s.scores[x]=[4,5,4,5];U.show('result');});};
+    const sfAskUpd=async p=>{await withCards(p);await p.click('[data-cuse="0"]');await p.evaluate(()=>{const U=GCStablefordUI,s=U.state();s.players=[{name:'Mel',hcp:12,hcp9:null},{name:'Sam',hcp:2,hcp9:null}];s.course.par[2]=4;s.scores={};for(let x=1;x<=18;x++)s.scores[x]=[5,4];U.show('result');});};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P2 skins setup: Your courses',w,'/skins',async p=>{await withCards(p);await p.evaluate(()=>document.getElementById('course-card').scrollIntoView());},`v9-p2-skins-setup-courses-${sz}.png`,hgt);
+      await check('v9 P2 skins setup: delete asks first',w,'/skins',async p=>{await withCards(p);await p.click('[data-cdel="0"]');await p.evaluate(()=>document.getElementById('course-card').scrollIntoView());},`v9-p2-skins-delete-ask-${sz}.png`,hgt);
+      await check('v9 P2 skins result: Update saved course?',w,'/skins',async p=>{await skAskUpd(p);await p.evaluate(()=>document.getElementById('course-ask').scrollIntoView({block:'center'}));},`v9-p2-skins-result-update-ask-${sz}.png`,hgt);
+      await check('v9 P2 stableford setup: Your courses',w,'/stableford',async p=>{await withCards(p);await p.evaluate(()=>document.getElementById('saved-wrap').scrollIntoView({block:'center'}));},`v9-p2-stableford-setup-courses-${sz}.png`,hgt);
+      await check('v9 P2 stableford course card: name + tee',w,'/stableford',async p=>{await withCards(p);await p.click('[data-cuse="0"]');await p.click('#btn-course');},`v9-p2-stableford-course-card-${sz}.png`,hgt);
+      await check('v9 P2 stableford result: Update saved course?',w,'/stableford',async p=>{await sfAskUpd(p);await p.evaluate(()=>document.getElementById('course-ask').scrollIntoView({block:'center'}));},`v9-p2-stableford-result-update-ask-${sz}.png`,hgt);
+    }
+  }
+  // v9 P3 mixed tees (GA §3(I)): setup with tees, hole screen with the second tee row, result, Stableford tab 2
+  const hasMixed=/id="mixed"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'));
+  if(hasMixed){
+    const skMix=async (p,scr)=>{await p.evaluate(scr=>{localStorage.clear();const U=GCSkinsUI,s=GCSkins.exampleState();s.mixed=true;s.course={name:'Lakes',tee:'Blue'};
+      s.tee2={name:'Red',par:s.par.map((v,i)=>i===0||i===5?5:v),si:s.si.slice()};s.players[1].tee=1;s.players[3].tee=1;s.screen=scr;s.hole=1;U.set(s);},scr);await p.waitForTimeout(150);};
+    const sfMix=async (p,scr)=>{await p.evaluate(scr=>{localStorage.clear();const U=GCStablefordUI,s=GCStableford.exampleState();s.mixed=true;s.course.tee='Blue';
+      s.course2={tee:'Red',holes:18,par:s.course.par.map((v,i)=>i===0||i===5?5:v),si:s.course.si.slice()};s.players[2].tee=1;s.screen=scr;s.hole=1;U.set(s);},scr);await p.waitForTimeout(150);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P3 skins setup: players on different tees',w,'/skins',async p=>{await skMix(p,'setup');await p.evaluate(()=>document.getElementById('mixed-wrap').scrollIntoView());},`v9-p3-skins-setup-tees-${sz}.png`,hgt);
+      await check('v9 P3 skins hole: second tee par + SI',w,'/skins',async p=>{await skMix(p,'hole');},`v9-p3-skins-hole-tee2-${sz}.png`,hgt);
+      await check('v9 P3 skins result: mixed tees',w,'/skins',async p=>{await skMix(p,'result');},`v9-p3-skins-result-${sz}.png`,hgt);
+      await check('v9 P3 stableford setup: players on different tees',w,'/stableford',async p=>{await sfMix(p,'setup');await p.evaluate(()=>document.getElementById('mixed-wrap').scrollIntoView());},`v9-p3-stableford-setup-tees-${sz}.png`,hgt);
+      await check('v9 P3 stableford course card: second tee tab',w,'/stableford',async p=>{await sfMix(p,'setup');await p.click('#btn-course2');},`v9-p3-stableford-course-tab2-${sz}.png`,hgt);
+      await check('v9 P3 stableford hole: second tee par + SI',w,'/stableford',async p=>{await sfMix(p,'hole');},`v9-p3-stableford-hole-tee2-${sz}.png`,hgt);
+      await check('v9 P3 stableford result: mixed tees',w,'/stableford',async p=>{await sfMix(p,'result');await p.evaluate(()=>{const d=document.querySelector('details.sf-why');if(d)d.open=true;});},`v9-p3-stableford-result-${sz}.png`,hgt);
+    }
+  }
+  // v9 P4 feedback: the form (from a result link), the empty-form message, the thanks page, the link after results, the footer
+  if(pages.some(p=>p[0]==='feedback')){
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P4 feedback form (from Skins)',w,'/feedback?from=skins',null,`v9-p4-feedback-form-${sz}.png`,hgt);
+      await check('v9 P4 feedback form: empty send',w,'/feedback?from=stableford',async p=>{await p.click('#fb-send');await p.evaluate(()=>document.getElementById('fb-err').scrollIntoView({block:'center'}));},`v9-p4-feedback-empty-${sz}.png`,hgt);
+      await check('v9 P4 feedback thanks',w,'/feedback-thanks',null,`v9-p4-feedback-thanks-${sz}.png`,hgt);
+      await check('v9 P4 skins result: Send feedback',w,'/skins',async p=>{await p.evaluate(()=>{GCSkinsUI.loadExample();});await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-skins-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 stableford result: Send feedback',w,'/stableford',async p=>{await p.evaluate(()=>{GCStablefordUI.loadExample();});await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-stableford-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 daily-handicap result: Send feedback',w,'/daily-handicap',async p=>{await p.fill('#ga','14.2');await p.fill('#slope','128');await p.fill('#scratch','71');await p.fill('#par','72');await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('fb-after').scrollIntoView({block:'center'}));},`v9-p4-dh-result-feedback-${sz}.png`,hgt);
+      await check('v9 P4 home footer: Feedback',w,'/',async p=>{await p.evaluate(()=>document.querySelector('footer').scrollIntoView({block:'end'}));},`v9-p4-home-footer-${sz}.png`,hgt);
+      await check('v9 P4 privacy: feedback form section',w,'/privacy',async p=>{await p.evaluate(()=>document.getElementById('feedback').scrollIntoView());},`v9-p4-privacy-feedback-${sz}.png`,hgt);
+    }
+  }
+  // v9 P5 Add to Home Screen: the one-time tip after a result (iPhone Safari wording, Android install prompt)
+  if(fs.existsSync(path.join(SITE,'gc-a2hs.js'))){
+    const IPH='Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
+    const tip=(ui,mode)=>async p=>{await p.evaluate(([ui,mode,IPH])=>{localStorage.removeItem('gc_a2hs_v1');
+      if(mode==='ios')Object.defineProperty(navigator,'userAgent',{get:()=>IPH});else{const e=new Event('beforeinstallprompt',{cancelable:true});e.prompt=()=>{};e.userChoice=Promise.resolve({outcome:'dismissed'});dispatchEvent(e);}
+      window[ui].loadExample();},[ui,mode,IPH]);await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('a2hs').scrollIntoView({block:'end'}));};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v9 P5 skins result: Add to Home Screen tip (iPhone)',w,'/skins',tip('GCSkinsUI','ios'),`v9-p5-skins-tip-iphone-${sz}.png`,hgt);
+      await check('v9 P5 skins result: Add to Home Screen tip (Android)',w,'/skins',tip('GCSkinsUI','android'),`v9-p5-skins-tip-android-${sz}.png`,hgt);
+      await check('v9 P5 stableford result: Add to Home Screen tip (iPhone)',w,'/stableford',tip('GCStablefordUI','ios'),`v9-p5-stableford-tip-iphone-${sz}.png`,hgt);
+      await check('v9 P5 stableford result: Add to Home Screen tip (Android)',w,'/stableford',tip('GCStablefordUI','android'),`v9-p5-stableford-tip-android-${sz}.png`,hgt);
+    }
+  }
+  // v9 P1 landing: the Skins CTA ("Playing today?") is fully on the first screen at 375x812 and 320x568,
+  // and at 375x812 the sample settle-up starts on the first screen too (the payoff is visible without scrolling).
+  if(pages.some(p=>p[0]==='home')){for(const [w,hgt] of [[375,812],[320,568]]){
+    const p=await page(w,hgt);await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(200);
+    const r=await p.evaluate(()=>{const c=document.getElementById('lp-cta'),s=document.querySelector('#lp-sample .lp-pay');if(!c)return null;const a=c.getBoundingClientRect(),b=s?s.getBoundingClientRect():null;
+      return {ctaTop:Math.round(a.top),ctaBottom:Math.round(a.bottom),sampleTop:b?Math.round(b.top):null,sampleBottom:b?Math.round(b.bottom):null,vh:innerHeight};});
+    if(!r){await p.context().close();break;}
+    await p.screenshot({path:path.join(OUT,`fold-home-${w}x${hgt}.png`)});
+    const bad=!(r.ctaTop>=0&&r.ctaBottom<=r.vh&&(w!==375||r.sampleBottom<=r.vh));
+    if(bad)fail=1;rows.push({name:`home fold ${w}x${hgt}`,width:w,fold:r});
+    console.log(`${gate(bad)}  home landing fold @${w}x${hgt}: Skins CTA ${r.ctaTop}-${r.ctaBottom}px, first sample settle-up line ${r.sampleTop}-${r.sampleBottom}px of ${r.vh}px${w===375?' (both must be on the first screen)':' (CTA must be on the first screen)'}`);
+    await p.context().close();}}
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
   const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap']]){
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
     if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;

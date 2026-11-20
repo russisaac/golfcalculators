@@ -6,6 +6,12 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
 <title>Privacy | golfcalculators.com</title>
 <meta name="description" content="How golfcalculators.com uses Google Analytics and what stays on your device.">
 <link rel="canonical" href="https://golfcalculators.com/privacy">
@@ -37,15 +43,52 @@
   footer { text-align: center; padding: 1.5rem 1rem 2rem; color: #475569; font-size: 0.9rem; }
   footer a { color: #475569; display: inline-block; min-height: 44px; line-height: 44px; padding: 0 0.5rem; }
 </style>
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool) {
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    gtag('event', name, { tool: tool });
+    return true;
+  };
+})();
+</script>
 </head>
 <body>
 <header><a href="/">← Golf Calculators</a></header>
 <main>
 <h1>Privacy</h1>
-<p class="updated">Last updated 12 November 2026</p>
+<p class="updated">Last updated 18 November 2026</p>
 
 <h2>Analytics</h2>
-<p>Some pages on golfcalculators.com use Google Analytics to show us how the site is used. Google Analytics sets cookies in your browser.</p>
+<p>golfcalculators.com uses Google Analytics to show us how the site is used. Google Analytics sets cookies in your browser.</p>
+<p id="usage-events">We also count a few anonymous events: when a round is settled, when a result is shared, when a shared result is opened, and when someone starts their own round from one. Each event records only which calculator it was (Skins or Stableford), never names, scores or amounts. Shared links carry a short tag saying they came from a share.</p>
 
 <h2>What is collected</h2>
 <p>Google Analytics collects the pages you view, the type of device you use (for example phone or computer, and its browser) and your approximate location (such as your city or region). It does not collect your name or email address. The names and scores you type into a calculator are not sent to Google or to us.</p>
@@ -60,10 +103,13 @@
 <p>Some calculators remember your players, handicaps and scores in your browser’s local storage, so you don’t lose them if you close the page. This stays on your device and is not sent to us or to Google. You can remove it at any time by clearing this site’s data in your browser settings.</p>
 <p id="shared-links">Shared result links carry the names and scores inside the link itself; they are never sent to or stored by us and are stripped from analytics.</p>
 
+<h2 id="feedback">Feedback form</h2>
+<p>If you use the <a href="/feedback">feedback form</a>, we collect what you type (what worked, what didn’t and what you’d want), the page it is about, and your email address only if you choose to give it, so we can reply. Leave out anything you would rather not share.</p>
+<p>The form is processed and stored by Netlify, which hosts this site, including on servers outside Australia, and is sent to us. We use it only to improve the calculators and to reply to you, and we don’t add it to any mailing list.</p>
 <h2>Contact</h2>
 <!-- Contact email: the only place it appears on the site. -->
 <p>Questions about privacy: <a id="contact-email" href="mailto:russ@simplifyy.com">russ@simplifyy.com</a></p>
 </main>
-<footer><a href="/privacy" aria-current="page">Privacy</a> · golfcalculators.com</footer>
+<footer><a href="/feedback?from=privacy">Feedback</a> · <a href="/privacy" aria-current="page">Privacy</a> · golfcalculators.com</footer>
 </body>
 </html>
