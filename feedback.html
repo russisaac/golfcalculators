@@ -155,11 +155,12 @@ html{scroll-padding-top:60px}
    - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
    - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
      carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
-   - Four anonymous events, each with one parameter, the tool ("skins" or "stableford"): round_settled,
-     result_shared, shared_link_opened, start_own_from_viewer. Anything else is dropped. */
+   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
+     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
+     out; never the scores, differentials or the index itself). Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer'], TOOLS = ['skins', 'stableford'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -206,6 +207,7 @@ html{scroll-padding-top:60px}
       <option value="skins">Skins calculator</option>
       <option value="stableford">Stableford calculator</option>
       <option value="daily-handicap">Daily Handicap calculator</option>
+      <option value="handicap-calculator">Handicap Index calculator</option>
       <option value="home">Home page</option>
       <option value="privacy">Privacy page</option>
       <option value="other" selected>Something else</option>
@@ -226,7 +228,7 @@ html{scroll-padding-top:60px}
 <footer class="gc-footer"><a href="/feedback" aria-current="page">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 <script>
 (function () { // the page is filled in from ?from= (known pages only); at least one box must have something in it
-  var PAGES = ['skins', 'stableford', 'daily-handicap', 'home', 'privacy'];
+  var PAGES = ['skins', 'stableford', 'daily-handicap', 'handicap-calculator', 'home', 'privacy'];
   var q = new URLSearchParams(location.search).get('from'), sel = document.getElementById('fb-page');
   if (q && PAGES.indexOf(q) >= 0) sel.value = q;
   var form = document.getElementById('fb-form'), err = document.getElementById('fb-err');

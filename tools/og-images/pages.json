@@ -48,6 +48,18 @@
     "tagline": "Free · No sign-up"
   },
   {
+    "page": "handicap-calculator",
+    "file": "handicap-calculator.html",
+    "url": "https://golfcalculators.com/handicap-calculator",
+    "kicker": "Free golf calculator",
+    "title": "Handicap Index Calculator",
+    "value": "Your GA Handicap estimate from your last 20 rounds: WHS best 8 of 20.",
+    "ogTitle": "Golf Handicap Calculator Australia (GA / WHS 2026)",
+    "ogDescription": "Estimate your GA Handicap (WHS Handicap Index) from your last 20 rounds: score differentials, best 8 of 20, and the table for fewer than 20 scores.",
+    "alt": "Handicap Index Calculator: Your GA Handicap estimate from your last 20 rounds: WHS best 8 of 20. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
     "page": "privacy",
     "file": "privacy.html",
     "url": "https://golfcalculators.com/privacy",
