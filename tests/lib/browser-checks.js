@@ -550,6 +550,25 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
       await check('v11 P2 footer signup: success state',w,'/',async p=>{await stub(p);await p.evaluate(()=>{const f=document.querySelector('footer form');f.querySelector('input[type=email]').value='a@example.com';f.querySelector('input[name=consent]').checked=true;f.querySelector('button[type=submit]').click();});await p.waitForTimeout(100);await p.evaluate(()=>document.querySelector('footer').scrollIntoView({block:'center'}));},`v11-p2-footer-success-${sz}.png`,hgt);
     }
   }
+  // v11 P3 leftover: Skins setup clips nothing at 320 and 375 (fresh, 8 long names, front 9, From a pot with More options
+  // open): the page never scrolls sideways and no element in the setup has scrollWidth > clientWidth (labels in segmented
+  // controls, the allowance "100%", handicap values like "+10"). Player-name text fields are exempt: a long name scrolls
+  // inside its own input, as any text field does. Visually hidden (.sr-only) helpers are exempt too.
+  if(isV2&&/v11 leftover: nothing in the setup is cut off/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    const L8=JSON.stringify(SKLONG8);
+    const st={fresh:'',max8:`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));GCSkinsUI.show('setup');`,
+      'max8 front 9':`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.holes='front';GCSkinsUI.show('setup');`,
+      'max8 pot, More options open':`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.pay='pot';GCSkinsUI.show('setup');`};
+    for(const w of [320,375])for(const [k,js] of Object.entries(st)){const p=await page(w,812);await p.goto(base+'/skins',{waitUntil:'load'});
+      await p.evaluate(js=>{if(js)(new Function(js))();document.querySelectorAll('#scr-setup details').forEach(d=>d.open=true);},js);await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const root=document.getElementById('scr-setup'),cut=[];
+        for(const e of [root,...root.querySelectorAll('*')]){if(!e.getClientRects().length||e.closest('.sr-only')||/^pn\d$/.test(e.id))continue;if(e.clientWidth>0&&e.scrollWidth>e.clientWidth+1)cut.push((e.id||e.tagName.toLowerCase()+'.'+[...e.classList].join('.'))+' '+e.scrollWidth+'>'+e.clientWidth);}
+        return {sw:document.documentElement.scrollWidth,vw:innerWidth,cut};});
+      if(w===320&&k.includes('pot'))await p.screenshot({path:path.join(OUT,'v11-p3-skins-setup-more-320.png'),fullPage:true});
+      const bad=r.sw>r.vw||r.cut.length>0;if(bad)fail=1;rows.push({name:`v11 skins setup clip ${k} ${w}`,width:w,clip:r});
+      console.log(`${gate(bad)}  v11 P3 skins setup (${k}) @${w}: page ${r.sw}/${r.vw}px, clipped elements ${r.cut.length}${r.cut.length?' ('+r.cut.slice(0,5).join(', ')+')':''}`);await p.context().close();}
+    for(const w of [320,375])await check('v11 P3 skins setup, More options open (8 long names, From a pot)',w,'/skins',async p=>{await p.evaluate(L=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.pay='pot';GCSkinsUI.show('setup');document.querySelectorAll('#scr-setup details').forEach(d=>d.open=true);document.getElementById('allow-row').scrollIntoView({block:'center'});},SKLONG8);},`v11-p3-skins-setup-allowance-${w}.png`);
+  }
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
