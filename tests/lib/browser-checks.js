@@ -527,6 +527,29 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         const bad=!(men==='14'&&women==='15');if(bad)fail=1;console.log(`${gate(bad)}  v11 P1 daily-handicap Load example @${sz}: men ${men}, women ${women} (anchors 14/15)`);await p.context().close();}
     }
   }
+  // v11 P2 monetisation: the email card after a real result and the gear block on each calculator, the footer signup,
+  // its error and success states (fetch stubbed: nothing is posted from a test), at 375x812 and 320x568, with axe and fit.
+  if(fs.existsSync(path.join(SITE,'gc-grow.js'))){
+    const real={skins:"(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
+      stableford:"(()=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
+      'daily-handicap':null,'handicap-calculator':null};
+    const result=async(p,t)=>{if(real[t])await p.evaluate(real[t]);else if(t==='daily-handicap'){await p.fill('#ga','12.4');await p.fill('#slope','131');await p.fill('#scratch','70.5');await p.fill('#par','72');}
+      else{for(const sc of ['92','95','90']){await p.fill('#score',sc);await p.fill('#cr','71.3');await p.fill('#sl','129');await p.click('#btn-add');}}await p.waitForTimeout(150);};
+    const stub=async p=>{await p.evaluate(()=>{window.fetch=()=>Promise.resolve({ok:true,status:200});});};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      for(const t of ['skins','stableford','daily-handicap','handicap-calculator']){
+        await check(`v11 P2 ${t}: email card after a real result`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-nl-card').scrollIntoView({block:'center'}));},`v11-p2-${t}-email-card-${sz}.png`,hgt);
+        await check(`v11 P2 ${t}: gear for this game`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-gear').scrollIntoView({block:'center'}));},`v11-p2-${t}-gear-${sz}.png`,hgt);
+        const p=await page(w,hgt);await p.goto(base+'/'+t,{waitUntil:'load'});await result(p,t);
+        const r=await p.evaluate(()=>{const c=document.getElementById('gc-nl-card'),g=document.getElementById('gc-gear'),x=c.querySelector('.gc-nl-x').getBoundingClientRect(),btn=c.querySelector('button[type=submit]').getBoundingClientRect(),cons=c.querySelector('.gc-nl-consent').getBoundingClientRect();
+          return {card:c.getClientRects().length>0,gear:g.querySelectorAll('a[rel="sponsored nofollow noopener"]').length,x:[Math.round(x.width),Math.round(x.height)],btnH:Math.round(btn.height),consH:Math.round(cons.height),sw:document.documentElement.scrollWidth,vw:innerWidth};});
+        const bad=!(r.card&&r.gear>=2&&r.x[0]>=44&&r.x[1]>=44&&r.btnH>=44&&r.consH>=44&&r.sw<=r.vw);if(bad)fail=1;rows.push({name:`v11 grow ${t} ${sz}`,width:w,grow:r});
+        console.log(`${gate(bad)}  v11 P2 ${t} @${sz}: card shown, ${r.gear} gear links, x ${r.x.join('x')}, Subscribe ${r.btnH}px, consent row ${r.consH}px, page ${r.sw}/${r.vw}px`);await p.context().close();
+      }
+      await check('v11 P2 footer signup: error state',w,'/privacy',async p=>{await p.evaluate(()=>{const f=document.querySelector('footer form');f.querySelector('input[type=email]').value='nope';f.querySelector('button[type=submit]').click();f.scrollIntoView({block:'center'});});},`v11-p2-footer-error-${sz}.png`,hgt);
+      await check('v11 P2 footer signup: success state',w,'/',async p=>{await stub(p);await p.evaluate(()=>{const f=document.querySelector('footer form');f.querySelector('input[type=email]').value='a@example.com';f.querySelector('input[name=consent]').checked=true;f.querySelector('button[type=submit]').click();});await p.waitForTimeout(100);await p.evaluate(()=>document.querySelector('footer').scrollIntoView({block:'center'}));},`v11-p2-footer-success-${sz}.png`,hgt);
+    }
+  }
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
