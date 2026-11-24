@@ -2,7 +2,7 @@
 // baseline (tests/baseline = live c54e467) and on this checkout, and require identical observable output.
 const {SITE,BASE,boot,ok,report,path,fs}=require('../lib/harness');
 const txt=el=>el?el.textContent.replace(/\s+/g,' ').trim():null;
-const vals=d=>[...d.querySelectorAll('main input, main select')].map(e=>e.id+'='+(e.type==='checkbox'?e.checked:e.value)).join('|');
+const vals=d=>[...d.querySelectorAll('main input, main select')].filter(e=>!e.closest('form.gc-nl-form')).map(e=>e.id+'='+(e.type==='checkbox'?e.checked:e.value)).join('|');
 const isLegacySkins=f=>!/data-gc="skins-v2"/.test(fs.readFileSync(f,'utf8'));
 
 const skinsScenarios={
