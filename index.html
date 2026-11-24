@@ -65,11 +65,18 @@ a{color:var(--accent)}
 /* Header + nav */
 .gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
-.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
 .gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
 .gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
 .gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
 .gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
 
 /* Layout */
 .gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
@@ -172,6 +179,31 @@ html{scroll-padding-top:60px}
   .lp-trust li{white-space:nowrap}
   @media (max-width:360px){.lp-trust{font-size:13px;gap:var(--s1) var(--s2)}.lp-sample .lp-pay{font-size:18px}.lp-sample .gc-kicker{font-size:12px;letter-spacing:.02em}}
   @media (min-width:560px){.lp-cards{grid-template-columns:1fr 1fr}}
+  /* v11 design uplift: stronger home type, a dated sources line, How we calculate, and a wider two-column home from 900px */
+  .lp-hero h1{font-size:clamp(30px,calc(22px + 2.2vw),40px);line-height:1.15}
+  .lp-rules{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;column-gap:var(--s2);margin-top:var(--s2);text-align:center;font-size:var(--fs-sm);color:var(--ink-2)}
+  .lp-rules span{padding-top:var(--s2)}
+  .lp-rules a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s1);font-weight:600}
+  .lp-how{margin-top:var(--s8)}
+  .lp-how h2{font-size:var(--fs-lg)}
+  .lp-how p{margin-top:var(--s2);color:var(--ink-2)}
+  .lp-how ul{margin:var(--s3) 0 0;padding-left:var(--s5);color:var(--ink-2)}
+  .lp-how li+li{margin-top:var(--s2)}
+  .lp-how a{font-weight:600}
+  @media (min-width:900px){
+    body[data-gc="home-v2"] .gc-header-in{max-width:68rem;padding:0 var(--s6)}
+    .lp-main{max-width:68rem;padding:var(--s8) var(--s6) var(--s8);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--s8);align-items:center}
+    .lp-main>*{grid-column:1/-1}
+    .lp-main>.lp-hero{grid-column:1;padding:0}
+    .lp-main>.lp-sample{grid-column:2;margin:0}
+    .lp-hero .lp-cta{width:auto;padding:0 var(--s8)}
+    .lp-trust{justify-content:flex-start}
+    .lp-rules{justify-content:flex-start;text-align:left}
+    .lp-sub{font-size:18px}
+    .lp-more{margin-top:var(--s8)}
+    .lp-cards{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .lp-how{max-width:48rem}
+  }
 </style>
 <!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
 <script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
@@ -213,20 +245,21 @@ html{scroll-padding-top:60px}
 </head>
 <body data-gc="home-v2">
 <header class="gc-header"><div class="gc-header-in">
-  <a class="gc-brand" href="/" aria-label="Golf Calculators home" aria-current="page"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home" aria-current="page"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
   <nav class="gc-nav" aria-label="Calculators">
     <a href="/skins">Skins</a>
     <a href="/stableford">Stableford</a>
     <a href="/daily-handicap">Daily Hcp</a>
   </nav>
 </div></header>
-<main class="gc-main">
+<main class="gc-main lp-main">
   <section class="lp-hero" aria-labelledby="lp-h">
     <p class="lp-kicker">Golf Calculators</p>
     <h1 id="lp-h">Playing today?</h1>
     <p class="lp-sub">Score skins hole by hole on your phone. When you walk off the last green, everyone knows exactly who pays whom.</p>
     <a class="gc-btn gc-btn-primary gc-btn-block lp-cta" id="lp-cta" href="/skins">Start a skins round</a>
     <ul class="lp-trust" id="lp-trust" aria-label="Why use it"><li>Free</li><li>No sign-up</li><li>Works on your phone</li></ul>
+    <p class="lp-rules" id="lp-rules"><span>Rules follow WHS / Golf Australia / USGA (checked Nov 2026)</span> <a href="#how-we-calculate">How we calculate</a></p>
   </section>
   <figure class="lp-sample" id="lp-sample">
     <div class="gc-hero">
@@ -245,6 +278,16 @@ html{scroll-padding-top:60px}
     <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Your Golf Australia Daily Handicap for today's tees (2026 formula).</span></a>
     <a href="/handicap-calculator"><strong>Handicap Index →</strong><span>Estimate your GA Handicap from your last 20 rounds (WHS best 8 of 20).</span></a>
   </div>
+  <section class="lp-how" id="how-we-calculate" aria-labelledby="how-we-h">
+    <h2 id="how-we-h">How we calculate</h2>
+    <p>Every calculator shows the formula with your own numbers and names its source, so you can check the maths.</p>
+    <ul>
+      <li><a href="/daily-handicap#how-h">Daily Handicap</a>: Golf Australia's formula, ((GA Handicap × Slope ÷ 113) + (Scratch − Par)) × 0.93 × Consistency Factor (WHS reference guide for Australia, January 2026, §3H).</li>
+      <li><a href="/handicap-calculator#how-h">Handicap Index</a>: the average of your best 8 score differentials from your last 20, per the WHS Rules of Handicapping (R&amp;A and USGA) and Golf Australia's guide.</li>
+      <li><a href="/stableford#how-h">Stableford</a>: points per hole against your net par, as in the Rules of Golf, Rule 21, with the countback.</li>
+      <li><a href="/skins#how-h">Skins</a>: lowest score wins each hole, gross or net, with carryovers, then one settle-up showing who pays whom.</li>
+    </ul>
+  </section>
 </main>
 <footer class="gc-footer"><a href="/feedback?from=home">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
 </body>

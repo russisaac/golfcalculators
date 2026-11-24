@@ -489,6 +489,44 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     if(bad)fail=1;rows.push({name:`home fold ${w}x${hgt}`,width:w,fold:r});
     console.log(`${gate(bad)}  home landing fold @${w}x${hgt}: Skins CTA ${r.ctaTop}-${r.ctaBottom}px, first sample settle-up line ${r.sampleTop}-${r.sampleBottom}px of ${r.vh}px${w===375?' (both must be on the first screen)':' (CTA must be on the first screen)'}`);
     await p.context().close();}}
+  // v11 P1 design uplift: the one shared header on every page at 320/375/1280 (49px sticky bar, nav right-aligned,
+  // wordmark visible at 375 and 1280, same geometry on every page; Daily Hcp starts at x >= 280 at 375), the home first
+  // screen (dated sources line on screen at 375x812) and the two-column desktop home (sample right of the h1, 3 cards in one row).
+  if(/class="gc-word"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    for(const w of [320,375,1280]){const sig={};
+      for(const [n,u] of pages){const p=await page(w,812);await p.goto(base+u,{waitUntil:'load'});await p.waitForTimeout(100);
+        const r=await p.evaluate(()=>{const h=document.querySelector('header.gc-header'),inn=h.querySelector('.gc-header-in'),wm=h.querySelector('.gc-word'),links=[...h.querySelectorAll('.gc-nav a')];
+          const R=e=>e.getBoundingClientRect(),hi=R(inn),last=R(links[links.length-1]),wr=R(wm);
+          return {hh:Math.round(R(h).height),pos:getComputedStyle(h).position,wmVisible:wr.width>2&&wr.height>2,wmW:Math.round(wr.width),lastRight:Math.round(last.right),innRight:Math.round(hi.right),pad:parseFloat(getComputedStyle(inn).paddingRight),
+            dhX:Math.round(R(links[2]).x),brandH:Math.round(R(h.querySelector('.gc-brand')).height),sw:document.documentElement.scrollWidth,vw:innerWidth,
+            geo:links.map(a=>Math.round(R(a).x)+':'+Math.round(R(a).width)).join(',')+'|'+Math.round(wr.width)+'x'+Math.round(wr.height)};});
+        const rightAligned=Math.abs(r.lastRight-(r.innRight-r.pad))<=1;
+        const bad=!(r.hh===49&&r.pos==='sticky'&&rightAligned&&r.brandH>=44&&r.sw<=r.vw&&(w<360||r.wmVisible)&&(w!==375||r.dhX>=280));
+        if(bad)fail=1;if(n!=='home'||w<900)(sig[r.geo]=sig[r.geo]||[]).push(n);rows.push({name:`v11 header ${n} ${w}`,width:w,header:r});
+        if(w===375&&['daily-handicap','privacy'].includes(n))await p.screenshot({path:path.join(OUT,`v11-p1-${n}-header-375.png`),clip:{x:0,y:0,width:375,height:120}});
+        console.log(`${gate(bad)}  v11 header ${n} @${w}: ${r.hh}px ${r.pos}, nav ends at ${r.lastRight}px (inner right ${r.innRight}-${r.pad}px), wordmark ${r.wmVisible?'visible '+r.wmW+'px':'hidden'}, Daily Hcp x ${r.dhX}, page ${r.sw}/${r.vw}px`);
+        await p.context().close();}
+      const one=Object.keys(sig).length===1;if(!one)fail=1;
+      console.log(`${gate(!one)}  v11 header geometry identical on every page @${w}${w>=900?' (home has the wider desktop container)':''}${one?'':': '+JSON.stringify(sig)}`);}
+    {const p=await page(375,812);await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const R=id=>document.getElementById(id).getBoundingClientRect(),a=document.querySelector('#lp-rules a').getBoundingClientRect();
+        return {rulesBottom:Math.round(R('lp-rules').bottom),linkH:Math.round(a.height),ctaBottom:Math.round(R('lp-cta').bottom),sampleTop:Math.round(R('lp-sample').top),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),vh:innerHeight};});
+      const bad=!(r.rulesBottom<=r.vh&&r.linkH>=44&&r.sampleTop>r.ctaBottom&&r.h1>=30);if(bad)fail=1;rows.push({name:'v11 home 375',width:375,home:r});
+      console.log(`${gate(bad)}  v11 home @375x812: sources line ends at ${r.rulesBottom}px (first screen), How we calculate ${r.linkH}px tall, stacked (sample ${r.sampleTop}px below CTA ${r.ctaBottom}px), h1 ${r.h1}px`);await p.context().close();}
+    {const ctx=await b.newContext({viewport:{width:1280,height:800}});await ctx.route('**/.netlify/scripts/**',r=>r.abort());const p=await ctx.newPage();await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const R=e=>e.getBoundingClientRect(),h1=R(document.querySelector('.lp-hero h1')),sm=R(document.getElementById('lp-sample')),cards=[...document.querySelectorAll('.lp-cards a')].map(e=>Math.round(R(e).top)),m=R(document.querySelector('main'));
+        return {h1Right:Math.round(h1.right),sampleX:Math.round(sm.x),sampleTop:Math.round(sm.top),cardTops:cards,mainW:Math.round(m.width),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),sw:document.documentElement.scrollWidth,vw:innerWidth,
+          lines:[...document.querySelectorAll('#lp-sample .lp-pay')].map(e=>e.textContent.replace(/\s+/g,' ').trim())};});
+      await p.screenshot({path:path.join(OUT,'v11-p1-home-1280.png')});
+      const bad=!(r.sampleX>r.h1Right&&r.cardTops.length===3&&new Set(r.cardTops).size===1&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
+      if(bad)fail=1;rows.push({name:'v11 home 1280',width:1280,home:r});
+      console.log(`${gate(bad)}  v11 home @1280: two columns (sample x ${r.sampleX} > h1 right ${r.h1Right}), cards in one row (${r.cardTops.join('/')}), main ${r.mainW}px, h1 ${r.h1}px, sample ${r.lines.length} lines`);await ctx.close();}
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v11 P1 daily-handicap: example result (shared hero)',w,'/daily-handicap',async p=>{await p.click('#dh-example');await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById('result').scrollIntoView({block:'start'}));},`v11-p1-dh-example-result-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+'/daily-handicap',{waitUntil:'load'});await p.click('#dh-example');await p.waitForTimeout(100);const men=await p.textContent('#dailyOut');await p.selectOption('#gender','women');await p.waitForTimeout(100);const women=await p.textContent('#dailyOut');
+        const bad=!(men==='14'&&women==='15');if(bad)fail=1;console.log(`${gate(bad)}  v11 P1 daily-handicap Load example @${sz}: men ${men}, women ${women} (anchors 14/15)`);await p.context().close();}
+    }
+  }
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
