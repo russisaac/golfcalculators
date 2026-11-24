@@ -3,12 +3,16 @@
    - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
    - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
      carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
-   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
-     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
-     out; never the scores, differentials or the index itself). Anything else is dropped. */
+   - Anonymous events, each with one parameter, the tool ("skins", "stableford", "handicap", "daily-handicap", or "site"
+     for a page that is not a calculator): round_settled, result_shared, shared_link_opened, start_own_from_viewer,
+     hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
+     dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
+     email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
+     from affiliates.json (lowercase letters, digits and hyphens only). Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/;
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -27,9 +31,11 @@
     addEventListener('popstate', reset);
     addEventListener('hashchange', reset);
   }
-  window.gcTrack = function (name, tool) {
+  window.gcTrack = function (name, tool, item) {
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
-    gtag('event', name, { tool: tool });
+    var p = { tool: tool };
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item)) return false; p.item = item; }
+    gtag('event', name, p);
     return true;
   };
 })();

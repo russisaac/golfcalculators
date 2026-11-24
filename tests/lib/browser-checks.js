@@ -489,6 +489,86 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     if(bad)fail=1;rows.push({name:`home fold ${w}x${hgt}`,width:w,fold:r});
     console.log(`${gate(bad)}  home landing fold @${w}x${hgt}: Skins CTA ${r.ctaTop}-${r.ctaBottom}px, first sample settle-up line ${r.sampleTop}-${r.sampleBottom}px of ${r.vh}px${w===375?' (both must be on the first screen)':' (CTA must be on the first screen)'}`);
     await p.context().close();}}
+  // v11 P1 design uplift: the one shared header on every page at 320/375/1280 (49px sticky bar, nav right-aligned,
+  // wordmark visible at 375 and 1280, same geometry on every page; Daily Hcp starts at x >= 280 at 375), the home first
+  // screen (dated sources line on screen at 375x812) and the two-column desktop home (sample right of the h1, 3 cards in one row).
+  if(/class="gc-word"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    for(const w of [320,375,1280]){const sig={};
+      for(const [n,u] of pages){const p=await page(w,812);await p.goto(base+u,{waitUntil:'load'});await p.waitForTimeout(100);
+        const r=await p.evaluate(()=>{const h=document.querySelector('header.gc-header'),inn=h.querySelector('.gc-header-in'),wm=h.querySelector('.gc-word'),links=[...h.querySelectorAll('.gc-nav a')];
+          const R=e=>e.getBoundingClientRect(),hi=R(inn),last=R(links[links.length-1]),wr=R(wm);
+          return {hh:Math.round(R(h).height),pos:getComputedStyle(h).position,wmVisible:wr.width>2&&wr.height>2,wmW:Math.round(wr.width),lastRight:Math.round(last.right),innRight:Math.round(hi.right),pad:parseFloat(getComputedStyle(inn).paddingRight),
+            dhX:Math.round(R(links[2]).x),brandH:Math.round(R(h.querySelector('.gc-brand')).height),sw:document.documentElement.scrollWidth,vw:innerWidth,
+            geo:links.map(a=>Math.round(R(a).x)+':'+Math.round(R(a).width)).join(',')+'|'+Math.round(wr.width)+'x'+Math.round(wr.height)};});
+        const rightAligned=Math.abs(r.lastRight-(r.innRight-r.pad))<=1;
+        const bad=!(r.hh===49&&r.pos==='sticky'&&rightAligned&&r.brandH>=44&&r.sw<=r.vw&&(w<360||r.wmVisible)&&(w!==375||r.dhX>=280));
+        if(bad)fail=1;if(n!=='home'||w<900)(sig[r.geo]=sig[r.geo]||[]).push(n);rows.push({name:`v11 header ${n} ${w}`,width:w,header:r});
+        if(w===375&&['daily-handicap','privacy'].includes(n))await p.screenshot({path:path.join(OUT,`v11-p1-${n}-header-375.png`),clip:{x:0,y:0,width:375,height:120}});
+        console.log(`${gate(bad)}  v11 header ${n} @${w}: ${r.hh}px ${r.pos}, nav ends at ${r.lastRight}px (inner right ${r.innRight}-${r.pad}px), wordmark ${r.wmVisible?'visible '+r.wmW+'px':'hidden'}, Daily Hcp x ${r.dhX}, page ${r.sw}/${r.vw}px`);
+        await p.context().close();}
+      const one=Object.keys(sig).length===1;if(!one)fail=1;
+      console.log(`${gate(!one)}  v11 header geometry identical on every page @${w}${w>=900?' (home has the wider desktop container)':''}${one?'':': '+JSON.stringify(sig)}`);}
+    {const p=await page(375,812);await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const R=id=>document.getElementById(id).getBoundingClientRect(),a=document.querySelector('#lp-rules a').getBoundingClientRect();
+        return {rulesBottom:Math.round(R('lp-rules').bottom),linkH:Math.round(a.height),ctaBottom:Math.round(R('lp-cta').bottom),sampleTop:Math.round(R('lp-sample').top),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),vh:innerHeight};});
+      const bad=!(r.rulesBottom<=r.vh&&r.linkH>=44&&r.sampleTop>r.ctaBottom&&r.h1>=30);if(bad)fail=1;rows.push({name:'v11 home 375',width:375,home:r});
+      console.log(`${gate(bad)}  v11 home @375x812: sources line ends at ${r.rulesBottom}px (first screen), How we calculate ${r.linkH}px tall, stacked (sample ${r.sampleTop}px below CTA ${r.ctaBottom}px), h1 ${r.h1}px`);await p.context().close();}
+    {const ctx=await b.newContext({viewport:{width:1280,height:800}});await ctx.route('**/.netlify/scripts/**',r=>r.abort());const p=await ctx.newPage();await p.goto(base+'/',{waitUntil:'load'});await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const R=e=>e.getBoundingClientRect(),h1=R(document.querySelector('.lp-hero h1')),sm=R(document.getElementById('lp-sample')),cards=[...document.querySelectorAll('.lp-cards a')].map(e=>Math.round(R(e).top)),m=R(document.querySelector('main'));
+        return {h1Right:Math.round(h1.right),sampleX:Math.round(sm.x),sampleTop:Math.round(sm.top),cardTops:cards,mainW:Math.round(m.width),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),sw:document.documentElement.scrollWidth,vw:innerWidth,
+          lines:[...document.querySelectorAll('#lp-sample .lp-pay')].map(e=>e.textContent.replace(/\s+/g,' ').trim())};});
+      await p.screenshot({path:path.join(OUT,'v11-p1-home-1280.png')});
+      const bad=!(r.sampleX>r.h1Right&&r.cardTops.length===3&&new Set(r.cardTops).size===1&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
+      if(bad)fail=1;rows.push({name:'v11 home 1280',width:1280,home:r});
+      console.log(`${gate(bad)}  v11 home @1280: two columns (sample x ${r.sampleX} > h1 right ${r.h1Right}), cards in one row (${r.cardTops.join('/')}), main ${r.mainW}px, h1 ${r.h1}px, sample ${r.lines.length} lines`);await ctx.close();}
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v11 P1 daily-handicap: example result (shared hero)',w,'/daily-handicap',async p=>{await p.click('#dh-example');await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById('result').scrollIntoView({block:'start'}));},`v11-p1-dh-example-result-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+'/daily-handicap',{waitUntil:'load'});await p.click('#dh-example');await p.waitForTimeout(100);const men=await p.textContent('#dailyOut');await p.selectOption('#gender','women');await p.waitForTimeout(100);const women=await p.textContent('#dailyOut');
+        const bad=!(men==='14'&&women==='15');if(bad)fail=1;console.log(`${gate(bad)}  v11 P1 daily-handicap Load example @${sz}: men ${men}, women ${women} (anchors 14/15)`);await p.context().close();}
+    }
+  }
+  // v11 P2 monetisation: the email card after a real result and the gear block on each calculator, the footer signup,
+  // its error and success states (fetch stubbed: nothing is posted from a test), at 375x812 and 320x568, with axe and fit.
+  if(fs.existsSync(path.join(SITE,'gc-grow.js'))){
+    const real={skins:"(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
+      stableford:"(()=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
+      'daily-handicap':null,'handicap-calculator':null};
+    const result=async(p,t)=>{if(real[t])await p.evaluate(real[t]);else if(t==='daily-handicap'){await p.fill('#ga','12.4');await p.fill('#slope','131');await p.fill('#scratch','70.5');await p.fill('#par','72');}
+      else{for(const sc of ['92','95','90']){await p.fill('#score',sc);await p.fill('#cr','71.3');await p.fill('#sl','129');await p.click('#btn-add');}}await p.waitForTimeout(150);};
+    const stub=async p=>{await p.evaluate(()=>{window.fetch=()=>Promise.resolve({ok:true,status:200});});};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      for(const t of ['skins','stableford','daily-handicap','handicap-calculator']){
+        await check(`v11 P2 ${t}: email card after a real result`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-nl-card').scrollIntoView({block:'center'}));},`v11-p2-${t}-email-card-${sz}.png`,hgt);
+        await check(`v11 P2 ${t}: gear for this game`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-gear').scrollIntoView({block:'center'}));},`v11-p2-${t}-gear-${sz}.png`,hgt);
+        const p=await page(w,hgt);await p.goto(base+'/'+t,{waitUntil:'load'});await result(p,t);
+        const r=await p.evaluate(()=>{const c=document.getElementById('gc-nl-card'),g=document.getElementById('gc-gear'),x=c.querySelector('.gc-nl-x').getBoundingClientRect(),btn=c.querySelector('button[type=submit]').getBoundingClientRect(),cons=c.querySelector('.gc-nl-consent').getBoundingClientRect();
+          return {card:c.getClientRects().length>0,gear:g.querySelectorAll('a[rel="sponsored nofollow noopener"]').length,x:[Math.round(x.width),Math.round(x.height)],btnH:Math.round(btn.height),consH:Math.round(cons.height),sw:document.documentElement.scrollWidth,vw:innerWidth};});
+        const bad=!(r.card&&r.gear>=2&&r.x[0]>=44&&r.x[1]>=44&&r.btnH>=44&&r.consH>=44&&r.sw<=r.vw);if(bad)fail=1;rows.push({name:`v11 grow ${t} ${sz}`,width:w,grow:r});
+        console.log(`${gate(bad)}  v11 P2 ${t} @${sz}: card shown, ${r.gear} gear links, x ${r.x.join('x')}, Subscribe ${r.btnH}px, consent row ${r.consH}px, page ${r.sw}/${r.vw}px`);await p.context().close();
+      }
+      await check('v11 P2 footer signup: error state',w,'/privacy',async p=>{await p.evaluate(()=>{const f=document.querySelector('footer form');f.querySelector('input[type=email]').value='nope';f.querySelector('button[type=submit]').click();f.scrollIntoView({block:'center'});});},`v11-p2-footer-error-${sz}.png`,hgt);
+      await check('v11 P2 footer signup: success state',w,'/',async p=>{await stub(p);await p.evaluate(()=>{const f=document.querySelector('footer form');f.querySelector('input[type=email]').value='a@example.com';f.querySelector('input[name=consent]').checked=true;f.querySelector('button[type=submit]').click();});await p.waitForTimeout(100);await p.evaluate(()=>document.querySelector('footer').scrollIntoView({block:'center'}));},`v11-p2-footer-success-${sz}.png`,hgt);
+    }
+  }
+  // v11 P3 leftover: Skins setup clips nothing at 320 and 375 (fresh, 8 long names, front 9, From a pot with More options
+  // open): the page never scrolls sideways and no element in the setup has scrollWidth > clientWidth (labels in segmented
+  // controls, the allowance "100%", handicap values like "+10"). Player-name text fields are exempt: a long name scrolls
+  // inside its own input, as any text field does. Visually hidden (.sr-only) helpers are exempt too.
+  if(isV2&&/v11 leftover: nothing in the setup is cut off/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
+    const L8=JSON.stringify(SKLONG8);
+    const st={fresh:'',max8:`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));GCSkinsUI.show('setup');`,
+      'max8 front 9':`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.holes='front';GCSkinsUI.show('setup');`,
+      'max8 pot, More options open':`const s=GCSkinsUI.state();s.players=${L8}.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.pay='pot';GCSkinsUI.show('setup');`};
+    for(const w of [320,375])for(const [k,js] of Object.entries(st)){const p=await page(w,812);await p.goto(base+'/skins',{waitUntil:'load'});
+      await p.evaluate(js=>{if(js)(new Function(js))();document.querySelectorAll('#scr-setup details').forEach(d=>d.open=true);},js);await p.waitForTimeout(150);
+      const r=await p.evaluate(()=>{const root=document.getElementById('scr-setup'),cut=[];
+        for(const e of [root,...root.querySelectorAll('*')]){if(!e.getClientRects().length||e.closest('.sr-only')||/^pn\d$/.test(e.id))continue;if(e.clientWidth>0&&e.scrollWidth>e.clientWidth+1)cut.push((e.id||e.tagName.toLowerCase()+'.'+[...e.classList].join('.'))+' '+e.scrollWidth+'>'+e.clientWidth);}
+        return {sw:document.documentElement.scrollWidth,vw:innerWidth,cut};});
+      if(w===320&&k.includes('pot'))await p.screenshot({path:path.join(OUT,'v11-p3-skins-setup-more-320.png'),fullPage:true});
+      const bad=r.sw>r.vw||r.cut.length>0;if(bad)fail=1;rows.push({name:`v11 skins setup clip ${k} ${w}`,width:w,clip:r});
+      console.log(`${gate(bad)}  v11 P3 skins setup (${k}) @${w}: page ${r.sw}/${r.vw}px, clipped elements ${r.cut.length}${r.cut.length?' ('+r.cut.slice(0,5).join(', ')+')':''}`);await p.context().close();}
+    for(const w of [320,375])await check('v11 P3 skins setup, More options open (8 long names, From a pot)',w,'/skins',async p=>{await p.evaluate(L=>{const s=GCSkinsUI.state();s.players=L.map((n,i)=>({name:n,hcp:i===0?-10:54-i}));s.pay='pot';GCSkinsUI.show('setup');document.querySelectorAll('#scr-setup details').forEach(d=>d.open=true);document.getElementById('allow-row').scrollIntoView({block:'center'});},SKLONG8);},`v11-p3-skins-setup-allowance-${w}.png`);
+  }
   await b.close();
   const lh=[];
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)

@@ -34,12 +34,16 @@
    - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
    - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
      carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
-   - Five anonymous events, each with one parameter, the tool ("skins", "stableford" or "handicap"): round_settled,
-     result_shared, shared_link_opened, start_own_from_viewer, and hi_calculate (v10: a Handicap Index was worked
-     out; never the scores, differentials or the index itself). Anything else is dropped. */
+   - Anonymous events, each with one parameter, the tool ("skins", "stableford", "handicap", "daily-handicap", or "site"
+     for a page that is not a calculator): round_settled, result_shared, shared_link_opened, start_own_from_viewer,
+     hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
+     dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
+     email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
+     from affiliates.json (lowercase letters, digits and hyphens only). Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate'], TOOLS = ['skins', 'stableford', 'handicap'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/;
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -58,9 +62,11 @@
     addEventListener('popstate', reset);
     addEventListener('hashchange', reset);
   }
-  window.gcTrack = function (name, tool) {
+  window.gcTrack = function (name, tool, item) {
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
-    gtag('event', name, { tool: tool });
+    var p = { tool: tool };
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item)) return false; p.item = item; }
+    gtag('event', name, p);
     return true;
   };
 })();
@@ -94,11 +100,18 @@ a{color:var(--accent)}
 /* Header + nav */
 .gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
-.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
 .gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
 .gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
 .gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
 .gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
 
 /* Layout */
 .gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
@@ -177,6 +190,39 @@ a{color:var(--accent)}
 .gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
 /* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
 html{scroll-padding-top:60px}
+/* v11 email signup (gc-grow.js): footer form on every page, compact card after a result */
+.gc-nl-foot{max-width:28rem;margin:0 auto var(--s4);padding-top:var(--s5);border-top:1px solid var(--line);text-align:left}
+.gc-nl-t{font-size:var(--fs-md);color:var(--ink);margin-bottom:var(--s2)}
+.gc-nl-foot .gc-nl-t{font-size:var(--fs-sm);font-weight:400;color:var(--ink-2)}
+.gc-nl-p{font-size:var(--fs-sm);color:var(--muted);margin:calc(-1 * var(--s1)) 0 var(--s2)}
+.gc-nl-row{display:flex;gap:var(--s2)}
+.gc-nl-row .gc-input{flex:1;min-width:0}
+.gc-nl-row .gc-btn{flex:none;padding:0 var(--s4)}
+.gc-nl-consent{position:relative;display:flex;align-items:center;min-height:44px;margin-top:var(--s1);font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer}
+.gc-nl-consent input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.gc-nl-consent span{display:flex;align-items:center;gap:var(--s2)}
+.gc-nl-consent span::before{content:"";flex:none;width:24px;height:24px;border:2px solid #64748b;border-radius:6px;background:var(--card) center/16px 16px no-repeat}
+.gc-nl-consent input:checked+span::before{border-color:var(--accent);background-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.gc-nl-consent input:focus-visible+span::before{outline:3px solid #2563eb;outline-offset:2px}
+.gc-nl-err{font-size:var(--fs-sm);color:var(--danger)}
+.gc-nl-err:empty{display:none}
+.gc-nl-ok{font-weight:600;color:var(--accent);padding:var(--s2) 0}
+.gc-nl-ok:focus{outline:none}
+.gc-input[aria-invalid="true"]{border-color:var(--danger)}
+.gc-nl-card{position:relative;margin-top:var(--s3)}
+.gc-nl-card .gc-nl-t{padding-right:44px}
+.gc-nl-x{position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;background:none;font-size:var(--fs-lg);line-height:1;color:var(--muted);cursor:pointer;border-radius:var(--r-sm)}
+.gc-nl-card[hidden],.gc-gear[hidden],.gc-nl-form[hidden]{display:none}
+.gc-footer-links{margin:0}
+.gc-footer-aff{font-size:12px;margin-top:var(--s1)}
+/* v11 Gear for this game (affiliates.json): plain text cards, no prices */
+.gc-gear{margin-top:var(--s4)}
+.gc-gear h2{margin-bottom:var(--s2)}
+.gc-gear-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-gear-list a{display:block;min-height:var(--tap);padding:var(--s3) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-gear-list strong{display:block;color:var(--accent)}
+.gc-gear-list span{display:block;font-size:var(--fs-sm);color:var(--muted)}
+.gc-gear-disc{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s2)}
 </style>
 <style>
   .sk-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
@@ -354,13 +400,13 @@ html{scroll-padding-top:60px}
     "price": 0,
     "priceCurrency": "AUD"
    },
-   "inLanguage": "en-AU"
+   "inLanguage": "en"
   },
   {
    "@type": "FAQPage",
    "@id": "https://golfcalculators.com/stableford#faq",
    "url": "https://golfcalculators.com/stableford",
-   "inLanguage": "en-AU",
+   "inLanguage": "en",
    "mainEntity": [
     {
      "@type": "Question",
@@ -453,7 +499,7 @@ html{scroll-padding-top:60px}
 </head>
 <body data-gc="stableford-v2">
 <header class="gc-header"><div class="gc-header-in">
-  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
   <nav class="gc-nav" aria-label="Calculators">
     <a href="/skins">Skins</a>
     <a href="/stableford" aria-current="page">Stableford</a>
@@ -595,6 +641,7 @@ html{scroll-padding-top:60px}
   <div class="gc-view-actions" id="view-actions"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="gc-own">Start your own round</button><div class="gc-view-links"><button type="button" class="gc-btn gc-btn-ghost" id="gc-reshare">Share result</button><button type="button" class="gc-btn gc-btn-ghost" id="gc-copy">Copy link</button></div></div>
   <div class="sk-actions gc-own-only" id="share-row" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
   <div class="gc-card sk-pad gc-ask gc-own-only" id="course-ask" style="margin-top:var(--s3)" hidden></div>
+  <div class="gc-card gc-nl-card gc-own-only" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="stableford"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Nassau, Wolf, scramble. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
   <p class="gc-muted" style="margin-top:var(--s2)" id="result-src">Points: R&amp;A Rules of Golf, Rule 21.1b. Ties: Australian Countback Method, Golf Australia <cite>WHS Official reference guide for Australian administrators</cite>, Edition January 2026, §11. <a href="#how-h">How it's calculated</a></p>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Why: hole by hole</h2>
@@ -606,6 +653,7 @@ html{scroll-padding-top:60px}
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New round</button>
   </div>
   <p class="gc-muted gc-own-only" id="new-note">New round keeps your players and course and clears the scores.</p>
+  <div class="gc-gear gc-own-only" id="gc-gear" role="region" aria-label="Gear for this game" hidden></div>
   <p class="gc-muted gc-fb" id="fb-after">How did the calculator go? <a href="/feedback?from=stableford">Send feedback</a></p>
   <div class="gc-card sk-pad gc-a2hs" id="a2hs" role="region" aria-label="Add to Home Screen" style="margin-top:var(--s3)" hidden></div>
 </section>
@@ -641,7 +689,11 @@ html{scroll-padding-top:60px}
 <!-- seo:content:end --></section>
 </main>
 <div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
-<footer class="gc-footer"><a href="/feedback?from=stableford">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</footer>
+<footer class="gc-footer">
+<div class="gc-nl-foot"><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-f-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="stableford"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><p class="gc-nl-t" id="nl-f-t"><strong>New golf calculators, first.</strong> One email a month, max.</p><label class="gc-label" for="nl-f-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-f-email" name="email" autocomplete="email" aria-describedby="nl-f-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-f-err" aria-live="polite"></p></form></div>
+<p class="gc-footer-links"><a href="/feedback?from=stableford">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</p>
+<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases.</p>
+</footer>
 <!-- Shared result links: verbatim copy of /gc-share.js. tests/run fails if it drifts from gc-share.js. -->
 <script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
    page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
@@ -1168,6 +1220,7 @@ function show(screen, focus) {
   if (screen === 'hole') renderHole();
   if (screen === 'result') renderResult();
   if (screen === 'result') settled(); // v9 P6 round_settled (own rounds only, once per round)
+  if (screen === 'result' && !VIEW && window.GCGrow) { if (JSON.stringify(S.scores) === JSON.stringify(exampleState().scores)) GCGrow.gear('stableford'); else GCGrow.result('stableford'); } // v11: gear after any own result; the email card after a real one
   if (window.GCA2HS) { if (screen === 'result') GCA2HS.render(); else $('a2hs').hidden = true; } // v9 P5 one-time Add to Home Screen tip
   if (focus) { window.scrollTo(0, 0); var hd = $({ setup: 'setup-h', course: 'course-h', hole: 'hole-h', result: 'result-h' }[screen]); if (hd) hd.focus({ preventScroll: true }); }
 }
@@ -1582,6 +1635,130 @@ else {
   if (dhSet) toast(dhSet);
   if (pendingDH) focusPrompt();
 }
+})();
+</script>
+<!-- Email signup + gear (v11): verbatim copy of /gc-grow.js. tests/run fails if it drifts. -->
+<script type="application/json" data-src="/affiliates.json">{
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per region. A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the four calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts.",
+ "region": "us",
+ "tag": "golfcalc-20",
+ "disclosure": "We may earn a commission from links on this page.",
+ "items": [
+  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20"}},
+  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20"}},
+  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20"}}
+ ],
+ "tools": {
+  "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
+  "daily-handicap": ["rangefinder", "scorecard-holder"],
+  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"]
+ }
+}
+</script>
+<script data-src="/gc-grow.js">/* gc-grow.js: golfcalculators.com email signup + "Gear for this game" (v11, Nov 2026). Inlined verbatim into every page as
+   <script data-src="/gc-grow.js">; tests/run fails if a copy drifts from this file.
+   - Newsletter forms (footer on every page, and the card after a result on the four calculators) post to Netlify Forms
+     ("newsletter", honeypot bot-field) with fetch: inline "You're in", inline errors, no page jump. The address goes only
+     in the POST body to this site; never into a URL, storage or analytics.
+   - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
+     signup (localStorage keeps only a date or a flag).
+   - Gear: built from the inlined affiliates.json, only items with a url for the region; with none it renders nothing.
+     Links open a new tab with rel="sponsored nofollow noopener"; a click sends affiliate_click {tool, item id}. */
+(function () {
+  var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
+  function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
+  function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
+  function track(name, tool, item) { if (window.gcTrack) window.gcTrack(name, tool, item); }
+  function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
+  function body(form) {
+    var out = [];
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name || el.disabled || (el.type === 'checkbox' && !el.checked) || el.type === 'submit') continue;
+      out.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+    }
+    return out.join('&');
+  }
+  function say(form, msg) {
+    var err = form.querySelector('.gc-nl-err'), em = form.querySelector('input[type="email"]');
+    err.textContent = msg;
+    if (msg) em.setAttribute('aria-invalid', 'true'); else em.removeAttribute('aria-invalid');
+  }
+  function done(form) {
+    put('localStorage', DONE, '1');
+    var ok = document.createElement('p');
+    ok.className = 'gc-nl-ok'; ok.setAttribute('role', 'status'); ok.tabIndex = -1;
+    ok.textContent = 'You\u2019re in. Watch for one email a month, at most.';
+    form.hidden = true; form.parentNode.insertBefore(ok, form.nextSibling);
+    try { ok.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function submit(e) {
+    var form = e.target;
+    if (!form.matches || !form.matches('form.gc-nl-form')) return;
+    e.preventDefault();
+    var em = form.querySelector('input[type="email"]'), consent = form.querySelector('input[name="consent"]'), btn = form.querySelector('button[type="submit"]');
+    var v = (em.value || '').trim();
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(v)) { say(form, 'Enter an email address like name@example.com.'); em.focus(); return; }
+    if (consent && !consent.checked) { say(form, 'Tick the box to say we can email you.'); consent.focus(); return; }
+    say(form, '');
+    var hp = form.querySelector('input[name="bot-field"]');
+    if (hp && hp.value) { done(form); return; } // a bot filled the hidden field: look done, send nothing
+    btn.disabled = true;
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body(form) })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); done(form); track('email_signup', toolOf(form)); })
+      .catch(function () { btn.disabled = false; say(form, 'That didn\u2019t go through. Check your connection and try again.'); });
+  }
+  document.addEventListener('submit', submit);
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('.gc-nl-x');
+    if (x) {
+      var card = x.closest('.gc-nl-card'); card.hidden = true;
+      put('localStorage', DISMISS, String(Date.now()));
+      track('email_dismiss', toolOf(card.querySelector('form')));
+      return;
+    }
+    var a = e.target.closest && e.target.closest('a[data-aff]');
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'));
+  });
+  function cardAllowed() {
+    if (get('localStorage', DONE)) return false;
+    var d = +get('localStorage', DISMISS);
+    if (d && Date.now() - d < DAYS30) return false;
+    return shownHere || !get('sessionStorage', SESSION);
+  }
+  function gear(tool) {
+    var box = document.getElementById('gc-gear'), cfg = null, src = document.querySelector('script[data-src="/affiliates.json"]');
+    if (!box || box.childNodes.length) return;
+    try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
+    var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
+      var u = it && it.url && it.url[cfg.region]; return u && /^https:\/\//.test(u) && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+    }).slice(0, 3);
+    if (!list.length) return; // nothing to show: no heading, no disclosure, no box
+    var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
+    list.forEach(function (it) {
+      var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
+      a.href = it.url[cfg.region]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool);
+      b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
+      a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    var p = document.createElement('p'); p.className = 'gc-gear-disc'; p.textContent = cfg.disclosure || 'We may earn a commission from links on this page.';
+    box.appendChild(p);
+    box.hidden = false;
+  }
+  window.GCGrow = {
+    // call when a calculator shows the user's own result
+    result: function (tool) {
+      var card = document.getElementById('gc-nl-card');
+      if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
+      gear(tool);
+    },
+    gear: gear, cardAllowed: cardAllowed, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+  };
 })();
 </script>
 </body>

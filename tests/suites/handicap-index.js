@@ -97,7 +97,7 @@ for(const [q,w] of [['ga=14.4','14.4'],['ga=%2B2.5','+2.5'],['ga=+2.5','+2.5'],[
  const src=fs.readFileSync(F,'utf8'),d=new JSDOM(src).window.document,norm=s=>String(s||'').replace(/\s+/g,' ').trim();
  ok('title keeps the primary query "golf handicap calculator", ≤ 60 chars',/golf handicap calculator/i.test(d.title)&&d.title.length<=60,d.title);
  ok('no input[type=number]; every text input has inputmode',!d.querySelector('input[type=number]')&&[...d.querySelectorAll('input[type=text],textarea')].every(i=>i.getAttribute('inputmode')));
- ok('every input has a label',[...d.querySelectorAll('input:not([type=radio]),textarea')].every(i=>d.querySelector(`label[for="${i.id}"]`)||i.getAttribute('aria-label')));
+ ok('every input has a label',[...d.querySelectorAll('input:not([type=radio]):not([type=hidden]),textarea')].every(i=>d.querySelector(`label[for="${i.id}"]`)||i.getAttribute('aria-label')||i.closest('label')));
  ok('shared gc.css inlined byte-identical; shared header nav links the three calculators',(d.querySelector('style[data-src="/gc.css"]')||{}).textContent===fs.readFileSync(path.join(SITE,'gc.css'),'utf8')&&['/skins','/stableford','/daily-handicap'].every(u=>d.querySelector(`header nav.gc-nav a[href="${u}"]`)));
  const lds=[...d.querySelectorAll('script[type="application/ld+json"]')];let g=null;try{g=JSON.parse(lds[0].textContent);}catch(e){}
  const by=t=>((g||{})['@graph']||[]).find(n=>n['@type']===t);
