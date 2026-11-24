@@ -56,11 +56,18 @@ a{color:var(--accent)}
 /* Header + nav */
 .gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
 .gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
-.gc-brand{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:var(--tap);text-decoration:none}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
 .gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
 .gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
 .gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
 .gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
 
 /* Layout */
 .gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
@@ -414,7 +421,7 @@ html{scroll-padding-top:60px}
 </head>
 <body data-gc="skins-v2">
 <header class="gc-header"><div class="gc-header-in">
-  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"></a>
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
   <nav class="gc-nav" aria-label="Calculators">
     <a href="/skins" aria-current="page">Skins</a>
     <a href="/stableford">Stableford</a>
