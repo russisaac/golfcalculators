@@ -40,7 +40,7 @@ for(const p of TOOLS){const f=p+'.html',d=docs[f],url='https://golfcalculators.c
   const graph=g['@graph']||[];const by=t=>graph.find(n=>n['@type']===t);
   ok(`${p}: @graph has WebApplication, FAQPage, BreadcrumbList`,g['@context']==='https://schema.org'&&!!by('WebApplication')&&!!by('FAQPage')&&!!by('BreadcrumbList'));
   const app=by('WebApplication')||{};
-  ok(`${p}: WebApplication fields`,app.url===url&&!!app.name&&app.applicationCategory==='SportsApplication'&&app.operatingSystem==='Any'&&app.offers&&app.offers.price===0&&app.offers.priceCurrency==='AUD'&&app.inLanguage==='en-AU',JSON.stringify(app).slice(0,200));
+  ok(`${p}: WebApplication fields`,app.url===url&&!!app.name&&app.applicationCategory==='SportsApplication'&&app.operatingSystem==='Any'&&app.offers&&app.offers.price===0&&app.offers.priceCurrency==='AUD'&&app.inLanguage===d.documentElement.getAttribute('lang'),JSON.stringify(app).slice(0,200));
   const bc=(by('BreadcrumbList')||{}).itemListElement||[];
   ok(`${p}: BreadcrumbList Home → tool`,bc.length===2&&bc[0].item==='https://golfcalculators.com/'&&bc[1].item===url&&bc[0].position===1&&bc[1].position===2);
   const ldFaq=((by('FAQPage')||{}).mainEntity||[]).map(q=>[norm(q.name),norm(q.acceptedAnswer&&q.acceptedAnswer.text)]);

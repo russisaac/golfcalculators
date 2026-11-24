@@ -252,10 +252,16 @@ html{scroll-padding-top:60px}
   .sk-colhead span:last-child{width:132px;text-align:center}
   .sk-tight .gc-stepper button{width:44px}
   .sk-tight .gc-stepper input,.sk-tight .gc-stepper output{width:44px}
+  /* v11 leftover: nothing in the setup is cut off at 320px. Handicap values like "+10" fit their stepper, the allowance shows
+     "100%" in full, and below 360px each setting sits above its control so "Back 9" and "Gross" are never clipped. */
+  #players .gc-stepper input{font-size:18px}
+  #allowance{width:76px}
+  #allow-row{flex-wrap:wrap}
   .gc-stepper output{display:flex;align-items:center;justify-content:center;width:52px;height:var(--tap);font-size:var(--fs-lg);font-weight:700}
   .sk-game{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s2) var(--s3);align-items:center}
   .sk-game>.gc-label{margin:0}
   .sk-game .sk-full{grid-column:1/-1}
+  @media (max-width:359px){.sk-game{grid-template-columns:minmax(0,1fr)}.sk-game>.gc-label{margin-top:var(--s1)}}
   .gc-card.sk-pad{padding:var(--s3)}
   .sk-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
   .sk-money{display:flex;align-items:center;gap:var(--s1);font-weight:700}
@@ -361,13 +367,13 @@ html{scroll-padding-top:60px}
     "price": 0,
     "priceCurrency": "AUD"
    },
-   "inLanguage": "en-AU"
+   "inLanguage": "en"
   },
   {
    "@type": "FAQPage",
    "@id": "https://golfcalculators.com/skins#faq",
    "url": "https://golfcalculators.com/skins",
-   "inLanguage": "en-AU",
+   "inLanguage": "en",
    "mainEntity": [
     {
      "@type": "Question",

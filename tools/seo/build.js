@@ -33,9 +33,10 @@ for(const p of pages){
   if(c){
     const faqHtml=`\n  <h2 id="faq-h">Frequently asked questions</h2>\n`+c.faq.map(([q,a,ln])=>`  <div class="gc-faq-item"><h3>${escText(q)}</h3><p>${faqAnswer(a,ln)}</p></div>`).join('\n')+'\n';
     s=between(s,'content',c.how+'\n'+faqHtml);
+    const lang=(s.match(/<html lang="([^"]+)"/)||[])[1]||'en'; // v11: JSON-LD inLanguage = the page's own html lang
     const ld={'@context':'https://schema.org','@graph':[
-      {'@type':'WebApplication','@id':p.url+'#app','name':c.name,'url':p.url,'description':p.ogDescription,'applicationCategory':'SportsApplication','operatingSystem':'Any','offers':{'@type':'Offer','price':0,'priceCurrency':'AUD'},'inLanguage':'en-AU'},
-      {'@type':'FAQPage','@id':p.url+'#faq','url':p.url,'inLanguage':'en-AU','mainEntity':c.faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))},
+      {'@type':'WebApplication','@id':p.url+'#app','name':c.name,'url':p.url,'description':p.ogDescription,'applicationCategory':'SportsApplication','operatingSystem':'Any','offers':{'@type':'Offer','price':0,'priceCurrency':'AUD'},'inLanguage':lang},
+      {'@type':'FAQPage','@id':p.url+'#faq','url':p.url,'inLanguage':lang,'mainEntity':c.faq.map(([q,a])=>({'@type':'Question','name':q,'acceptedAnswer':{'@type':'Answer','text':a}}))},
       {'@type':'BreadcrumbList','@id':p.url+'#breadcrumb','itemListElement':[{'@type':'ListItem','position':1,'name':'Home','item':'https://golfcalculators.com/'},{'@type':'ListItem','position':2,'name':c.name,'item':p.url}]}]};
     s=between(s,'jsonld',`\n<script type="application/ld+json">\n${JSON.stringify(ld,null,1).replace(/</g,'\\u003c')}\n</script>\n`);
   }
