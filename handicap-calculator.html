@@ -225,6 +225,10 @@ html{scroll-padding-top:60px}
   .hi-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
   .hi-view .hi-shared{display:block}
   .hi-view .hi-own{display:none!important}
+  /* v11: a shared #d= view stays invisible until render() has drawn it, so content that arrives in a later network chunk
+     never moves what was already painted (Lighthouse CLS 0.244 on live v10 in some runs). Failsafe: shown after 3 s anyway. */
+  .hi-view:not(.hi-ready) main{visibility:hidden;animation:hi-reveal 0s 3s forwards}
+  @keyframes hi-reveal{to{visibility:visible}}
   .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px}
 </style>
 <!-- seo:jsonld:start -->
@@ -563,6 +567,7 @@ function render() {
       (VIEW ? '<span></span>' : '<button type="button" class="gc-btn gc-btn-ghost hi-del" data-del="' + i + '" aria-label="Delete round ' + (i + 1) + '">\u00d7</button>') + '</li>';
   }).join('');
   $('btn-example').hidden = !!rs.length || !!VIEW;
+  document.documentElement.classList.add('hi-ready'); // v11: a shared view is revealed only once it is drawn (no layout shift)
 }
 function num(id) { return $(id).value.trim().replace(',', '.'); }
 function addRound() {
