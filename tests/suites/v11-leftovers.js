@@ -15,4 +15,7 @@ const wf=path.join(SITE,'.github/workflows/checks.yml');
 if(fs.existsSync(wf)){const y=fs.readFileSync(wf,'utf8');const line=(y.match(/for p in \/ \/skins[^;]*; do check 200/)||[''])[0];
   ok('checks.yml: published paths (200) include /handicap-calculator',/\s\/handicap-calculator\s/.test(line+' '),line);}
 {const s=rd('skins.html');ok('skins: setup keeps 320px unclipped (stepper values, allowance, settings stack below 360px)',/#players \.gc-stepper input\{font-size:18px\}/.test(s)&&/#allowance\{width:76px\}/.test(s)&&/@media \(max-width:359px\)\{\.sk-game\{grid-template-columns:minmax\(0,1fr\)\}/.test(s));}
+{const s=rd('handicap-calculator.html');const {boot}=require('../lib/harness');
+ const h=boot(path.join(SITE,'handicap-calculator.html'),{url:'https://golfcalculators.com/handicap-calculator#d=181.208.164.181.216.173.218.236'});
+ ok('handicap shared view: hidden until drawn (no layout shift), 3 s failsafe, and render() reveals it',/\.hi-view:not\(\.hi-ready\) main\{visibility:hidden;animation:hi-reveal 0s 3s forwards\}/.test(s)&&h.d.documentElement.classList.contains('hi-view')&&h.d.documentElement.classList.contains('hi-ready'));}
 process.exitCode=report('v11-leftovers')?1:0;
