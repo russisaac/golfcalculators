@@ -1,5 +1,5 @@
 {
- "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per region. A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the four calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts.",
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per region. A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts.",
  "region": "us",
  "tag": "golfcalc-20",
  "disclosure": "We may earn a commission from links on this page.",
@@ -12,6 +12,7 @@
   "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
   "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
   "daily-handicap": ["rangefinder", "scorecard-holder"],
-  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"]
+  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"]
  }
 }
