@@ -491,7 +491,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
     await p.context().close();}}
   // v11 P1 design uplift: the one shared header on every page at 320/375/1280 (49px sticky bar, nav right-aligned,
   // wordmark visible at 375 and 1280, same geometry on every page; Daily Hcp starts at x >= 280 at 375), the home first
-  // screen (dated sources line on screen at 375x812) and the two-column desktop home (sample right of the h1, 3 cards in one row).
+  // screen (dated sources line on screen at 375x812) and the two-column desktop home (sample right of the h1, the tool cards in one row).
   if(/class="gc-word"/.test(fs.readFileSync(path.join(SITE,'skins.html'),'utf8'))){
     for(const w of [320,375,1280]){const sig={};
       for(const [n,u] of pages){const p=await page(w,812);await p.goto(base+u,{waitUntil:'load'});await p.waitForTimeout(100);
@@ -518,7 +518,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         return {h1Right:Math.round(h1.right),sampleX:Math.round(sm.x),sampleTop:Math.round(sm.top),cardTops:cards,mainW:Math.round(m.width),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),sw:document.documentElement.scrollWidth,vw:innerWidth,
           lines:[...document.querySelectorAll('#lp-sample .lp-pay')].map(e=>e.textContent.replace(/\s+/g,' ').trim())};});
       await p.screenshot({path:path.join(OUT,'v11-p1-home-1280.png')});
-      const bad=!(r.sampleX>r.h1Right&&r.cardTops.length===3&&new Set(r.cardTops).size===1&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
+      const bad=!(r.sampleX>r.h1Right&&r.cardTops.length===4&&new Set(r.cardTops).size===1&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
       if(bad)fail=1;rows.push({name:'v11 home 1280',width:1280,home:r});
       console.log(`${gate(bad)}  v11 home @1280: two columns (sample x ${r.sampleX} > h1 right ${r.h1Right}), cards in one row (${r.cardTops.join('/')}), main ${r.mainW}px, h1 ${r.h1}px, sample ${r.lines.length} lines`);await ctx.close();}
     for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
@@ -531,7 +531,7 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // the Load example result (hero breakdown), share + email card after a real result, a shared #r= view; axe and fit on
   // each, every visible control in the calculator >= 44px tall and steppers >= 44px wide, nothing clipped. Plus home.
   if(pages.some(p=>p[0]==='scramble-handicap-calculator')){const U='/scramble-handicap-calculator';
-    const allOpen=async p=>{await p.click('input[name=kind][value=hi] + span');await p.click('input[name=mode][value=custom] + span');await p.waitForTimeout(100);};
+    const allOpen=async p=>{await p.check('input[name=kind][value=hi]');await p.check('input[name=mode][value=custom]');await p.waitForTimeout(100);};
     const real=async p=>{for(const [i,v] of [[0,'14'],[1,'8'],[2,'22'],[3,'30']])await p.fill('#ph'+i,v);await p.fill('#pn0','Bartholomew-Fitzgerald');await p.waitForTimeout(150);};
     for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
       await check('v12 scramble: input (fresh)',w,U,null,`v12-scramble-input-${sz}.png`,hgt);
