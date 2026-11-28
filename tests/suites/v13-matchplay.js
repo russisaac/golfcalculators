@@ -141,10 +141,17 @@ for(const [label,obj] of [['5 players',{v:1,f:'singles',k:'ch',h:18,p:[['a',1],[
  ok('title and H1: "Match Play Handicap Calculator"',/^Match Play Handicap Calculator/.test(d.title)&&txt(d.querySelector('h1'))==='Match Play Handicap Calculator');
  ok('one JSON-LD block: WebApplication + FAQPage (+ breadcrumbs), inLanguage "en", url = canonical',lds.length===1&&app.inLanguage==='en'&&faq.inLanguage==='en'&&app.url===URLP&&(d.querySelector('link[rel=canonical]')||{}).href===URLP);
  const vis=[...d.querySelectorAll('.gc-faq-item')].map(e=>[norm(e.querySelector('h3').textContent),norm(e.querySelector('p').textContent)]),ld=(faq.mainEntity||[]).map(q=>[norm(q.name),norm(q.acceptedAnswer.text)]);
- ok('FAQ: 6–8 questions, JSON-LD = visible text, each answer ≤ 70 words',vis.length>=6&&vis.length<=8&&JSON.stringify(vis)===JSON.stringify(ld)&&vis.every(([,a])=>words(a)<=70),vis.map(([,a])=>words(a)).join());
+ ok('FAQ: 6–8 questions, JSON-LD = visible text, each answer ≤ 70 words (the Daily Handicap answer ≤ 120, PO-worded)',vis.length>=6&&vis.length<=8&&JSON.stringify(vis)===JSON.stringify(ld)&&vis.every(([q,a])=>words(a)<=(/Daily Handicap/.test(q)?120:70)),vis.map(([,a])=>words(a)).join());
  ok('FAQ states the 2024 four-ball change, with the date and source',vis.some(([q,a])=>/2024/.test(q)&&/2024 WHS Reference for Clubs/.test(a)&&/28 Nov 2026/.test(a)));
- ok('FAQ warns Australians not to enter a Daily Handicap (0.93 multiplier) and cites Golf Australia January 2026',vis.some(([q,a])=>/Daily Handicap/.test(q)&&/0\.93/.test(a)&&/Golf Australia.*January 2026/.test(a)));
- ok('the players help text gives the same warning next to the inputs',/not your Daily Handicap: that already includes the 0\.93 multiplier/.test(txt(d.getElementById('players-help'))));
+ const AUFAQ="Yes. Golf Australia's WHS guide (January 2026, §10B) works match play strokes from the difference between the players' Daily Handicaps, so enter each player's Daily Handicap for the tees being played (from your club chart or our Daily Handicap calculator) and choose Course Handicap. A Daily Handicap already includes Golf Australia's 0.93 multiplier and the Consistency Factor, so it is not the same number as a USGA Course Handicap and the strokes can differ by a stroke or so. To follow the USGA and R&A method instead, choose Handicap Index and enter the Slope, Scratch Rating and Par. If your competition conditions say otherwise, follow them.";
+ const auV=vis.find(([q])=>/Daily Handicap/.test(q)),auL=ld.find(([q])=>/Daily Handicap/.test(q));
+ ok('[GA §10B] AU FAQ on the page = the PO wording exactly: "Yes. … enter each player\'s Daily Handicap …"',!!auV&&auV[1]===AUFAQ&&auV[0]==='Should Australians enter their Daily Handicap?',auV&&auV[1].slice(0,60));
+ ok('[GA §10B] AU FAQ in the FAQPage JSON-LD is identical to the visible one (and says Yes, not No)',!!auL&&auL[1]===AUFAQ&&!/^No\b/.test(auL[1]));
+ ok('[GA §10B] the FAQ links "Daily Handicap calculator" to /daily-handicap',[...d.querySelectorAll('.gc-faq-item a')].some(a=>a.getAttribute('href')==='/daily-handicap'&&norm(a.textContent)==='Daily Handicap calculator'));
+ ok('[GA §10B] the players help text next to the inputs is the PO wording exactly',txt(d.getElementById('players-help'))==="Course Handicap for the tees you play. In Australia, enter your Daily Handicap: Golf Australia's match play rule (§10B) works from the difference between Daily Handicaps. Plus handicap: +2.",txt(d.getElementById('players-help')));
+ ok('no leftover "not your Daily Handicap" / "No." warning anywhere on the page',!/not your Daily Handicap/i.test(src)&&!vis.some(([,a])=>/^No\. A Golf Australia Daily Handicap/.test(a)));
+ ok('scramble FAQ is consistent: enter each player\'s Daily Handicap, Index route follows the USGA method',(()=>{const sc=rd('scramble-handicap-calculator.html'),m=sc.match(/<h3>Should I use Course Handicap or Handicap Index\?<\/h3><p>([\s\S]*?)<\/p>/);return !!m&&/In Australia, enter each player's Daily Handicap/.test(m[1].replace(/<[^>]+>/g,''))&&/0\.93 multiplier and the Consistency Factor/.test(m[1])&&/For the USGA method, choose Handicap Index/.test(m[1])&&!/use the Daily Handicap\./.test(m[1]);})());
+ ok('[should-fix] the side label wraps long names (.mp-side overflow-wrap:anywhere)',/\.mp-side\{[^}]*overflow-wrap:anywhere/.test(src));
  const ex=k=>txt(d.querySelector(`[data-ex="${k}"]`));const e2=G.allocate('fourball-match',[+ex('ch-0'),+ex('ch-1'),+ex('ch-2'),+ex('ch-3')]).ph;
  ok('worked example on the page = the engine (0/7/15/26, singles 8, foursomes 19, 11 v 16 → 5)',e2.join()===['0',ex('fb-1'),ex('fb-2'),ex('fb-3')].join()&&ex('singles')==='8'&&ex('foursomes')==='19'&&ex('old-new')==='5');
  const inputs=[...d.querySelectorAll('main input:not([type=radio]):not([type=checkbox]):not([type=hidden]):not([type=email])')];
@@ -154,5 +161,12 @@ for(const [label,obj] of [['5 players',{v:1,f:'singles',k:'ch',h:18,p:[['a',1],[
  ok('gear: affiliates.json lists matchplay',JSON.parse(rd('affiliates.json')).tools.matchplay.length===3);
  ok('sitemap, .html 301, links from home, /handicap-calculator, /scramble and /daily-handicap',/<loc>https:\/\/golfcalculators\.com\/match-play-handicap-calculator<\/loc><lastmod>\d{4}-\d\d-\d\d<\/lastmod>/.test(rd('sitemap.xml'))&&/^\/match-play-handicap-calculator\.html \/match-play-handicap-calculator 301!$/m.test(rd('_redirects'))&&['index.html','handicap-calculator.html','scramble-handicap-calculator.html','daily-handicap.html'].every(n=>rd(n).includes('href="/match-play-handicap-calculator"')));
  ok('header nav unchanged (Skins, Stableford, Daily Hcp): the new tools are not crammed into the sticky nav',[...d.querySelectorAll('.gc-nav a')].map(a=>a.getAttribute('href')).join()==='/skins,/stableford,/daily-handicap');}
+{const h=mk();h.w.GCMatchUI.loadExample();h.$('btn-play').click();
+ ok('[should-fix] an untouched hole shows "default 4" under each player (so Next is not a silent 4-4)',(h.$('scores').textContent.match(/default 4/g)||[]).length===4,txt(h.$('scores')).slice(0,120));
+ h.d.querySelector('#scores button[data-sc="1"]').click();
+ ok('… and the label goes once a score is touched',!/default 4/.test(h.$('scores').textContent));
+ h.$('btn-next').click();ok('… and the next untouched hole shows it again',(h.$('scores').textContent.match(/default 4/g)||[]).length===4);}
+{const h=mk();h.set('ph0','5');h.set('ph1','9');h.set('pn0','A'.repeat(24));h.set('pn1','B'.repeat(24));h.$('btn-play').click();
+ ok('24-character names are text in the score rows (b wraps, overflow-wrap:anywhere in .mp-who b)',/\.mp-who b\{[^}]*overflow-wrap:anywhere/.test(src)&&txt(h.$('scores')).includes('A'.repeat(24)));}
 process.exitCode=report('v13-matchplay')?1:0;
 })();

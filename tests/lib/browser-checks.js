@@ -602,8 +602,42 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         v13log('v13 nassau setup controls',sz,r,'',r.small.length>0||r.cut.length>0||r.sw>r.vw);await p.context().close();}
       {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await live(p);
         const r=await v13fit(p,'#play button,#play input');const st=await p.evaluate(()=>({bets:document.querySelectorAll('#ns-bets li').length,txt:document.getElementById('ns-bets').textContent}));const s=await v13strip(p,'ns-strip');
-        const okStrip=s.sticky==='sticky'&&Math.abs(s.top-s.hb)<=1&&s.right<=s.vw&&s.h<=s.vh*0.45;
+        const okStrip=s.sticky==='sticky'&&Math.abs(s.top-s.hb)<=1&&s.right<=s.vw&&s.h<=Math.round(s.vh*0.4)+1;
         v13log('v13 nassau live',sz,r,` · strip ${st.bets} bets, ${s.sticky} at ${s.top}px under header ${s.hb}px, ${s.h}px tall of ${s.vh}`,r.small.length>0||r.cut.length>0||r.sw>r.vw||!okStrip||st.bets<4);await p.context().close();}
+    }
+  }
+  // v13 fix round 1: Nassau 1v1 typed into the rows (24-character names, Net handicaps), the sticky strip with the E2 press
+  // chain at 320x568 (capped at 40vh, main bets first), match play with 24-character names; axe and fit on each.
+  if(pages.some(p=>p[0]==='nassau-calculator')){const U='/nassau-calculator',L24=['Bartholomew-Fitzgerald-X','Christopher-Thompson-Lee'];
+    const typeOne=async(p,net)=>{await p.evaluate(([a,b,net])=>{const set=(id,v)=>{const e=document.getElementById(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));};
+      if(net){const r=document.querySelector('input[name=net][value="1"]');r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}));}
+      set('pn0',a);set('pn2',b);if(net){set('ph0','5');set('ph2','15');}},[L24[0],L24[1],net]);await p.waitForTimeout(100);};
+    const one=async(p,pat)=>{for(const c of pat){await p.evaluate(c=>{const v=c==='A'?[4,5]:c==='B'?[5,4]:[4,4];v.forEach((x,k)=>{document.getElementById('sc'+k).value=String(x);});document.getElementById('btn-next').click();},c);await p.waitForTimeout(25);}};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v13 fix1 nassau: 1v1 Net setup, 24-char names + handicaps typed',w,U,async p=>{await typeOne(p,true);await p.evaluate(()=>document.getElementById('entry').scrollIntoView({block:'start'}));},`fix1-nassau-1v1-setup-net-${sz}.png`,hgt);
+      await check('v13 fix1 nassau: 1v1 Net play, 24-char names (Blake gets strokes)',w,U,async p=>{await typeOne(p,true);await p.click('#btn-start');await p.evaluate(()=>window.scrollTo(0,document.getElementById('play').getBoundingClientRect().top+scrollY-60));},`fix1-nassau-1v1-play-net-${sz}.png`,hgt);
+      await check('v13 fix1 nassau: 1v1 settle, 24-char names',w,U,async p=>{await typeOne(p,false);await p.click('#btn-start');await one(p,'AHHAHHHHH'+'HHHHHHHHH');await p.evaluate(()=>document.getElementById('result').scrollIntoView({block:'start'}));},`fix1-nassau-1v1-settle-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await typeOne(p,true);const r0=await v13fit(p,'#entry button,#entry input,#entry summary,#entry .gc-seg span');
+        const st=await p.evaluate(()=>({n:document.getElementById('pn2').value,h:document.getElementById('ph2').value,lab:document.querySelector('label[for=pn2]').textContent,help:!document.getElementById('hc-help').hidden}));
+        await p.click('#btn-start');await one(p,'HHH');const r=await v13fit(p,'#play button,#play input');
+        const play=await p.evaluate(()=>({who:document.getElementById('srow1').querySelector('b').textContent,note:document.getElementById('srow1').querySelector('small').textContent.replace(/\s+/g,' ').trim(),def:/default 4/.test(document.getElementById('scores').textContent)}));
+        const bad=r0.small.length>0||r0.cut.length>0||r0.sw>r0.vw||r.small.length>0||r.cut.length>0||r.sw>r.vw||st.n!==L24[1]||st.h!=='15'||st.lab!=='Player 2 name'||!st.help||play.who!==L24[1]||!/stroke/.test(play.note)||!play.def;
+        v13log('v13 fix1 nassau 1v1',sz,{n:r.n,small:r0.small.concat(r.small),cut:r0.cut.concat(r.cut),sw:Math.max(r0.sw,r.sw),vw:r.vw},` · row 2 "${st.lab}" = ${st.n.slice(0,8)}… hc ${st.h}, play row "${play.who.slice(0,8)}…" ${play.note}`,bad);await p.context().close();}
+      await check('v13 fix1 nassau: live strip, E2 press chain (surnames), capped',w,U,async p=>{await p.evaluate(([a,b])=>{const set=(id,v)=>{const e=document.getElementById(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));};set('pn0',a);set('pn2',b);},['Fitzgerald','Thompson-Lee']);await p.click('#btn-start');await one(p,'AAAABBBAABB');await p.evaluate(()=>window.scrollTo(0,document.getElementById('play').getBoundingClientRect().top+scrollY-60));},`fix1-nassau-strip-e2-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await p.evaluate(([a,b])=>{const set=(id,v)=>{const e=document.getElementById(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));};set('pn0',a);set('pn2',b);},['Fitzgerald','Thompson-Lee']);await p.click('#btn-start');await one(p,'AAAABBBAABBA');
+        const s=await v13strip(p,'ns-strip');const m=await p.evaluate(()=>{const e=document.getElementById('ns-strip'),li=[...e.querySelectorAll('li')].map(x=>x.querySelector('b').textContent);const nx=document.getElementById('btn-next').getBoundingClientRect();return {n:li.length,first:li.slice(0,3).join(''),scroll:e.scrollHeight>e.clientHeight,h:Math.round(e.getBoundingClientRect().height),vh:innerHeight,nextTop:Math.round(nx.top),sw:document.documentElement.scrollWidth,vw:innerWidth};});
+        const capOK=m.h<=Math.round(m.vh*0.4)+1;const bad=!capOK||m.first!=='Front:Back:Overall:'||m.n<6||m.sw>m.vw;if(bad)fail=1;rows.push({name:`v13 fix1 nassau strip ${sz}`,v13:m});
+        console.log(`${gate(bad)}  v13 fix1 nassau strip @${sz}: ${m.n} bets (main first: ${m.first}), ${m.h}px of ${m.vh}px (cap ${Math.round(m.vh*0.4)}px)${m.scroll?', scrolls inside':''}, sticky ${s.sticky} at ${s.top}px under header ${s.hb}px, page ${m.sw}/${m.vw}px`);await p.context().close();}
+    }
+  }
+  if(pages.some(p=>p[0]==='match-play-handicap-calculator')){const U='/match-play-handicap-calculator',L24=['Bartholomew-Fitzgerald-X','Christopher-Thompson-Lee'];
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      const setup=async p=>{await p.evaluate(([a,b])=>{const set=(id,v)=>{const e=document.getElementById(id);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));};set('pn0',a);set('pn1',b);set('ph0','5');set('ph1','15');},L24);await p.waitForTimeout(100);};
+      await check('v13 fix1 match play: AU Daily Handicap help text beside the handicaps',w,U,async p=>{await setup(p);await p.evaluate(()=>document.getElementById('players-help').scrollIntoView({block:'center'}));},`fix1-matchplay-input-help-${sz}.png`,hgt);
+      await check('v13 fix1 match play: 24-char names, play (default 4 shown)',w,U,async p=>{await setup(p);await p.click('#btn-play');await p.evaluate(()=>window.scrollTo(0,document.getElementById('play').getBoundingClientRect().top+scrollY-60));},`fix1-matchplay-play-longnames-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await setup(p);await p.click('#btn-play');const r=await v13fit(p,'#play button,#play input');
+        const def=await p.evaluate(()=>(document.getElementById('scores').textContent.match(/default 4/g)||[]).length);const help=await p.evaluate(()=>document.getElementById('players-help').textContent);
+        const bad=r.small.length>0||r.cut.length>0||r.sw>r.vw||def!==2||!/enter your Daily Handicap/.test(help);v13log('v13 fix1 match play 24-char play',sz,r,` · "default 4" x${def}`,bad);await p.context().close();}
     }
   }
   // v11 P2 monetisation: the email card after a real result and the gear block on each calculator, the footer signup,

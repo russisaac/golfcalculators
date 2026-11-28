@@ -60,9 +60,9 @@ ok('fewest payments code is the Skins page\'s, line for line',(()=>{const k=rd('
  const play=c=>{h.$('sc0').value=c==='A'?'4':c==='B'?'5':'4';h.$('sc1').value=c==='A'?'5':c==='B'?'4':'4';h.$('btn-next').click();};
  'AA'.split('').forEach(play);
  ok('after hole 2: "Press started on hole 3" announced in the strip',/Press started on hole 3/.test(txt(h.$('ns-news'))),txt(h.$('ns-news')));
- ok('strip: "Front: Alex 2 up Press (3–9): — Back: — Overall: Alex 2 up" (all bets listed)',txt(h.$('ns-bets'))==='Front: Alex 2 up Press (3–9): — Back: — Overall: Alex 2 up',txt(h.$('ns-bets')));
+ ok('strip: "Front: Alex 2 up Press (3–9): — Back: — Overall: Alex 2 up" (all bets listed)',txt(h.$('ns-bets'))==='Front: Alex 2 up Back: — Overall: Alex 2 up Press (3–9): —',txt(h.$('ns-bets')));
  'AABBBAA'.split('').forEach(play);
- ok('after the front nine: Front Alex 3 up; presses 3–9 Alex 1 up, 5–9 Blake 1 up, 7–9 Alex 1 up',txt(h.$('ns-bets')).startsWith('Front: Alex 3 up Press (3–9): Alex 1 up Press (5–9): Blake 1 up Press (7–9): Alex 1 up Back: —'),txt(h.$('ns-bets')));
+ ok('after the front nine: Front Alex 3 up; presses 3–9 Alex 1 up, 5–9 Blake 1 up, 7–9 Alex 1 up',txt(h.$('ns-bets')).startsWith('Front: Alex 3 up Back: — Overall: Alex 3 up Press (3–9): Alex 1 up Press (5–9): Blake 1 up Press (7–9): Alex 1 up'),txt(h.$('ns-bets')));
  const saved=JSON.parse(h.w.localStorage.getItem('gc_nassau_v1'));ok('state saved under gc_nassau_v1 (scores, hole, screen)',Object.keys(saved.sc).length===9&&saved.cur===10&&saved.scr==='play');
  const r=mk(URLP,{storage:{gc_nassau_v1:h.w.localStorage.getItem('gc_nassau_v1')}});ok('reopen resumes at hole 10 with the same strip',txt(r.$('play-h'))==='Hole 10'&&/Press \(7–9\): Alex 1 up/.test(txt(r.$('ns-bets'))));
  'BBHHHHHHH'.split('').forEach(play);
@@ -121,5 +121,40 @@ for(const [label,obj] of [['bad format',{v:1,f:'3v3',n:['a','b'],st:5,net:0,g:'m
  ok('sitemap + .html 301',/<loc>https:\/\/golfcalculators\.com\/nassau-calculator<\/loc>/.test(rd('sitemap.xml'))&&/^\/nassau-calculator\.html \/nassau-calculator 301!$/m.test(rd('_redirects')));
  ok('email card after the result (settle) only, teaser "Wolf, Las Vegas and Nines."; gear lists nassau',(()=>{const all=[...d.body.querySelectorAll('*')],c=d.getElementById('gc-nl-card');return c.hasAttribute('hidden')&&all.indexOf(c)>all.indexOf(d.getElementById('hero'))&&/Wolf, Las Vegas and Nines\./.test(c.textContent);})()&&JSON.parse(rd('affiliates.json')).tools.nassau.length===3);
  ok('the live strip is sticky under the header (always visible while scoring)',/\.ns-strip\{position:sticky;top:\d+px/.test(src));}
+
+// ---- 7. v13 fix round 1 (PO, PR #32 @ 27f10cc): 1v1 typed into the UI. The engine tests above never typed into the rows. ----
+// On 27f10cc the Side 2 row (pn2/ph2) was written to slot 2 while the 1v1 game reads slots 0 and 1: Blake became "Player 2" with no strokes.
+{const typeBoth=async(net)=>{const h=mk();h.set('pn0','Alex');h.set('pn2','Blake');if(net){radio(h,'net','1');h.set('ph0','5');h.set('ph2','15');}radio(h,'ap','0');return h;};
+ const play=(h,sc)=>{for(let k=1;k<=18;k++){const v=sc(k);h.$('sc0').value=v[0];h.$('sc1').value=v[1];h.$('btn-next').click();}};
+ {const h=await typeBoth(true),st=h.w.GCNassauUI.state();
+  ok('1v1 UI: Side 2 row is labelled "Player 2" (name, placeholder, handicap, stepper labels)',txt(h.d.querySelector('label[for=pn2]'))==='Player 2 name'&&h.$('pn2').placeholder==='Player 2'&&txt(h.d.querySelector('label[for=ph2]'))==='Player 2 handicap'&&h.d.querySelector('#row2 [data-step="1"]').getAttribute('aria-label')==='Player 2: raise handicap');
+  ok('1v1 UI: typing Side 2 stores name and handicap in slot 1 (the engine\'s second player), nothing in slot 2',st.names[1]==='Blake'&&st.hc[1]===15&&!st.names[2]&&st.hc[0]===5,JSON.stringify([st.names,st.hc]));
+  h.d.querySelector('#row2 [data-step="1"]').click();ok('1v1 UI: the Side 2 stepper changes slot 1 (15 → 16), and the field shows it',h.w.GCNassauUI.state().hc[1]===16&&h.$('ph2').value==='16');h.d.querySelector('#row2 [data-step="-1"]').click();
+  h.$('btn-start').click();
+  ok('1v1 UI play (Net): Blake is named and "gets a stroke" on SI 1–10 (100% of 15 − 5 = 10); Alex gets none',txt(h.$('srow1').querySelector('b'))==='Blake'&&/gets a stroke/.test(txt(h.$('srow1')))&&/no stroke/.test(txt(h.$('srow0')))&&/SI 1/.test(txt(h.$('hole-of'))),txt(h.$('scores')));
+  play(h,k=>[4,4]);
+  ok('1v1 UI Net settle: level gross, Blake\'s 10 strokes win 10 holes → Front 9 up, Back 1 up, Overall 10 up: "Alex pays Blake $15.00"',txt(h.$('ns-pays'))==='Alex pays Blake $15.00'&&/Front: Blake 9 up/.test(txt(h.$('hero')))&&/Overall: Blake 10 up/.test(txt(h.$('hero'))),txt(h.$('ns-pays'))+' | '+txt(h.$('hero')));
+  const e1=h.w.GCNassau.nassau({f:'1v1',stake:5,game:'match',net:true,strokes:h.w.GCNassau.strokes([5,15],100),si:SI,auto:false,overall:false,minLeft:1,manual:[],scores:(()=>{const o={};for(let k=1;k<=18;k++)o[k]=[4,4];return o;})()});
+  ok('… and it equals the engine\'s answer for handicaps 5 and 15 (Blake, the higher handicap, collects)',e1.bal.join()==='-15,15');
+  ok('1v1 UI share text names both players and the payment, never "Player 2"',(()=>{const t=h.w.GCNassauUI.shareText();return /Alex v Blake/.test(t)&&/Alex pays Blake \$15\.00/.test(t)&&!/Player 2/.test(t);})());
+  const rs=mk(URLP,{storage:{gc_nassau_v1:h.w.localStorage.getItem('gc_nassau_v1')}});
+  ok('1v1 UI: reopening resumes with both names, handicaps and the settled result',rs.$('pn2').value==='Blake'&&rs.$('ph2').value==='15'&&rs.$('pn0').value==='Alex');}
+ {const h=await typeBoth(false);h.$('btn-start').click();
+  ok('1v1 UI play (Gross): Side 2 is "Blake", not "Player 2", and nobody gets a stroke',txt(h.$('srow1').querySelector('b'))==='Blake'&&!/stroke/.test(txt(h.$('srow1')).replace('gross','')),txt(h.$('srow1')));
+  play(h,k=>k===1?[4,5]:[4,4]);
+  ok('1v1 UI Gross settle: Alex wins hole 1 → "Blake pays Alex $10.00" (front 1 up, overall 1 up), name not lost',txt(h.$('ns-pays'))==='Blake pays Alex $10.00',txt(h.$('ns-pays')));}
+ {const h=mk();radio(h,'fmt','2v2');['Alex','Ben','Chris','Dana'].forEach((v,i)=>h.set('pn'+i,v));radio(h,'net','1');[4,12,6,8].forEach((v,i)=>h.set('ph'+i,String(v)));
+  const st=h.w.GCNassauUI.state();ok('2v2 UI: rows map straight to slots 0–3 (names and handicaps) and the labels read Player 1–4',st.names.join()==='Alex,Ben,Chris,Dana'&&st.hc.join()==='4,12,6,8'&&txt(h.d.querySelector('label[for=pn2]'))==='Player 3 name');
+  radio(h,'fmt','1v1');ok('switching back to 1v1: Side 2 row shows slot 1 (Ben), labelled Player 2',h.$('pn2').value==='Ben'&&h.$('ph2').value==='12'&&txt(h.d.querySelector('label[for=pn2]'))==='Player 2 name');}
+ {const h=mk();h.set('pn0','A'.repeat(24));h.set('pn2','B'.repeat(24));h.$('btn-start').click();
+  ok('24-character names: the play row shows the full text and .ns-who b / .ns-side wrap (overflow-wrap:anywhere)',txt(h.$('srow1').querySelector('b'))==='B'.repeat(24)&&/\.ns-who b\{[^}]*overflow-wrap:anywhere/.test(src)&&/\.ns-side\{[^}]*overflow-wrap:anywhere/.test(src));}
+}
+// ---- 8. should-fix items ----
+{const h=mk();ok('AU note beside the Net handicap entry: hidden for Gross, shown for Net: "In Australia, enter your Daily Handicap."',h.$('hc-help').hidden===true&&(radio(h,'net','1'),h.$('hc-help').hidden===false&&/In Australia, enter your Daily Handicap\./.test(txt(h.$('hc-help')))));
+ ok('aggregate help: "2 down" means 2 strokes behind, shown only for Aggregate',h.$('ap-agg').hidden===true&&(radio(h,'game','agg'),!h.$('ap-agg').hidden&&txt(h.$('ap-agg'))==='In aggregate, “2 down” means 2 strokes behind.'));
+ h.$('btn-start').click();ok('an untouched hole shows "default 4" for each player; touching a score clears it; the next hole shows it again',(h.$('scores').textContent.match(/default 4/g)||[]).length===2&&(h.d.querySelector('#scores button[data-sc="1"]').click(),!/default 4/.test(h.$('scores').textContent))&&(h.$('btn-next').click(),(h.$('scores').textContent.match(/default 4/g)||[]).length===2));
+ ok('the sticky strip is capped (max-height 40vh, scrolls inside, keyboard-focusable and labelled) so a press chain never covers the score steppers',/\.ns-strip\{position:sticky;top:49px;[^}]*max-height:40vh;overflow-y:auto/.test(src)&&d0.getElementById('ns-strip').getAttribute('tabindex')==='0'&&d0.getElementById('ns-strip').getAttribute('aria-label')==='Live bets');
+ const r=N.nassau(g({auto:true,scores:sc('AAAABBBAA'+'BBHHHHHHH')}));
+ ok('the strip lists Front, Back and Overall before any press (so they are never scrolled out of view)',(()=>{const hh=mk();hh.set('pn0','Alex');hh.set('pn2','Blake');hh.$('btn-start').click();for(const c of 'AAAABB'){hh.$('sc0').value=c==='A'?'4':'5';hh.$('sc1').value=c==='A'?'5':'4';hh.$('btn-next').click();}const li=[...hh.$('ns-bets').querySelectorAll('li')].map(e=>txt(e.querySelector('b')));return li.slice(0,3).join()==='Front:,Back:,Overall:'&&li.slice(3).every(x=>/^Press/.test(x))&&li.length>3;})());}
 process.exitCode=report('v13-nassau')?1:0;
 })();
