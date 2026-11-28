@@ -10,6 +10,7 @@ if(!/golfcalc-22/.test(rd('affiliates.json'))){console.log('SKIP  no AU store on
 const aff=JSON.parse(rd('affiliates.json'));
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort();
 const TOOLS={'skins.html':'skins','stableford.html':'stableford','daily-handicap.html':'daily-handicap','handicap-calculator.html':'handicap','scramble-handicap-calculator.html':'scramble'};
+if(fs.existsSync(path.join(SITE,'nassau-calculator.html'))){TOOLS['match-play-handicap-calculator.html']='matchplay';TOOLS['nassau-calculator.html']='nassau';} // v13
 function locale(w,lang,tz){Object.defineProperty(w.navigator,'language',{value:lang,configurable:true});const I=w.Intl;w.Intl=Object.assign(Object.create(I),{DateTimeFormat:function(){return {resolvedOptions:()=>({timeZone:tz})};}});}
 const make=(n,lang,tz,html)=>{let file=path.join(SITE,n);if(html){file=path.join(require('os').tmpdir(),'v12au-'+n);fs.writeFileSync(file,html);}
   return boot(file,{url:'https://golfcalculators.com/'+n.replace('.html',''),beforeParse(w){locale(w,lang,tz);}});};

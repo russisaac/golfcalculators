@@ -72,6 +72,30 @@
     "tagline": "Free · No sign-up"
   },
   {
+    "page": "match-play-handicap-calculator",
+    "file": "match-play-handicap-calculator.html",
+    "url": "https://golfcalculators.com/match-play-handicap-calculator",
+    "kicker": "Free golf calculator",
+    "title": "Match Play Strokes",
+    "value": "Singles, four-ball and foursomes, the 2024 way.",
+    "ogTitle": "Match Play Handicap Calculator – Four-Ball & Foursomes",
+    "ogDescription": "Who gets how many strokes, on which holes: singles 100%, four-ball 90% of the difference (2024), foursomes 50%. Stroke table and live match tracker.",
+    "alt": "Match Play Strokes: Singles, four-ball and foursomes, the 2024 way. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
+    "page": "nassau-calculator",
+    "file": "nassau-calculator.html",
+    "url": "https://golfcalculators.com/nassau-calculator",
+    "kicker": "Free golf calculator",
+    "title": "Nassau",
+    "value": "Front, back and overall, with presses. Who pays whom.",
+    "ogTitle": "Nassau Golf Calculator – Presses, 1v1 & 2v2 Better Ball",
+    "ogDescription": "Score a Nassau hole by hole: front, back and overall bets, automatic 2-down presses, 1v1 or 2v2 better ball, then who pays whom in the fewest payments.",
+    "alt": "Nassau: Front, back and overall, with presses. Who pays whom. golfcalculators.com",
+    "tagline": "Free · No sign-up"
+  },
+  {
     "page": "privacy",
     "file": "privacy.html",
     "url": "https://golfcalculators.com/privacy",

@@ -120,7 +120,7 @@ jobs:
         run: |
           bad=0
           check() { c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE$2"); printf '%s %s (want %s)\n' "$c" "$2" "$1"; [ "$c" = "$1" ] || bad=1; }
-          for p in / /skins /stableford /daily-handicap /handicap-calculator /scramble-handicap-calculator /privacy /favicon.ico /sitemap.xml /robots.txt; do check 200 "$p"; done
+          for p in / /skins /stableford /daily-handicap /handicap-calculator /scramble-handicap-calculator /match-play-handicap-calculator /nassau-calculator /privacy /favicon.ico /sitemap.xml /robots.txt; do check 200 "$p"; done
           for p in /og/home.png /og/skins.png; do if [ -f "${p#/}" ]; then check 200 "$p"; fi; done
           for p in /tests/run /tests/package.json /tools/og-images/render.js /.github/workflows/checks.yml /netlify.toml; do check 404 "$p"; done
           exit $bad

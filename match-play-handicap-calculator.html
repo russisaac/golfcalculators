@@ -1,0 +1,1262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
+<title>Match Play Handicap Calculator – Four-Ball &amp; Foursomes</title>
+<meta name="description" content="Who gets how many strokes, on which holes: singles 100%, four-ball 90% of the difference (2024), foursomes 50%. Stroke table and live match tracker.">
+<link rel="canonical" href="https://golfcalculators.com/match-play-handicap-calculator">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="golfcalculators.com">
+<meta property="og:title" content="Match Play Handicap Calculator – Four-Ball &amp; Foursomes">
+<meta property="og:description" content="Who gets how many strokes, on which holes: singles 100%, four-ball 90% of the difference (2024), foursomes 50%. Stroke table and live match tracker.">
+<meta property="og:url" content="https://golfcalculators.com/match-play-handicap-calculator">
+<meta property="og:image" content="https://golfcalculators.com/og/match-play-handicap-calculator.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Match Play Strokes: Singles, four-ball and foursomes, the 2024 way. golfcalculators.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Match Play Handicap Calculator – Four-Ball &amp; Foursomes">
+<meta name="twitter:description" content="Who gets how many strokes, on which holes: singles 100%, four-ball 90% of the difference (2024), foursomes 50%. Stroke table and live match tracker.">
+<meta name="twitter:image" content="https://golfcalculators.com/og/match-play-handicap-calculator.png">
+<meta name="twitter:image:alt" content="Match Play Strokes: Singles, four-ball and foursomes, the 2024 way. golfcalculators.com">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). tests/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
+/* v11 email signup (gc-grow.js): footer form on every page, compact card after a result */
+.gc-nl-foot{max-width:28rem;margin:0 auto var(--s4);padding-top:var(--s5);border-top:1px solid var(--line);text-align:left}
+.gc-nl-t{font-size:var(--fs-md);color:var(--ink);margin-bottom:var(--s2)}
+.gc-nl-foot .gc-nl-t{font-size:var(--fs-sm);font-weight:400;color:var(--ink-2)}
+.gc-nl-p{font-size:var(--fs-sm);color:var(--muted);margin:calc(-1 * var(--s1)) 0 var(--s2)}
+.gc-nl-row{display:flex;gap:var(--s2)}
+.gc-nl-row .gc-input{flex:1;min-width:0}
+.gc-nl-row .gc-btn{flex:none;padding:0 var(--s4)}
+.gc-nl-consent{position:relative;display:flex;align-items:center;min-height:44px;margin-top:var(--s1);font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer}
+.gc-nl-consent input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.gc-nl-consent span{display:flex;align-items:center;gap:var(--s2)}
+.gc-nl-consent span::before{content:"";flex:none;width:24px;height:24px;border:2px solid #64748b;border-radius:6px;background:var(--card) center/16px 16px no-repeat}
+.gc-nl-consent input:checked+span::before{border-color:var(--accent);background-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.gc-nl-consent input:focus-visible+span::before{outline:3px solid #2563eb;outline-offset:2px}
+.gc-nl-err{font-size:var(--fs-sm);color:var(--danger)}
+.gc-nl-err:empty{display:none}
+.gc-nl-ok{font-weight:600;color:var(--accent);padding:var(--s2) 0}
+.gc-nl-ok:focus{outline:none}
+.gc-input[aria-invalid="true"]{border-color:var(--danger)}
+.gc-nl-card{position:relative;margin-top:var(--s3)}
+.gc-nl-card .gc-nl-t{padding-right:44px}
+.gc-nl-x{position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;background:none;font-size:var(--fs-lg);line-height:1;color:var(--muted);cursor:pointer;border-radius:var(--r-sm)}
+.gc-nl-card[hidden],.gc-gear[hidden],.gc-nl-form[hidden]{display:none}
+.gc-footer-links{margin:0}
+.gc-footer-aff{font-size:12px;margin-top:var(--s1)}
+/* v11 Gear for this game (affiliates.json): plain text cards, no prices */
+.gc-gear{margin-top:var(--s4)}
+.gc-gear h2{margin-bottom:var(--s2)}
+.gc-gear-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-gear-list a{display:block;min-height:var(--tap);padding:var(--s3) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-gear-list strong{display:block;color:var(--accent)}
+.gc-gear-list span{display:block;font-size:var(--fs-sm);color:var(--muted)}
+.gc-gear-disc{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s2)}
+</style>
+<style>
+  .mp-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .mp-lede{color:var(--ink-2);margin:0 0 var(--s3)}
+  .mp-row+.mp-row{margin-top:var(--s4)}
+  .mp-row>.gc-label{display:block;margin-bottom:var(--s2)}
+  .mp-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:var(--s3)}
+  .mp-two .gc-label{margin-bottom:var(--s2)}
+  .mp-fmt{flex-wrap:wrap}
+  .mp-fmt label{flex:1 1 50%}
+  .mp-fmt label:nth-child(3) span{border-left:0}
+  .mp-fmt label:nth-child(n+3) span{border-top:1px solid #cbd5e1}
+  .mp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+  .mp-grid .gc-input{padding:0 var(--s2)}
+  .mp-team{margin:var(--s2) 0 var(--s1);font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .mp-players{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+  .mp-players+.mp-team{margin-top:var(--s3)}
+  .mp-players+.mp-players{margin-top:var(--s2)}
+  .mp-player{display:flex;gap:var(--s2);align-items:center}
+  .mp-player .gc-input{flex:1;min-width:0}
+  .mp-player .gc-stepper input{width:64px}
+  .mp-help{margin-top:var(--s2);font-size:var(--fs-sm);color:var(--muted)}
+  .mp-err{color:var(--danger);font-size:var(--fs-sm);margin-top:var(--s2)}
+  .mp-err:empty{display:none}
+  details.mp-more{margin-top:var(--s4)}
+  details.mp-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer}
+  .mp-pctrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .mp-si{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--s1)}
+  .mp-si label{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted);min-width:0}
+  .mp-si input{width:100%;min-height:44px;text-align:center;font:inherit;font-size:var(--fs-md);font-weight:600;border:1px solid #94a3b8;border-radius:var(--r-sm);padding:0}
+  .mp-hero .gc-big{font-size:var(--fs-lg)}
+  .mp-break{list-style:none;margin:var(--s3) 0 0;padding:0;border-top:1px solid rgba(255,255,255,.3)}
+  .mp-break li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s2);align-items:baseline;padding:var(--s2) 0;border-bottom:1px solid rgba(255,255,255,.3);font-size:var(--fs-sm)}
+  .mp-break .mp-n{min-width:0;overflow-wrap:anywhere;font-weight:700;font-size:var(--fs-md)}
+  .mp-break .mp-x{opacity:.95;white-space:nowrap}
+  .mp-break b{font-size:var(--fs-md);font-variant-numeric:tabular-nums;min-width:2.4em;text-align:right}
+  .mp-sub{margin-top:var(--s2);font-size:var(--fs-sm);opacity:.95;overflow-wrap:anywhere}
+  main [hidden]{display:none!important}
+  .mp-tablecard{margin-top:var(--s3);padding:var(--s3)}
+  .mp-h2{font-size:var(--fs-md);margin:0 0 var(--s2)}
+  .mp-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--fs-sm);font-variant-numeric:tabular-nums}
+  .mp-tbl th,.mp-tbl td{padding:4px 2px;text-align:center;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mp-tbl thead th{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;vertical-align:bottom;line-height:1.2}
+  .mp-tbl thead th{font-weight:700;color:var(--ink-2)}
+  .mp-tbl th[scope=row]{font-weight:600}
+  .mp-tbl .z{color:var(--muted)}
+  .mp-tbl .s2{font-weight:800;color:var(--accent)}
+  .mp-tbl .neg{color:var(--danger);font-weight:700}
+  .mp-tbl tfoot td,.mp-tbl tfoot th{font-weight:800;border-bottom:0}
+  .mp-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .mp-wide{grid-column:1/-1}
+  .gc-next[hidden]{display:none}
+  .mp-play{padding:var(--s3)}
+  .mp-strip{position:sticky;top:49px;z-index:4;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s3) var(--s4);overflow-wrap:anywhere}
+  .mp-strip strong{display:block;font-size:var(--fs-lg);line-height:1.25}
+  .mp-strip span{display:block;font-size:var(--fs-sm);color:var(--ink-2);margin-top:var(--s1)}
+  .mp-holehead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap}
+  .mp-holeno{font-size:var(--fs-xl);font-weight:800;line-height:1.1;margin:0}
+  .mp-progress{display:flex;gap:2px;margin-top:var(--s2)}
+  .mp-progress i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .mp-progress i.done{background:var(--accent-line)}
+  .mp-progress i.cur{background:var(--accent)}
+  .mp-score{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s2) 0}
+  .mp-score+.mp-score{border-top:1px solid var(--line)}
+  .mp-who{flex:1;min-width:0}
+  .mp-who b{display:block;overflow-wrap:anywhere;line-height:1.25}
+  .mp-who small{font-size:var(--fs-sm);color:var(--muted)}
+  .mp-score.is-win .mp-who b{color:var(--accent)}
+  .mp-side{margin:var(--s3) 0 0;font-size:var(--fs-sm);font-weight:700;color:var(--accent);overflow-wrap:anywhere}
+  .mp-nav{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .mp-final{margin-top:var(--s3)}
+  .mp-final .gc-hero .gc-big{font-size:var(--fs-xl)}
+  .mp-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
+  .mp-view .mp-shared{display:block}
+  .mp-view .mp-own{display:none!important}
+  .mp-view:not(.mp-ready) main{visibility:hidden;animation:mp-reveal 0s 3s forwards}
+  @keyframes mp-reveal{to{visibility:visible}}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px}
+  .mp-err-v .mp-shared{display:block;background:var(--warn-soft);border-color:#fcd34d}
+  .mp-err-v #mp-own{display:none}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn p a{padding:12px 0}
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
+  @media (max-width:359px){.mp-player .gc-stepper input{width:48px}.mp-player .gc-stepper button{width:44px}.mp-two{grid-template-columns:1fr}.mp-si{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .gc-def{color:var(--muted)}
+</style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/match-play-handicap-calculator#app",
+   "name": "Match Play Handicap Calculator",
+   "url": "https://golfcalculators.com/match-play-handicap-calculator",
+   "description": "Who gets how many strokes, on which holes: singles 100%, four-ball 90% of the difference (2024), foursomes 50%. Stroke table and live match tracker.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/match-play-handicap-calculator#faq",
+   "url": "https://golfcalculators.com/match-play-handicap-calculator",
+   "inLanguage": "en",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "How many strokes do you get in match play?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "In singles match play the higher handicap receives the full difference in Course Handicap (100% allowance) and the lower player plays off 0. With Course Handicaps of 10 and 18, the 18 receives 8 strokes, on stroke index 1 to 8 (Rules of Handicapping, Appendix C, checked 28 Nov 2026)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do four-ball (4BBB) match play handicaps work since 2024?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Work out each player's Course Handicap, take the difference from the lowest in the group, then apply 90% and round. Before 2024 the 90% was applied to each handicap first. With 11 and 16 the difference is 5, 90% is 4.5, so 5 strokes; the old way gave 4. Source: USGA 2024 WHS Reference for Clubs and Appendix C, checked 28 Nov 2026."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How are foursomes match play strokes worked out?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Add each side's Course Handicaps. The side with the higher total receives 50% of the difference, rounded once; the other side plays off 0. Course Handicaps 10 + 18 against 27 + 39 give 28 against 66, so the second side receives 19 strokes (Appendix C, C/2 Example 4)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What allowance is used in four-ball stroke play or Stableford?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Each player gets 85% of their own Course Handicap, rounded. It is not worked out from the low player, because it is a stroke-play format. Course Handicaps of +4, 16, 7 and 26 become +3, 14, 6 and 22 (Appendix C, C/3)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Should Australians enter their Daily Handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. Golf Australia's WHS guide (January 2026, §10B) works match play strokes from the difference between the players' Daily Handicaps, so enter each player's Daily Handicap for the tees being played (from your club chart or our Daily Handicap calculator) and choose Course Handicap. A Daily Handicap already includes Golf Australia's 0.93 multiplier and the Consistency Factor, so it is not the same number as a USGA Course Handicap and the strokes can differ by a stroke or so. To follow the USGA and R&A method instead, choose Handicap Index and enter the Slope, Scratch Rating and Par. If your competition conditions say otherwise, follow them."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What happens to a plus handicap in match play?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "In match play the lowest handicap plays off 0 and everyone else receives the difference, so a plus player simply plays off 0 and the others get the extra strokes. In stroke play a plus player gives strokes back to the course, starting at stroke index 18. Allowances move a plus handicap toward zero, including when rounding."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Do you round the Course Handicap before applying the allowance?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. The allowance is applied to the unrounded Course Handicap and the result is rounded once (Rule 6.2a/1). With the USGA's worked-example tees (Slope 135, Course Rating 72.3, Par 72), Indexes of 8.4 and 11.4 give Course Handicaps of 10.335 and 13.919. In four-ball, 90% of the 3.584 difference is 3.23, so 3 strokes; rounding the Course Handicaps to 10 and 14 first would give 4."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Where do the strokes fall if I receive more than 18?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "One on every hole, then a second on the holes with the lowest stroke index. A player receiving 19 gets two strokes on stroke index 1; 26 strokes means two on stroke index 1 to 8. For 9 holes, strokes go on the 9 holes in stroke-index order."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/match-play-handicap-calculator#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Match Play Handicap Calculator",
+     "item": "https://golfcalculators.com/match-play-handicap-calculator"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Anonymous events, each with one parameter, the tool ("skins", "stableford", "handicap", "daily-handicap", or "site"
+     for a page that is not a calculator): round_settled, result_shared, shared_link_opened, start_own_from_viewer,
+     hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
+     dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
+     email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
+     from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
+     the link went to. The tool may also be "scramble" (v12).
+     scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap.
+     v13: the tool may also be "matchplay" or "nassau". matchplay_calculate (match play strokes were worked out) carries
+     one parameter only, format: "singles", "fourball-match", "foursomes" or "fourball-stroke"; nassau_settle (a Nassau
+     was settled) carries one parameter only, format: "1v1" or "2v2". Never names, handicaps, scores or money.
+     Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate', 'matchplay_calculate', 'nassau_settle'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'matchplay', 'nassau', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'],
+    FORMATS = { matchplay_calculate: ['matchplay', ['singles', 'fourball-match', 'foursomes', 'fourball-stroke']], nassau_settle: ['nassau', ['1v1', '2v2']] };
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool, item, store) {
+    if (name === 'scramble_calculate') { // v12: {mode} only
+      if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
+      gtag('event', name, { mode: item });
+      return true;
+    }
+    if (Object.prototype.hasOwnProperty.call(FORMATS, name)) { // v13: {format} only
+      var F = FORMATS[name];
+      if (!ON || tool !== F[0] || typeof item !== 'string' || F[1].indexOf(item) < 0) return false;
+      gtag('event', name, { format: item });
+      return true;
+    }
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    var p = { tool: tool };
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item) || STORES.indexOf(store) < 0) return false; p.item = item; p.store = store; }
+    gtag('event', name, p);
+    return true;
+  };
+})();
+</script>
+<script>if (/^#r=/.test(location.hash)) document.documentElement.classList.add('mp-view'); // a shared result: read-only, no flash of your own data</script>
+</head>
+<body data-gc="matchplay-v1">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+<main class="gc-main">
+<div class="gc-card mp-shared" id="mp-shared" role="status"><h2 id="mp-shared-t" style="margin:0">Shared match</h2><p class="gc-muted" id="mp-shared-p" style="margin-top:var(--s1)">Read-only, as entered by the sender.</p>
+  <button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="mp-own" style="margin-top:var(--s3)">Work out your own</button></div>
+<div class="mp-title"><h1 id="mp-h">Match Play Handicap Calculator</h1><button type="button" class="gc-btn gc-btn-ghost mp-own" id="btn-example">Load example</button></div>
+<p class="mp-lede mp-own mp-setup">Who gets how many strokes, on which holes: singles, four-ball (4BBB) and foursomes match play, the 2024 way. Then play the match hole by hole.</p>
+
+<section class="gc-card mp-own mp-setup" id="entry" aria-labelledby="entry-h">
+  <h2 id="entry-h" class="sr-only">Your match</h2>
+  <div class="mp-row"><span class="gc-label" id="fmt-l">Format</span>
+    <div class="gc-seg mp-fmt" role="radiogroup" aria-labelledby="fmt-l">
+      <label><input type="radio" name="fmt" value="singles" checked><span>Singles</span></label>
+      <label><input type="radio" name="fmt" value="fourball-match"><span>Four-ball match</span></label>
+      <label><input type="radio" name="fmt" value="foursomes"><span>Foursomes</span></label>
+      <label><input type="radio" name="fmt" value="fourball-stroke"><span>Four-ball stroke</span></label>
+    </div>
+    <p class="mp-help" id="fmt-help">100% of the difference in Course Handicap. The lower player plays off 0.</p></div>
+  <div class="mp-row mp-two">
+    <div><span class="gc-label" id="holes-l">Holes</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="holes-l">
+        <label><input type="radio" name="holes" value="18" checked><span>18</span></label>
+        <label><input type="radio" name="holes" value="9"><span>9</span></label>
+      </div></div>
+    <div><span class="gc-label" id="kind-l">Each player's</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="kind-l">
+        <label><input type="radio" name="kind" value="ch" checked><span>Course Hcp</span></label>
+        <label><input type="radio" name="kind" value="hi"><span>Index</span></label>
+      </div></div>
+  </div>
+  <div class="mp-row" id="course-box" hidden>
+    <div class="mp-grid">
+      <div><label class="gc-label" for="sl">Slope</label><input class="gc-input" id="sl" type="text" inputmode="numeric" autocomplete="off" placeholder="113" aria-describedby="course-help"></div>
+      <div><label class="gc-label" for="cr">Course Rating</label><input class="gc-input" id="cr" type="text" inputmode="decimal" autocomplete="off" placeholder="72.0" aria-describedby="course-help"></div>
+      <div><label class="gc-label" for="par">Par</label><input class="gc-input" id="par" type="text" inputmode="numeric" autocomplete="off" placeholder="72" aria-describedby="course-help"></div>
+    </div>
+    <p class="mp-help" id="course-help">For the tees you play. Course Handicap = Index × Slope ÷ 113 + (Course Rating − Par), kept unrounded.</p></div>
+  <div class="mp-row"><span class="gc-label" id="players-l">Players</span>
+    <p class="mp-team" id="team0-l" hidden>Team 1</p>
+    <ol class="mp-players" aria-labelledby="players-l">
+    <li class="mp-player" id="row0"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input mp-name" id="pn0" type="text" autocomplete="off" maxlength="24" placeholder="Player 1"><div class="gc-stepper"><button type="button" data-step="-1" data-i="0" aria-label="Player 1: lower handicap">−</button><label class="sr-only" for="ph0" id="phl0">Player 1 Course Handicap</label><input id="ph0" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="players-help"><button type="button" data-step="1" data-i="0" aria-label="Player 1: raise handicap">+</button></div></li>
+    <li class="mp-player" id="row1"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input mp-name" id="pn1" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper"><button type="button" data-step="-1" data-i="1" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph1" id="phl1">Player 2 Course Handicap</label><input id="ph1" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="players-help"><button type="button" data-step="1" data-i="1" aria-label="Player 2: raise handicap">+</button></div></li>
+    </ol>
+    <p class="mp-team" id="team1-l" hidden>Team 2</p>
+    <ol class="mp-players" aria-labelledby="players-l" start="3">
+    <li class="mp-player" id="row2" hidden><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input mp-name" id="pn2" type="text" autocomplete="off" maxlength="24" placeholder="Player 3"><div class="gc-stepper"><button type="button" data-step="-1" data-i="2" aria-label="Player 3: lower handicap">−</button><label class="sr-only" for="ph2" id="phl2">Player 3 Course Handicap</label><input id="ph2" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="players-help"><button type="button" data-step="1" data-i="2" aria-label="Player 3: raise handicap">+</button></div></li>
+    <li class="mp-player" id="row3" hidden><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input mp-name" id="pn3" type="text" autocomplete="off" maxlength="24" placeholder="Player 4"><div class="gc-stepper"><button type="button" data-step="-1" data-i="3" aria-label="Player 4: lower handicap">−</button><label class="sr-only" for="ph3" id="phl3">Player 4 Course Handicap</label><input id="ph3" type="text" inputmode="decimal" autocomplete="off" placeholder="0" aria-describedby="players-help"><button type="button" data-step="1" data-i="3" aria-label="Player 4: raise handicap">+</button></div></li>
+    </ol>
+    <p class="mp-help" id="players-help">Course Handicap for the tees you play. In Australia, enter your Daily Handicap: Golf Australia's match play rule (§10B) works from the difference between Daily Handicaps. Plus handicap: +2.</p></div>
+  <details class="mp-more" id="more"><summary>More options</summary>
+    <div class="mp-row"><div class="mp-pctrow"><span class="gc-label" id="pct-l" style="margin:0">Allowance</span>
+      <div class="gc-stepper"><button type="button" data-pct="-5" aria-label="Lower the allowance">−</button><label class="sr-only" for="pct">Handicap allowance, %</label><input id="pct" type="text" inputmode="numeric" autocomplete="off" aria-describedby="pct-help"><button type="button" data-pct="5" aria-label="Raise the allowance">+</button></div></div>
+      <p class="mp-help" id="pct-help">Recommended: 100% singles, 90% four-ball match, 50% foursomes, 85% four-ball stroke play.</p></div>
+    <div class="mp-row"><span class="gc-label" id="si-l">Stroke index by hole</span>
+      <div class="mp-si" id="si-grid" role="group" aria-labelledby="si-l"></div>
+      <p class="mp-help" id="si-help">From the scorecard. Default: stroke index = hole number.</p>
+      <button type="button" class="gc-btn gc-btn-ghost" id="btn-si-reset">Reset stroke index</button></div>
+  </details>
+  <p class="mp-err" id="err" role="alert"></p>
+</section>
+
+<section id="result" class="mp-setup" aria-labelledby="result-h" style="margin-top:var(--s3)">
+  <h2 id="result-h" class="sr-only">Strokes</h2>
+  <div class="gc-hero mp-hero" id="hero"><p class="gc-kicker">Singles match play · 100%</p><p class="gc-big">Enter 2 handicaps</p><p class="mp-sub">Each player's Course Handicap for the tees you play.</p></div>
+  <div class="gc-card mp-tablecard" id="table-card" hidden><h2 class="mp-h2" id="table-h">Stroke table</h2><div id="mp-table"></div></div>
+  <div class="mp-actions" id="actions" hidden>
+    <button type="button" class="gc-btn gc-btn-primary mp-wide mp-own" id="btn-play">Play the match →</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-share">Share result</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-copy">Copy link</button>
+  </div>
+  <div class="gc-card gc-nl-card mp-own" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="matchplay"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Wolf, Las Vegas and Nines. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
+  <p class="gc-muted" style="margin-top:var(--s3)">Allowances are recommendations: the terms of your competition decide. <a href="#how-h">How it's calculated</a></p>
+  <div class="gc-gear mp-own" id="gc-gear" role="region" aria-label="Gear for this game" hidden></div>
+  <p class="gc-muted gc-fb mp-own" id="fb-after">How did the calculator go? <a href="/feedback?from=match-play-handicap-calculator">Send feedback</a></p>
+</section>
+
+<section class="gc-card mp-play" id="play" aria-labelledby="play-h" hidden>
+  <div class="mp-strip" id="mp-strip" role="status" aria-live="polite"><strong id="mp-status">All square</strong><span id="mp-strokes"></span></div>
+  <div class="mp-holehead"><h2 class="mp-holeno" id="play-h">Hole 1</h2><span class="gc-muted" id="hole-of">Stroke index 1 · 1 of 18</span></div>
+  <div class="mp-progress" id="progress" aria-hidden="true"></div>
+  <div id="scores"></div>
+  <div class="mp-final" id="final" hidden></div>
+  <div class="mp-nav">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-prev">← Strokes</button>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-next">Next hole →</button>
+  </div>
+  <div class="mp-actions mp-actions-play" id="play-actions" hidden>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-share2">Share match</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-new">New match</button>
+  </div>
+</section>
+
+<h2 style="margin:var(--s6) 0 var(--s3)">Related calculators</h2>
+<div class="gc-next">
+  <a href="/nassau-calculator"><strong>Nassau →</strong><span>Front, back and overall bets with presses, 1v1 or 2v2 better ball.</span></a>
+  <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Each player's strokes for today's tees, Golf Australia formula.</span></a>
+  <a href="/handicap-calculator"><strong>Handicap Index →</strong><span>Estimate a GA Handicap from the last 20 rounds.</span></a>
+</div>
+
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Start from each player's Course Handicap for the tees being played (in Australia, Golf Australia's §10B works from the Daily Handicap), unrounded if you work it out from a Handicap Index (Index × Slope ÷ 113 + (Course Rating − Par)). Then apply the allowance for the format and round once, to the nearest whole number (.5 up; a plus handicap moves toward zero):</p>
+  <ul class="gc-learn-list">
+    <li>Singles match play, 100%: the higher player receives the difference in Course Handicap. The lower player plays off 0.</li>
+    <li>Four-ball (4BBB, best-ball) match play, 90%: each player receives 90% of the difference between their Course Handicap and the lowest in the group. Since 2024 the 90% applies to the difference, not to each handicap first.</li>
+    <li>Foursomes match play, 50%: the side with the higher combined Course Handicap receives half the difference between the two combined totals.</li>
+    <li>Four-ball stroke play or Stableford, 85%: each player gets 85% of their own Course Handicap. Nobody plays off the low player.</li>
+  </ul>
+  <p>Strokes fall on the holes with the lowest stroke index: 8 strokes go on stroke index 1 to 8. A player receiving 19 gets one on every hole and a second on stroke index 1. In stroke play a plus player gives strokes back from stroke index 18.</p>
+  <h3>Worked example</h3>
+  <p>This is the four-ball example in Appendix C (C/2). Course Handicaps are A <span data-ex="ch-0">10</span>, B <span data-ex="ch-1">18</span>, C <span data-ex="ch-2">27</span> and D <span data-ex="ch-3">39</span>. A has the lowest, so A plays off 0 and the others take 90% of the difference from 10:</p>
+  <ul class="gc-learn-list">
+    <li>B: 90% × 8 = 7.2, so <span data-ex="fb-1">7</span> strokes, on stroke index 1 to 7</li>
+    <li>C: 90% × 17 = 15.3, so <span data-ex="fb-2">15</span> strokes</li>
+    <li>D: 90% × 29 = 26.1, so <span data-ex="fb-3">26</span> strokes: one on every hole and a second on stroke index 1 to 8</li>
+  </ul>
+  <p class="gc-learn-result">Singles A v B: B receives <span data-ex="singles">8</span>. Foursomes A+B v C+D: 50% × (66 − 28) = <span data-ex="foursomes">19</span> for C and D.</p>
+  <p>Under the pre-2024 method (90% of each handicap, then the difference), players of 11 and 16 got 4 strokes; now it is 90% × 5 = 4.5, so <span data-ex="old-new">5</span>. Tap <strong>Load example</strong> at the top to see the four-ball version with its stroke table.</p>
+  <p class="gc-learn-src" id="rules-source">Rules sources, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C: Handicap Allowances</cite></a>, with Clarifications C/2 and C/3 (effective 1 January 2024); The R&amp;A, <a href="https://www.randa.org/roh/appendices/appendix-c" rel="noopener"><cite>Appendix C</cite></a> (the same table and examples); USGA, <a href="https://www.usga.org/content/usga/home-page/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7g11.htm" rel="noopener"><cite>Four-Ball Match Play (90%)</cite></a> and <a href="https://www.usga.org/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7h2.htm" rel="noopener"><cite>Foursomes Match Play</cite></a>; USGA, <a href="https://www.usga.org/content/dam/usga/pdf/Handicap/2024%20WHS%20Reference%20for%20Clubs.pdf" rel="noopener"><cite>2024 WHS Reference for Clubs</cite></a>; Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §10(A)–(C).</p>
+  <p>Need the handicaps first? <a href="/daily-handicap">Work out a Daily Handicap</a>, or <a href="/handicap-calculator">estimate a GA Handicap from recent rounds</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>How many strokes do you get in match play?</h3><p>In singles match play the higher handicap receives the full difference in Course Handicap (100% allowance) and the lower player plays off 0. With Course Handicaps of 10 and 18, the 18 receives 8 strokes, on stroke index 1 to 8 (Rules of Handicapping, Appendix C, checked 28 Nov 2026).</p></div>
+  <div class="gc-faq-item"><h3>How do four-ball (4BBB) match play handicaps work since 2024?</h3><p>Work out each player's Course Handicap, take the difference from the lowest in the group, then apply 90% and round. Before 2024 the 90% was applied to each handicap first. With 11 and 16 the difference is 5, 90% is 4.5, so 5 strokes; the old way gave 4. Source: USGA 2024 WHS Reference for Clubs and Appendix C, checked 28 Nov 2026.</p></div>
+  <div class="gc-faq-item"><h3>How are foursomes match play strokes worked out?</h3><p>Add each side's Course Handicaps. The side with the higher total receives 50% of the difference, rounded once; the other side plays off 0. Course Handicaps 10 + 18 against 27 + 39 give 28 against 66, so the second side receives 19 strokes (Appendix C, C/2 Example 4).</p></div>
+  <div class="gc-faq-item"><h3>What allowance is used in four-ball stroke play or Stableford?</h3><p>Each player gets 85% of their own Course Handicap, rounded. It is not worked out from the low player, because it is a stroke-play format. Course Handicaps of +4, 16, 7 and 26 become +3, 14, 6 and 22 (Appendix C, C/3).</p></div>
+  <div class="gc-faq-item"><h3>Should Australians enter their Daily Handicap?</h3><p>Yes. Golf Australia's WHS guide (January 2026, §10B) works match play strokes from the difference between the players' Daily Handicaps, so enter each player's Daily Handicap for the tees being played (from your club chart or our <a href="/daily-handicap">Daily Handicap calculator</a>) and choose Course Handicap. A Daily Handicap already includes Golf Australia's 0.93 multiplier and the Consistency Factor, so it is not the same number as a USGA Course Handicap and the strokes can differ by a stroke or so. To follow the USGA and R&amp;A method instead, choose Handicap Index and enter the Slope, Scratch Rating and Par. If your competition conditions say otherwise, follow them.</p></div>
+  <div class="gc-faq-item"><h3>What happens to a plus handicap in match play?</h3><p>In match play the lowest handicap plays off 0 and everyone else receives the difference, so a plus player simply plays off 0 and the others get the extra strokes. In stroke play a plus player gives strokes back to the course, starting at stroke index 18. Allowances move a plus handicap toward zero, including when rounding.</p></div>
+  <div class="gc-faq-item"><h3>Do you round the Course Handicap before applying the allowance?</h3><p>No. The allowance is applied to the unrounded Course Handicap and the result is rounded once (Rule 6.2a/1). With the USGA's worked-example tees (Slope 135, Course Rating 72.3, Par 72), Indexes of 8.4 and 11.4 give Course Handicaps of 10.335 and 13.919. In four-ball, 90% of the 3.584 difference is 3.23, so 3 strokes; rounding the Course Handicaps to 10 and 14 first would give 4.</p></div>
+  <div class="gc-faq-item"><h3>Where do the strokes fall if I receive more than 18?</h3><p>One on every hole, then a second on the holes with the lowest stroke index. A player receiving 19 gets two strokes on stroke index 1; 26 strokes means two on stroke index 1 to 8. For 9 holes, strokes go on the 9 holes in stroke-index order.</p></div>
+<!-- seo:content:end --></section>
+</main>
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer">
+<div class="gc-nl-foot"><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-f-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="matchplay"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><p class="gc-nl-t" id="nl-f-t"><strong>New golf calculators, first.</strong> One email a month, max.</p><label class="gc-label" for="nl-f-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-f-email" name="email" autocomplete="email" aria-describedby="nl-f-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-f-err" aria-live="polite"></p></form></div>
+<p class="gc-footer-links"><a href="/feedback?from=match-play-handicap-calculator">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</p>
+<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases (Amazon.com.au and Amazon.com).</p>
+</footer>
+<script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
+   page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
+   A result link is https://golfcalculators.com/<tool>#r=<tag>.<payload>. The data sits in the #fragment, which
+   browsers never send to the server, so names and scores never reach Netlify, a CDN, a Referer or a preview
+   crawler. Tags: "1z." = v1, deflate-raw then base64url; "1." = v1, plain base64url (no CompressionStream).
+   Everything decoded is treated as hostile: size caps, strict base64url, fatal UTF-8, JSON.parse only; each
+   page then rebuilds its state field by field from a whitelist (never Object.assign). */
+(function () {
+  var MAX = 4096, CAP = 16384;
+  function err(code) { var e = new Error(code); e.code = code; return e; }
+  function b64u(bytes) {
+    var s = '', i;
+    for (i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, Array.prototype.slice.call(bytes, i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64u(str) {
+    if (!/^[A-Za-z0-9_-]+$/.test(str) || str.length % 4 === 1) return null;
+    var b = str.replace(/-/g, '+').replace(/_/g, '/'), s, u, i;
+    while (b.length % 4) b += '=';
+    try { s = atob(b); } catch (e) { return null; }
+    u = new Uint8Array(s.length);
+    for (i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    return u;
+  }
+  function pump(bytes, stream, cap) { // write all bytes through a (De)CompressionStream; stop past cap bytes out
+    var w = stream.writable.getWriter(), r = stream.readable.getReader(), parts = [], n = 0;
+    w.write(bytes).catch(function () {}); w.close().catch(function () {});
+    return new Promise(function (res, rej) {
+      (function next() {
+        r.read().then(function (x) {
+          if (x.done) { var out = new Uint8Array(n), o = 0; parts.forEach(function (p) { out.set(p, o); o += p.length; }); return res(out); }
+          n += x.value.length;
+          if (n > cap) { r.cancel().catch(function () {}); return rej(err('bad')); }
+          parts.push(x.value); next();
+        }, function () { rej(err('bad')); });
+      })();
+    });
+  }
+  function canZip() { return typeof CompressionStream === 'function'; }
+  function encode(obj, plain) { // -> Promise of "1z.<payload>" (or "1.<payload>")
+    var bytes = new TextEncoder().encode(JSON.stringify(obj));
+    if (!plain && canZip()) return pump(bytes, new CompressionStream('deflate-raw'), Infinity).then(function (z) { return '1z.' + b64u(z); });
+    return Promise.resolve('1.' + b64u(bytes));
+  }
+  function decode(raw) { // -> Promise of the parsed JSON object; rejects with code 'bad' or 'browser'
+    return new Promise(function (res, rej) {
+      if (typeof raw !== 'string' || raw.length > MAX) return rej(err('bad'));
+      var m = /^(1z?)\.([A-Za-z0-9_-]+)$/.exec(raw);
+      if (!m) return rej(err('bad'));
+      var bytes = unb64u(m[2]);
+      if (!bytes) return rej(err('bad'));
+      var zipped = m[1] === '1z';
+      if (zipped && typeof DecompressionStream !== 'function') return rej(err('browser'));
+      if (!zipped && bytes.length > CAP) return rej(err('bad'));
+      (zipped ? pump(bytes, new DecompressionStream('deflate-raw'), CAP) : Promise.resolve(bytes)).then(function (b) {
+        var o;
+        try { o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(b)); } catch (e) { return rej(err('bad')); }
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return rej(err('bad'));
+        res(o);
+      }, rej);
+    });
+  }
+  function fromHash(hash) { var m = /^#r=([^&#]*)$/.exec(hash || ''); return m ? m[1] : null; } // r= is the only key
+  function get(o, k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; } // own keys only
+  function cleanText(s, max) { // NFC, no C0/C1 or bidi controls, trimmed, at most max code points
+    if (typeof s !== 'string') return '';
+    if (s.normalize) s = s.normalize('NFC');
+    s = s.replace(/[\u0000-\u001F\u007F-\u009F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '').trim();
+    return Array.from(s).slice(0, max).join('').trim();
+  }
+  function gsm(text) { // share text in plain ASCII where we wrote it, so SMS stays GSM-7 (PO, 12 Nov)
+    return String(text).replace(/\s*\u00B7\s*/g, ' - ').replace(/[\u2013\u2014\u2212]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+      .replace(/\u2192/g, '->').replace(/\u2026/g, '...').replace(/\u00D7/g, 'x').replace(/\u00A0/g, ' ');
+  }
+  var TEXT = { title: 'Shared result', line: 'Read-only, as entered by the scorer.',
+    bad: ['This result link can\u2019t be opened', 'It is incomplete or from a newer version of the calculator.'],
+    browser: ['This link needs a newer browser', 'Update your browser to see this result, or start your own round.'] };
+  function banner(mode) { // mode: 'ok' | 'bad' | 'browser'; the banner is pre-rendered in the page (no layout shift)
+    var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
+    if (t) t.textContent = x[0];
+    if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
+    var h = document.documentElement.classList;
+    h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
+  }
+  function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]utm_[a-z]+=[^&]*/g, '').replace(/^&/, '?')); } // v9 P6: the share link's utm_* tags go too
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
+    TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
+})();
+</script>
+<script>
+(function () {
+/* Match play handicap strokes + four-ball / foursomes allowances, with a live match (v13, 28 Nov 2026).
+   Sources, checked 28 Nov 2026:
+   [USGA] Rules of Handicapping (USGA/R&A, effective 1 Jan 2024), Appendix C Handicap Allowances, incl. C/2 and C/3:
+          https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm
+          Match play: individual 100%, four-ball 90%; foursomes 50% of the combined team handicap; four-ball stroke play
+          85%. Allowances apply to the unrounded Course Handicap (Rule 6.2a/1). In match play the lowest plays off 0 and
+          the others receive the difference. Plus handicaps give strokes back from stroke index 18 and move toward zero.
+          C/2: A 10, B 18, C 27, D 39 -> singles B 8; four-ball 0/7/15/26; foursomes Team 2 19 (rounded CH "for ease of
+          illustration"). C/3: A +4, B 16, C 7, D 26 -> four-ball stroke +3/14/6/22; four-ball match 0/18/10/27; foursomes 11.
+   [R&A]  Same Appendix C: https://www.randa.org/roh/appendices/appendix-c
+   [USGA four-ball page] https://www.usga.org/content/usga/home-page/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7g11.htm
+          90% of the difference in UNROUNDED Course Handicap from the lowest, then round (A +1.2, B 12.6, C 11.4, D 15.2;
+          CR 72.3, Slope 135, Par 72 -> 0/15/14/18). [USGA foursomes page] .../LG_R7h2.htm (8.4/12.6 v 11.4/15.2 -> 3).
+   [WHS 2024] USGA "2024 WHS Reference for Clubs": four-ball 90% now applies to the difference, not to each player.
+   [GA]   Golf Australia, WHS Official reference guide for Australian administrators, January 2026, s10(A)-(C):
+          https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf */
+var FORMATS = ['singles', 'fourball-match', 'foursomes', 'fourball-stroke'];
+var PCT = { singles: 100, 'fourball-match': 90, foursomes: 50, 'fourball-stroke': 85 };
+var NAME = { singles: 'Singles match play', 'fourball-match': 'Four-ball match play', foursomes: 'Foursomes match play', 'fourball-stroke': 'Four-ball stroke play' };
+function fix(x) { return +(+x).toFixed(9); }
+function roundTo(x, dp) { var f = dp ? 10 : 1, v = Math.round(fix(x * f)) / f; return v === 0 ? 0 : v; } // .5 up; a plus (negative) .5 moves toward zero
+function courseHcp(hi, sl, cr, par) { return fix(hi * sl / 113 + (cr - par)); } // unrounded (Rule 6.1, 6.2a/1)
+function nPlayers(f) { return f === 'singles' ? 2 : 4; }
+function allocate(f, chs, pct) { // chs: unrounded Course Handicaps; -> playing strokes per player (or per side for foursomes)
+  var p = pct == null ? PCT[f] : pct;
+  if (f === 'fourball-stroke') { var raw = chs.map(function (c) { return fix(c * p / 100); }); return { f: f, pct: p, raw: raw, ph: raw.map(function (x) { return roundTo(x); }) }; }
+  if (f === 'foursomes') {
+    var t = [fix(chs[0] + chs[1]), fix(chs[2] + chs[3])], low = t[1] < t[0] ? 1 : 0, diff = fix(Math.abs(t[0] - t[1])), r = fix(diff * p / 100), s = roundTo(r);
+    return { f: f, pct: p, teams: t, low: low, diff: diff, raw: r, side: low === 0 ? [0, s] : [s, 0] };
+  }
+  var lo = Math.min.apply(null, chs), li = chs.indexOf(lo), d = chs.map(function (c) { return fix(c - lo); }), rw = d.map(function (x) { return fix(x * p / 100); });
+  return { f: f, pct: p, low: li, lowCh: lo, diff: d, raw: rw, ph: rw.map(function (x) { return roundTo(x); }) };
+}
+function ranks(si) { var ord = si.map(function (v, i) { return i; }).sort(function (a, b) { return si[a] - si[b] || a - b; }), r = []; ord.forEach(function (h, k) { r[h] = k + 1; }); return r; }
+function perHole(n, si) { // strokes on each hole for a playing handicap n over these holes; plus (n < 0) gives back from the highest stroke index
+  var N = si.length, rk = ranks(si), a = Math.abs(n), base = Math.floor(a / N), ex = a % N;
+  return rk.map(function (r) { var v = n >= 0 ? base + (r <= ex ? 1 : 0) : -(base + (r > N - ex ? 1 : 0)); return v === 0 ? 0 : v; });
+}
+function isPerm(si) { var s = si.slice().sort(function (a, b) { return a - b; }); return s.every(function (v, i) { return v === i + 1; }); }
+var WORD = ['', 'one', 'two', 'three', 'four'], NTH = ['', 'first', 'second', 'third', 'fourth', 'fifth'];
+function range(a, b) { return a === b ? String(a) : a + '\u2013' + b; }
+function strokesText(n, si) { // "on stroke index 1-8" / "one on every hole and a second on stroke index 1"
+  var N = si.length, a = Math.abs(n), base = Math.floor(a / N), ex = a % N, perm = isPerm(si);
+  if (n === 0) return 'no strokes';
+  var holes = function (lowFirst, k) { // the k holes with the lowest (or highest) stroke index
+    if (perm) return 'stroke index ' + (lowFirst ? range(1, k) : range(N, N - k + 1));
+    var rk = ranks(si), hs = []; rk.forEach(function (r, h) { if (lowFirst ? r <= k : r > N - k) hs.push(h + 1); });
+    return (hs.length === 1 ? 'hole ' : 'holes ') + hs.join(', ');
+  };
+  if (n < 0) return base ? WORD[base] + ' back on every hole' + (ex ? ' and ' + (base === 1 ? 'a second' : 'a ' + NTH[base + 1]) + ' on ' + holes(false, ex) : '') : 'back on ' + holes(false, ex);
+  if (!base) return 'on ' + holes(true, ex);
+  return WORD[base] + ' on every hole' + (ex ? ' and a ' + NTH[base + 1] + ' on ' + holes(true, ex) : '');
+}
+function sidesOf(f) { return f === 'singles' || f === 'foursomes' ? [[0], [1]] : [[0, 1], [2, 3]]; } // score entries per side
+function entryStrokes(f, al) { return f === 'foursomes' ? al.side.slice() : al.ph.slice(0, nPlayers(f)); }
+function match(f, strokes, si, scores, N) { // strokes per entry, si per hole (length N), scores {hole: [gross per entry]}
+  var per = strokes.map(function (n) { return perHole(n, si); }), sd = sidesOf(f), diff = 0, thru = 0, holes = [], tot = [0, 0], done = null;
+  for (var h = 1; h <= N; h++) {
+    var g = scores[h]; if (!g) break;
+    var net = g.map(function (x, i) { return x - per[i][h - 1]; });
+    var side = sd.map(function (ix) { return Math.min.apply(null, ix.map(function (i) { return net[i]; })); });
+    var w = side[0] < side[1] ? 0 : side[1] < side[0] ? 1 : -1;
+    thru = h; tot[0] += side[0]; tot[1] += side[1];
+    if (f !== 'fourball-stroke' && !done) { diff += w === 0 ? 1 : w === 1 ? -1 : 0; }
+    holes.push({ hole: h, net: net, side: side, win: w });
+    if (f !== 'fourball-stroke' && !done && Math.abs(diff) > N - h) { done = { hole: h, up: Math.abs(diff), left: N - h, lead: diff > 0 ? 0 : 1 }; break; }
+  }
+  return { diff: diff, thru: thru, N: N, holes: holes, totals: tot, done: done, stroke: f === 'fourball-stroke' };
+}
+function status(m, names) { // names: [side 0, side 1]; -> "Alex is 2 up through 6"
+  var lead = m.diff > 0 ? 0 : 1, up = Math.abs(m.diff), left = m.N - m.thru, nm = names[lead], verb = /&/.test(nm) ? ' are ' : ' is ', win = /&/.test(nm) ? ' win ' : ' wins ';
+  if (m.stroke) {
+    var d = m.totals[1] - m.totals[0], ld = d > 0 ? 0 : 1, nm2 = names[ld], v2 = /&/.test(nm2) ? ' lead' : ' leads';
+    if (!m.thru) return 'Not started';
+    if (m.thru === m.N) return d === 0 ? 'Tied on better-ball net ' + m.totals[0] : nm2 + (/&/.test(nm2) ? ' win by ' : ' wins by ') + Math.abs(d) + ' (better-ball net ' + m.totals[ld] + ' v ' + m.totals[1 - ld] + ')';
+    return d === 0 ? 'Level through ' + m.thru : nm2 + v2 + ' by ' + Math.abs(d) + ' through ' + m.thru;
+  }
+  if (m.done) { nm = names[m.done.lead]; win = /&/.test(nm) ? ' win ' : ' wins '; return nm + win + (m.done.left ? m.done.up + ' & ' + m.done.left : m.done.up + ' up'); }
+  if (!m.thru) return 'All square, not started';
+  if (!up) return left ? 'All square through ' + m.thru : 'Match halved';
+  if (up === left) return nm + verb + up + ' up, dormie ' + up;
+  return nm + verb + up + ' up through ' + m.thru;
+}
+window.GCMatch = { FORMATS: FORMATS, PCT: PCT, courseHcp: courseHcp, roundTo: roundTo, allocate: allocate, perHole: perHole, strokesText: strokesText, match: match, status: status, nPlayers: nPlayers };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_matchplay_v1', URL = 'https://golfcalculators.com/match-play-handicap-calculator';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function cleanName(s) { return window.GCShare ? GCShare.cleanText(s, 24) : String(s || '').slice(0, 24); }
+var LIM = { ch: [-15, 72], hi: [-10, 54] };
+function okH(v, k) { return typeof v === 'number' && isFinite(v) && v >= LIM[k][0] && v <= LIM[k][1]; }
+function okCourse(c) { return !!c && c.sl === Math.round(c.sl) && c.sl >= 55 && c.sl <= 155 && c.cr >= 25 && c.cr <= 85 && c.par === Math.round(c.par) && c.par >= 25 && c.par <= 80; }
+function plus(s, x) { return x < 0 ? '+' + s.replace('-', '') : s; }
+function trim(s) { return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); }
+function fmtNum(x, d) { return plus(trim((+x).toFixed(d)), x); }
+function fmtRaw(x) { var s = (+x).toFixed(2); if (roundTo(+s) !== roundTo(x)) s = (+x).toFixed(3); return plus(trim(s), x); } // never shows a value that would round differently
+function parseH(t, k) {
+  var m = (k === 'hi' ? /^([+\-\u2212]?)\s*(\d{1,2}(?:[.,]\d)?)$/ : /^([+\-\u2212]?)\s*(\d{1,2}(?:[.,]\d{1,2})?)$/).exec(String(t).trim());
+  if (!m) return null; var v = +m[2].replace(',', '.'); if (m[1]) v = -v; v = v === 0 ? 0 : v;
+  return okH(v, k) ? v : null;
+}
+function fmtH(v, k) { if (v == null) return ''; return k === 'hi' ? plus(Math.abs(v).toFixed(1), v) : fmtNum(v, 2); }
+function defSI() { var a = []; for (var i = 1; i <= 18; i++) a.push(i); return a; }
+function blank() { return { fmt: 'singles', kind: 'ch', holes: 18, course: { sl: null, cr: null, par: null }, players: [0, 1, 2, 3].map(function () { return { n: '', v: null }; }), si: defSI(), pct: null, scores: {}, hole: 1, screen: 'setup' }; }
+function okSI(si, N) { // N values, distinct whole numbers 1-18
+  if (!Array.isArray(si) || si.length < N) return false; var seen = {};
+  for (var i = 0; i < N; i++) { var v = si[i]; if (v !== Math.round(v) || v < 1 || v > 18 || seen[v]) return false; seen[v] = 1; }
+  return true;
+}
+function clean(o) { // whitelist, field by field (storage and #r= links); null if unusable
+  if (!o || typeof o !== 'object') return null;
+  var g = function (k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };
+  var s = blank(), f = g('f'), k = g('k'), h = g('h'), p = g('p'), c = g('c'), si = g('si'), x = g('x'), sc = g('sc'), cur = g('cur'), scr = g('scr');
+  if (FORMATS.indexOf(f) < 0 || ['ch', 'hi'].indexOf(k) < 0 || [9, 18].indexOf(h) < 0 || !Array.isArray(p) || p.length > 4) return null;
+  s.fmt = f; s.kind = k; s.holes = h;
+  for (var i = 0; i < p.length; i++) { var e = p[i]; if (!Array.isArray(e) || e.length !== 2 || typeof e[0] !== 'string') return null;
+    s.players[i] = { n: cleanName(e[0]), v: e[1] === null ? null : (okH(e[1], k) ? +e[1] : null) }; if (e[1] !== null && s.players[i].v === null) return null; }
+  if (c !== undefined) { if (!Array.isArray(c) || c.length !== 3) return null; var cc = { sl: c[0], cr: c[1], par: c[2] };
+    if (c.every(function (v) { return v === null; })) cc = { sl: null, cr: null, par: null }; else if (!okCourse(cc)) return null; s.course = cc; }
+  if (si !== undefined) { if (!Array.isArray(si) || si.length !== 18 || !si.every(function (v) { return v === Math.round(v) && v >= 1 && v <= 18; })) return null; s.si = si.slice(); }
+  if (x !== undefined && x !== null) { if (x !== Math.round(x) || x < 0 || x > 100) return null; s.pct = x; }
+  if (sc !== undefined) { if (!sc || typeof sc !== 'object' || Array.isArray(sc)) return null; var ne = f === 'singles' || f === 'foursomes' ? 2 : 4;
+    for (var hk in sc) { if (!Object.prototype.hasOwnProperty.call(sc, hk)) continue; var hn = +hk, row = sc[hk];
+      if (!/^\d{1,2}$/.test(hk) || hn < 1 || hn > h || !Array.isArray(row) || row.length !== ne || !row.every(function (v) { return v === Math.round(v) && v >= 1 && v <= 20; })) return null;
+      s.scores[hn] = row.slice(); } }
+  if (cur !== undefined) { if (cur !== Math.round(cur) || cur < 1 || cur > h) return null; s.hole = cur; }
+  if (scr !== undefined) { if (['setup', 'play'].indexOf(scr) < 0) return null; s.screen = scr; }
+  return s;
+}
+function isDefSI(si) { return si.every(function (v, i) { return v === i + 1; }); }
+function pack(st, all) { // all = storage (everything) or a link (what the reader needs)
+  var n = nPlayers(st.fmt), o = { v: 1, f: st.fmt, k: st.kind, h: st.holes, p: st.players.slice(0, all ? 4 : n).map(function (p) { return [p.n, p.v]; }) };
+  if (all || st.kind === 'hi') o.c = [st.course.sl, st.course.cr, st.course.par];
+  if (all || !isDefSI(st.si)) o.si = st.si.slice();
+  if (st.pct != null) o.x = st.pct;
+  if (Object.keys(st.scores).length) o.sc = st.scores;
+  if (all) { o.cur = st.hole; o.scr = st.screen; }
+  return o;
+}
+function load() { try { return clean(JSON.parse(localStorage.getItem(KEY) || 'null')) || blank(); } catch (e) { return blank(); } }
+var S = load(), VIEW = null, EXAMPLE_ON = false, SENT = {}, LINK = null, BAD = {};
+function st() { return VIEW || S; }
+function save() { if (VIEW) return; try { localStorage.setItem(KEY, JSON.stringify(pack(S, true))); } catch (e) {} }
+function track(name, item) { if (window.gcTrack) gcTrack(name, 'matchplay', item); } // matchplay_calculate: {format} only
+var EXAMPLE = { fmt: 'fourball-match', kind: 'ch', players: [['Alex', 10], ['Blake', 18], ['Casey', 27], ['Drew', 39]] }; // [USGA] Appendix C, C/2 Example 3
+window.GCMatch.EXAMPLE = EXAMPLE;
+
+function siOf(s) { return s.si.slice(0, s.holes); }
+function calc(s) { // -> {need} or {res: {al, chs, strokes (per entry), names, sideNames}}
+  var n = nPlayers(s.fmt), list = s.players.slice(0, n), hi = s.kind === 'hi';
+  var missing = list.filter(function (p) { return p.v == null; }).length;
+  if (missing) return { need: missing === n ? 'Enter ' + n + ' handicaps' : 'Enter ' + missing + ' more handicap' + (missing === 1 ? '' : 's') };
+  if (hi && !okCourse(s.course)) return { need: 'Enter the Slope, Course Rating and Par' };
+  if (!okSI(s.si, s.holes)) return { need: 'Check the stroke index' };
+  var nine = s.holes === 9;
+  var chs = list.map(function (p) { return hi ? courseHcp(nine ? p.v / 2 : p.v, s.course.sl, s.course.cr, s.course.par) : p.v; });
+  var names = list.map(function (p, i) { return p.n || 'Player ' + (i + 1); });
+  var al = allocate(s.fmt, chs, s.pct), sideNames = s.fmt === 'singles' ? [names[0], names[1]] : [names[0] + ' & ' + names[1], names[2] + ' & ' + names[3]];
+  var entryNames = s.fmt === 'foursomes' ? sideNames : names;
+  return { res: { al: al, chs: chs, strokes: entryStrokes(s.fmt, al), names: names, sideNames: sideNames, entryNames: entryNames } };
+}
+window.GCMatch.calc = calc;
+function cnt(n) { return n + ' stroke' + (n === 1 ? '' : 's'); }
+function sentence(s, r) { // the plain result sentence
+  var al = r.al, si = siOf(s), N = s.holes;
+  if (s.fmt === 'foursomes') {
+    var rcv = al.side[0] ? 0 : 1, n = al.side[rcv];
+    if (!n) return 'Level match: no strokes either way.';
+    return r.sideNames[rcv] + ' receive ' + cnt(n) + ' from ' + r.sideNames[1 - rcv] + ', ' + strokesText(n, si) + '.';
+  }
+  if (s.fmt === 'fourball-stroke') return 'Playing Handicaps: ' + r.names.map(function (nm, i) { return nm + ' ' + fmtNum(al.ph[i], 0); }).join(', ') + '.';
+  if (s.fmt === 'singles') {
+    var o = al.ph[0] ? 0 : 1, m = al.ph[o];
+    if (!m) return 'Level match: no strokes either way.';
+    return r.names[o] + ' receives ' + cnt(m) + ' from ' + r.names[1 - o] + ', ' + strokesText(m, si) + '.';
+  }
+  var zero = [], rest = [];
+  al.ph.forEach(function (v, i) { if (v) rest.push(r.names[i] + ' ' + v); else zero.push(r.names[i]); });
+  return zero.join(' and ') + (zero.length > 1 ? ' play' : ' plays') + ' off 0.' + (rest.length ? ' Strokes received: ' + rest.join(', ') + '.' : '');
+  void N;
+}
+function rule(s) {
+  if (s.fmt === 'fourball-stroke') return 'Stroke play: each player gets ' + (s.pct == null ? '85%' : s.pct + '%') + ' of their own Course Handicap, rounded once. Not off the low player. A plus handicap gives strokes back from the highest stroke index.';
+  if (s.fmt === 'foursomes') return 'Allowance applied to the difference in combined unrounded Course Handicaps, then rounded once (.5 up). The lower side plays off 0.';
+  return 'Allowance applied to the difference in unrounded Course Handicap from the lowest, then rounded once to the nearest whole number (.5 up). The lowest plays off 0.' + (s.fmt === 'fourball-match' ? ' This is the 2024 method (90% of the difference, not 90% of each handicap).' : '');
+}
+function tableHtml(s, r) {
+  var si = siOf(s), per = r.strokes.map(function (n) { return perHole(n, si); }), nm = r.entryNames;
+  var cell = function (v) { return v === 0 ? '<td class="z">0</td>' : v < 0 ? '<td class="neg">\u2212' + -v + '</td>' : '<td' + (v > 1 ? ' class="s2"' : '') + '>' + v + '</td>'; };
+  var head = '<thead><tr><th scope="col">Hole</th><th scope="col">SI</th>' + nm.map(function (x) { return '<th scope="col" title="' + esc(x) + '">' + esc(x) + '</th>'; }).join('') + '</tr></thead>';
+  var body = si.map(function (v, h) { return '<tr><th scope="row">' + (h + 1) + '</th><td>' + v + '</td>' + per.map(function (p) { return cell(p[h]); }).join('') + '</tr>'; }).join('');
+  var foot = '<tfoot><tr><th scope="row" colspan="2">Total</th>' + r.strokes.map(function (n) { return '<td>' + fmtNum(n, 0) + '</td>'; }).join('') + '</tr></tfoot>';
+  return '<table class="mp-tbl" id="mp-tbl"><caption class="sr-only">Strokes received on each hole' + (s.fmt === 'fourball-stroke' ? ' (a minus is a stroke given back)' : '') + '</caption>' + head + '<tbody>' + body + '</tbody>' + foot + '</table>';
+}
+function breakdown(s, r) {
+  var al = r.al, p = al.pct + '%', ch = function (x) { return fmtNum(x, 2); };
+  if (s.fmt === 'foursomes') return '<ol class="mp-break" id="mp-break" aria-label="Each side">' + [0, 1].map(function (k) {
+    return '<li><span class="mp-n">' + esc(r.sideNames[k]) + '</span><span class="mp-x">' + ch(r.chs[2 * k]) + ' + ' + ch(r.chs[2 * k + 1]) + ' = ' + ch(al.teams[k]) + '</span><b>' + al.side[k] + '</b></li>'; }).join('') + '</ol>';
+  return '<ol class="mp-break" id="mp-break" aria-label="Each player">' + r.names.map(function (nm, i) {
+    var how = s.fmt === 'fourball-stroke' ? p + ' \u00d7 ' + ch(r.chs[i]) : i === al.low ? 'lowest' : p + ' \u00d7 (' + ch(r.chs[i]) + ' \u2212 ' + ch(al.lowCh) + ')';
+    return '<li><span class="mp-n">' + esc(nm) + '</span><span class="mp-x">' + how + '</span><b>' + fmtNum(al.ph[i], 0) + '</b></li>'; }).join('') + '</ol>';
+}
+function formula(s, r) {
+  var al = r.al;
+  if (s.fmt === 'foursomes') return al.pct + '% \u00d7 (' + fmtNum(Math.max(al.teams[0], al.teams[1]), 2) + ' \u2212 ' + fmtNum(Math.min(al.teams[0], al.teams[1]), 2) + ') = ' + fmtRaw(al.raw) + ' \u2192 ' + roundTo(al.raw) + '.';
+  return r.names.map(function (nm, i) { return s.fmt !== 'fourball-stroke' && i === al.low ? null : esc(nm) + ' ' + fmtRaw(al.raw[i]) + ' \u2192 ' + fmtNum(al.ph[i], 0); }).filter(Boolean).join(' \u00b7 ') + '.';
+}
+function render() {
+  var s = st(), n = nPlayers(s.fmt), hi = s.kind === 'hi', team = n === 4;
+  if (!VIEW) {
+    [].forEach.call(document.querySelectorAll('input[name=fmt]'), function (r) { r.checked = r.value === s.fmt; });
+    [].forEach.call(document.querySelectorAll('input[name=holes]'), function (r) { r.checked = +r.value === s.holes; });
+    [].forEach.call(document.querySelectorAll('input[name=kind]'), function (r) { r.checked = r.value === s.kind; });
+    $('fmt-help').textContent = { singles: '100% of the difference in Course Handicap. The lower player plays off 0.', 'fourball-match': '90% of the difference in Course Handicap from the lowest player (2024 method). The lowest plays off 0.', foursomes: 'Each side plays one ball. 50% of the difference between the sides\u2019 combined Course Handicaps.', 'fourball-stroke': 'Stroke play (or Stableford) better ball: 85% of each player\u2019s own Course Handicap.' }[s.fmt];
+    $('course-box').hidden = !hi;
+    $('course-help').textContent = s.holes === 9 ? 'Nine-hole Slope, Course Rating and Par for the tees you play. Course Handicap = (Index \u00f7 2) \u00d7 Slope \u00f7 113 + (Course Rating \u2212 Par), kept unrounded.' : 'For the tees you play. Course Handicap = Index \u00d7 Slope \u00f7 113 + (Course Rating \u2212 Par), kept unrounded.';
+    $('team0-l').hidden = !team; $('team1-l').hidden = !team;
+    for (var i = 0; i < 4; i++) {
+      $('row' + i).hidden = i >= n;
+      $('phl' + i).textContent = 'Player ' + (i + 1) + (hi ? ' Handicap Index' : ' Course Handicap');
+      var ph = $('ph' + i); ph.placeholder = hi ? '0.0' : '0';
+      if (document.activeElement !== ph && !BAD['ph' + i]) ph.value = fmtH(s.players[i].v, s.kind);
+      var pn = $('pn' + i); if (document.activeElement !== pn) pn.value = s.players[i].n;
+    }
+    ['sl', 'cr', 'par'].forEach(function (k) { var el = $(k); if (document.activeElement !== el && !BAD[k]) el.value = s.course[k] == null ? '' : (k === 'cr' ? s.course.cr.toFixed(1) : s.course[k]); });
+    var pc = $('pct'); if (document.activeElement !== pc && !BAD.pct) pc.value = (s.pct == null ? PCT[s.fmt] : s.pct) + '%';
+    siGrid(s);
+    var errs = Object.keys(BAD).filter(function (k) { return BAD[k]; });
+    $('err').textContent = errs.length ? BAD[errs[0]] : (!okSI(s.si, s.holes) ? 'Stroke index: use each number once, 1 to ' + (s.holes === 9 ? '18' : '18') + '.' : '');
+  }
+  var c = calc(s), hero = $('hero'), r = c.res, pct = s.pct == null ? PCT[s.fmt] : s.pct;
+  var kick = NAME[s.fmt] + ' \u00b7 ' + (s.fmt === 'foursomes' ? pct + '% of combined' : pct + '%') + (s.holes === 9 ? ' \u00b7 9 holes' : '');
+  if (!r) {
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared \u00b7 ' : '') + esc(kick) + '</p><p class="gc-big">' + esc(c.need) + '</p><p class="mp-sub">Each player\u2019s ' + (hi ? 'Handicap Index, with the Slope, Course Rating and Par of the tees you play.' : 'Course Handicap for the tees you play (before any allowance).') + '</p>';
+    $('table-card').hidden = true;
+  } else {
+    var conv = hi ? '<p class="mp-sub">Course Handicaps = ' + (s.holes === 9 ? '(Index \u00f7 2)' : 'Index') + ' \u00d7 ' + s.course.sl + ' \u00f7 113 + (' + s.course.cr.toFixed(1) + ' \u2212 ' + s.course.par + '), unrounded: ' + r.names.map(function (nm, i) { return esc(nm) + ' ' + fmtNum(r.chs[i], 3); }).join(', ') + '.</p>' : '';
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared \u00b7 ' : '') + esc(kick) + '</p><p class="gc-big" id="mp-result">' + esc(sentence(s, r)) + '</p>' + breakdown(s, r) +
+      '<p class="mp-sub" id="mp-formula">' + formula(s, r) + '</p>' + conv + '<p class="mp-sub" id="mp-rule">' + rule(s) + '</p>';
+    $('mp-table').innerHTML = tableHtml(s, r); $('table-card').hidden = false;
+    if (!VIEW && !EXAMPLE_ON && !SENT[s.fmt]) { SENT[s.fmt] = true; track('matchplay_calculate', s.fmt); }
+    if (!VIEW && window.GCGrow) { if (EXAMPLE_ON) GCGrow.gear('matchplay'); else GCGrow.result('matchplay'); }
+  }
+  $('actions').hidden = !r;
+  $('btn-play').textContent = Object.keys(s.scores).length ? 'Continue the match \u2192' : 'Play the match \u2192';
+  $('btn-example').hidden = !!VIEW || S.players.some(function (p) { return p.v != null || p.n; });
+  var playing = (s.screen === 'play' || (VIEW && Object.keys(s.scores).length)) && !!r;
+  [].forEach.call(document.querySelectorAll('.mp-setup'), function (el) { el.hidden = playing && !VIEW; });
+  $('play').hidden = !playing;
+  if (playing) renderPlay(s, r);
+  LINK = null;
+  if (r && window.GCShare) { var mine = s; GCShare.encode(pack(s, false)).then(function (code) { if (st() === mine) LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=matchplay#r=' + code; }); }
+  document.documentElement.classList.add('mp-ready');
+}
+function siGrid(s) {
+  var g = $('si-grid'), N = s.holes;
+  if (g.childNodes.length !== N) { var h = ''; for (var i = 0; i < N; i++) h += '<label for="si' + i + '">Hole ' + (i + 1) + '<input id="si' + i + '" type="text" inputmode="numeric" autocomplete="off" maxlength="2"></label>'; g.innerHTML = h; }
+  for (var j = 0; j < N; j++) { var el = $('si' + j); if (document.activeElement !== el && !BAD['si' + j]) el.value = s.si[j]; }
+}
+function matchOf(s, r) { return match(s.fmt, r.strokes, siOf(s), s.scores, s.holes); }
+function stripStrokes(s, r) {
+  var nm = r.entryNames, parts = [];
+  r.strokes.forEach(function (n, i) { if (n) parts.push(nm[i] + ' ' + (n > 0 ? 'gets ' + n : 'gives ' + -n)); });
+  return parts.length ? 'Strokes: ' + parts.join(' \u00b7 ') : 'No strokes either way';
+}
+function renderPlay(s, r) {
+  var m = matchOf(s, r), N = s.holes, ro = !!VIEW, over = !!m.done || m.thru === N;
+  $('mp-status').textContent = status(m, r.sideNames);
+  $('mp-strokes').textContent = stripStrokes(s, r);
+  var h = Math.max(1, Math.min(N, S.hole || 1)); if (ro || over) h = Math.max(1, m.thru);
+  if (!ro && !over && h > m.thru + 1) h = m.thru + 1;
+  if (!ro) S.hole = h;
+  var si = siOf(s), per = r.strokes.map(function (n) { return perHole(n, si); });
+  $('play-h').textContent = over ? (m.done ? 'Match over' : 'All ' + N + ' holes played') : 'Hole ' + h;
+  $('hole-of').textContent = over || ro ? 'Through ' + m.thru + ' of ' + N : 'Stroke index ' + si[h - 1] + ' \u00b7 ' + h + ' of ' + N;
+  var pr = ''; for (var x = 1; x <= N; x++) pr += '<i class="' + (!over && !ro && x === h ? 'cur' : x <= m.thru ? 'done' : '') + '"></i>'; $('progress').innerHTML = pr;
+  var sd = sidesOf(s.fmt), have = s.scores[h], def = !have, vals = have ? have.slice() : r.strokes.map(function () { return 4; });
+  if (over || ro) { $('scores').innerHTML = ''; }
+  else $('scores').innerHTML = '<h3 class="sr-only">Gross scores, hole ' + h + '</h3>' + sd.map(function (ix, k) {
+    return (sd[0].length > 1 ? '<p class="mp-side">' + esc(r.sideNames[k]) + '</p>' : '') + ix.map(function (i) {
+      var nm = esc(r.entryNames[i]), st0 = per[i][h - 1], note = st0 > 0 ? 'gets ' + (st0 === 1 ? 'a stroke' : st0 + ' strokes') : st0 < 0 ? 'gives ' + (-st0 === 1 ? 'a stroke' : -st0 + ' strokes') + ' back' : 'no stroke';
+      return '<div class="mp-score" id="srow' + i + '"><div class="mp-who"><b>' + nm + '</b><small>' + note + (def ? '<span class="gc-def"> \u00b7 default 4</span>' : '') + ' \u00b7 net <span id="net' + i + '">' + (vals[i] - st0) + '</span></small></div>' +
+        '<span class="gc-stepper' + (def ? ' is-default' : '') + '"><button type="button" data-sc="-1" data-i="' + i + '" aria-label="One less for ' + nm + '">\u2212</button>' +
+        '<input id="sc' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + nm + ' gross score, hole ' + h + '" value="' + vals[i] + '">' +
+        '<button type="button" data-sc="1" data-i="' + i + '" aria-label="One more for ' + nm + '">+</button></span></div>'; }).join(''); }).join('');
+  $('final').hidden = !(over || ro);
+  if (over || ro) $('final').innerHTML = '<div class="gc-hero"><p class="gc-kicker">' + esc(NAME[s.fmt]) + (ro ? ' \u00b7 shared' : '') + '</p><p class="gc-big" id="mp-final-t">' + esc(status(m, r.sideNames)) + '</p><p class="mp-sub">' + esc(holeLine(m, r)) + '</p></div>';
+  $('btn-prev').hidden = ro; $('btn-next').hidden = ro || over;
+  $('btn-prev').textContent = over ? '\u2190 Edit scores' : h === 1 ? '\u2190 Strokes' : '\u2190 Hole ' + (h - 1);
+  $('btn-next').textContent = h === N ? 'Finish \u2192' : 'Next hole \u2192';
+  $('play-actions').hidden = ro || !(over || m.thru > 0);
+  if (!ro) { var w = winNow(s, r, h, vals); sd.forEach(function (ix, k) { ix.forEach(function (i) { var row = $('srow' + i); if (row) row.classList.toggle('is-win', w === k); }); }); }
+}
+function holeLine(m, r) { // "Holes: 1 Alex, 2 halved, ..." (short)
+  if (m.stroke) return 'Better-ball net: ' + r.sideNames[0] + ' ' + m.totals[0] + ', ' + r.sideNames[1] + ' ' + m.totals[1] + ' through ' + m.thru + '.';
+  var won = [0, 0], halved = 0; m.holes.forEach(function (x) { if (x.win < 0) halved++; else won[x.win]++; });
+  return 'Holes won: ' + r.sideNames[0] + ' ' + won[0] + ', ' + r.sideNames[1] + ' ' + won[1] + ', halved ' + halved + '.';
+}
+function winNow(s, r, h, vals) { var per = r.strokes.map(function (n) { return perHole(n, siOf(s)); }), sd = sidesOf(s.fmt);
+  var side = sd.map(function (ix) { return Math.min.apply(null, ix.map(function (i) { return vals[i] - per[i][h - 1]; })); });
+  return side[0] < side[1] ? 0 : side[1] < side[0] ? 1 : -1; }
+function curVals() { var n = calc(S).res.strokes.length, a = []; for (var i = 0; i < n; i++) { var el = $('sc' + i), v = el ? parseInt(el.value, 10) : 4; a.push(v >= 1 && v <= 20 ? v : 4); } return a; }
+function go(delta) {
+  var c = calc(S); if (!c.res) return;
+  var h = S.hole;
+  if (delta > 0) { S.scores[h] = curVals(); var m = matchOf(S, c.res); S.hole = Math.min(S.holes, h + 1); if (m.done || m.thru === S.holes) S.hole = m.thru; }
+  else { var m2 = matchOf(S, c.res), over = !!m2.done || m2.thru === S.holes;
+    if (over) { S.hole = m2.thru; delete S.scores[m2.thru]; for (var k = m2.thru + 1; k <= 18; k++) delete S.scores[k]; } // edit the last hole played
+    else if (h === 1) S.screen = 'setup'; else S.hole = h - 1; }
+  EXAMPLE_ON = false; save(); render();
+  var t = $(delta > 0 ? 'btn-next' : 'btn-prev'); if (t && !t.hidden) t.focus();
+}
+function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; }
+function shareText() {
+  var s = st(), c = calc(s); if (!c.res) return '';
+  var r = c.res, t = [NAME[s.fmt] + ' (' + (s.pct == null ? PCT[s.fmt] : s.pct) + '%' + (s.holes === 9 ? ', 9 holes' : '') + ')', sentence(s, r)];
+  if (Object.keys(s.scores).length) t.push(status(matchOf(s, r), r.sideNames));
+  t.push('Work out yours: ' + (LINK || linkBase()));
+  return GCShare.gsm(t.join('\n'));
+}
+function whenLink() { return LINK ? Promise.resolve(LINK) : GCShare.encode(pack(st(), false)).then(function (code) { return LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=matchplay#r=' + code; }); }
+function share() {
+  track('result_shared');
+  var go2 = function () { var text = shareText(); if (navigator.share) return navigator.share({ title: 'Match play strokes', text: text }).catch(function () {}); return copyText(text, 'Copied'); };
+  return LINK ? go2() : whenLink().then(go2);
+}
+function copyText(t, msg) {
+  window._copied = t;
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { toast(msg); }, function () { toast('Copy failed'); });
+  toast(msg); return Promise.resolve();
+}
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function edited() { EXAMPLE_ON = false; save(); render(); }
+function readPlayer(i) {
+  var el = $('ph' + i), t = el.value.trim();
+  if (!t) { S.players[i].v = null; BAD['ph' + i] = ''; el.removeAttribute('aria-invalid'); return; }
+  var v = parseH(t, S.kind);
+  if (v == null) { BAD['ph' + i] = 'Player ' + (i + 1) + ': enter ' + (S.kind === 'hi' ? 'a Handicap Index like 12.4 (plus: +1.2), up to 54.0.' : 'a Course Handicap like 14 (plus: +2).'); el.setAttribute('aria-invalid', 'true'); S.players[i].v = null; }
+  else { BAD['ph' + i] = ''; el.removeAttribute('aria-invalid'); S.players[i].v = v; }
+}
+function readCourse(k) {
+  var el = $(k), t = el.value.trim().replace(',', '.'), v = t === '' ? null : +t;
+  var good = t === '' || (k === 'cr' ? /^\d{2}(\.\d)?$/.test(t) && v >= 25 && v <= 85 : /^\d{2,3}$/.test(t) && (k === 'sl' ? v >= 55 && v <= 155 : v >= 25 && v <= 80));
+  BAD[k] = good ? '' : { sl: 'Slope Rating is a whole number from 55 to 155, e.g. 128.', cr: 'Course Rating is like 71.3 (one decimal).', par: 'Par is a whole number, e.g. 72.' }[k];
+  if (good) el.removeAttribute('aria-invalid'); else el.setAttribute('aria-invalid', 'true');
+  S.course[k] = good ? v : null;
+}
+function readPct() {
+  var el = $('pct'), t = el.value.trim().replace('%', ''), good = /^\d{1,3}$/.test(t) && +t <= 100;
+  BAD.pct = good ? '' : 'The allowance is a whole percentage from 0 to 100.';
+  if (good) { el.removeAttribute('aria-invalid'); S.pct = +t === PCT[S.fmt] ? null : +t; } else el.setAttribute('aria-invalid', 'true');
+}
+function readSI(j) {
+  var el = $('si' + j), t = el.value.trim(), good = /^\d{1,2}$/.test(t) && +t >= 1 && +t <= 18;
+  BAD['si' + j] = good ? '' : 'Stroke index is a whole number from 1 to 18.';
+  if (good) { el.removeAttribute('aria-invalid'); S.si[j] = +t; } else el.setAttribute('aria-invalid', 'true');
+}
+function loadExample() {
+  var E = EXAMPLE; S = blank(); BAD = {};
+  S.fmt = E.fmt; S.kind = E.kind; E.players.forEach(function (p, i) { S.players[i] = { n: p[0], v: p[1] }; });
+  EXAMPLE_ON = true; save(); render();
+}
+function leaveView() { VIEW = null; GCShare.clearHash(); document.documentElement.classList.remove('mp-view'); track('start_own_from_viewer'); render(); }
+function hasScores() { return Object.keys(S.scores).length > 0; }
+function askWipe() { return !hasScores() || window.confirm('Change the match? The scores entered so far will be cleared.'); }
+
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'btn-share' || t.id === 'btn-share2') share();
+  else if (t.id === 'btn-copy') { track('result_shared'); whenLink().then(function (l) { copyText(l, 'Link copied'); }); }
+  else if (t.id === 'btn-example') loadExample();
+  else if (t.id === 'mp-own') leaveView();
+  else if (t.id === 'btn-play') { S.screen = 'play'; var m = matchOf(S, calc(S).res); S.hole = Math.min(S.holes, m.thru + 1); save(); render(); var hh = $('play-h'); if (hh) { hh.setAttribute('tabindex', '-1'); hh.focus(); } }
+  else if (t.id === 'btn-next') go(1);
+  else if (t.id === 'btn-prev') go(-1);
+  else if (t.id === 'btn-new') { if (window.confirm('Start a new match with the same players? The scores will be cleared.')) { S.scores = {}; S.hole = 1; S.screen = 'setup'; edited(); } }
+  else if (t.id === 'btn-si-reset') { if (askWipe()) { S.si = defSI(); BAD = {}; S.scores = {}; edited(); } }
+  else if (t.dataset.sc) { var i = +t.dataset.i, el = $('sc' + i), v = Math.max(1, Math.min(20, (parseInt(el.value, 10) || 4) + +t.dataset.sc)); el.value = v; afterScore(); }
+  else if (t.dataset.pct) { var p = Math.max(0, Math.min(100, (S.pct == null ? PCT[S.fmt] : S.pct) + +t.dataset.pct)); S.pct = p === PCT[S.fmt] ? null : p; BAD.pct = ''; $('pct').removeAttribute('aria-invalid'); edited(); }
+  else if (t.dataset.step) { var j = +t.dataset.i, cv = S.players[j].v == null ? 0 : S.players[j].v, nv = Math.round((cv + +t.dataset.step) * 100) / 100;
+    if (okH(nv, S.kind)) { S.players[j].v = nv; BAD['ph' + j] = ''; $('ph' + j).removeAttribute('aria-invalid'); $('ph' + j).value = fmtH(nv, S.kind); edited(); } }
+});
+function afterScore() { // live: update the net figures and the hole winner as you tap
+  var c = calc(S); if (!c.res) return; var vals = curVals(), per = c.res.strokes.map(function (n) { return perHole(n, siOf(S)); }), h = S.hole;
+  vals.forEach(function (v, i) { var n = $('net' + i); if (n) n.textContent = v - per[i][h - 1]; });
+  [].forEach.call(document.querySelectorAll('#scores .gc-stepper'), function (x) { x.classList.remove('is-default'); }); [].forEach.call(document.querySelectorAll('#scores .gc-def'), function (x) { x.remove(); });
+  var w = winNow(S, c.res, h, vals); sidesOf(S.fmt).forEach(function (ix, k) { ix.forEach(function (i) { var row = $('srow' + i); if (row) row.classList.toggle('is-win', w === k); }); });
+}
+document.addEventListener('change', function (e) {
+  var el = e.target;
+  if (el.name === 'fmt' || el.name === 'holes') {
+    var key = el.name === 'fmt' ? 'fmt' : 'holes', val = el.name === 'fmt' ? el.value : +el.value;
+    if (S[key] === val) return;
+    if (!askWipe()) { render(); return; } // never wipe scores silently
+    S[key] = val; S.scores = {}; S.hole = 1; if (key === 'fmt') S.pct = null; edited();
+  }
+  else if (el.name === 'kind') { var from = S.kind; S.kind = el.value; S.players.forEach(function (p) { if (p.v != null && !okH(p.v, S.kind)) p.v = null; if (p.v != null && S.kind === 'hi') p.v = Math.round(p.v * 10) / 10; }); BAD = {}; if (from !== S.kind) edited(); }
+});
+document.addEventListener('input', function (e) {
+  var id = e.target.id, m;
+  if ((m = /^ph(\d)$/.exec(id))) { readPlayer(+m[1]); edited(); }
+  else if ((m = /^pn(\d)$/.exec(id))) { S.players[+m[1]].n = cleanName(e.target.value); edited(); }
+  else if ((m = /^si(\d{1,2})$/.exec(id))) { readSI(+m[1]); edited(); }
+  else if ((m = /^sc(\d)$/.exec(id))) afterScore();
+  else if (id === 'pct') { readPct(); edited(); }
+  else if (id === 'sl' || id === 'cr' || id === 'par') { readCourse(id); edited(); }
+});
+document.addEventListener('focusout', function (e) { if (/^(ph\d|pn\d|sl|cr|par|pct|si\d{1,2})$/.test(e.target.id || '')) setTimeout(render, 0); });
+
+var raw = window.GCShare ? GCShare.fromHash(location.hash) : null;
+if (raw != null) {
+  GCShare.decode(raw).then(function (o) {
+    var s = clean(o); if (!s || !calc(s).res) throw { code: 'bad' };
+    s.screen = 'setup'; VIEW = s; track('shared_link_opened'); render();
+  }).catch(function (e) {
+    var x = GCShare.TEXT[e && e.code === 'browser' ? 'browser' : 'bad'];
+    $('mp-shared-t').textContent = x[0]; $('mp-shared-p').textContent = x[1];
+    document.documentElement.classList.remove('mp-view'); document.documentElement.classList.add('mp-err-v');
+    render();
+  });
+} else render();
+window.GCMatchUI = { state: function () { return S; }, view: function () { return VIEW; }, render: render, loadExample: loadExample, share: share, shareText: shareText, link: whenLink, leaveView: leaveView, parseH: parseH, clean: clean, pack: pack, go: go };
+})();
+</script>
+<!-- Email signup + gear (v11): verbatim copy of /gc-grow.js. tests/run fails if it drifts. -->
+<script type="application/json" data-src="/affiliates.json">{
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per store (us: amazon.com, tag golfcalc-20; au: amazon.com.au, tag golfcalc-22). A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts. v12: AU visitors (navigator.language en-AU or an Australia/* time zone) get the au url, everyone else the default region (us).",
+ "region": "us",
+ "tag": "golfcalc-20",
+ "tags": {"us": "golfcalc-20", "au": "golfcalc-22"},
+ "disclosure": "We may earn a commission from links on this page.",
+ "items": [
+  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+rangefinder&tag=golfcalc-22"}},
+  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+balls&tag=golfcalc-22"}},
+  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+scorecard+holder&tag=golfcalc-22"}}
+ ],
+ "tools": {
+  "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
+  "daily-handicap": ["rangefinder", "scorecard-holder"],
+  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "matchplay": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "nassau": ["scorecard-holder", "golf-balls", "rangefinder"]
+ }
+}
+</script>
+<script data-src="/gc-grow.js">/* gc-grow.js: golfcalculators.com email signup + "Gear for this game" (v11, Nov 2026). Inlined verbatim into every page as
+   <script data-src="/gc-grow.js">; tests/run fails if a copy drifts from this file.
+   - Newsletter forms (footer on every page, and the card after a result on the four calculators) post to Netlify Forms
+     ("newsletter", honeypot bot-field) with fetch: inline "You're in", inline errors, no page jump. The address goes only
+     in the POST body to this site; never into a URL, storage or analytics.
+   - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
+     signup (localStorage keeps only a date or a flag).
+   - Gear: built from the inlined affiliates.json, only items with a url for the store; with none it renders nothing.
+     Store (v12): "au" (amazon.com.au, tag golfcalc-22) when navigator.language is en-AU or the Intl time zone is
+     Australia/*, otherwise "us" (amazon.com, tag golfcalc-20); an item without an AU link falls back to its US link.
+     Worked out in the browser each time; nothing is stored. Links open a new tab with rel="sponsored nofollow noopener";
+     a click sends affiliate_click {tool, item id, store} and nothing else. */
+(function () {
+  var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
+  function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
+  function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
+  function track(name, tool, item, store) { if (window.gcTrack) window.gcTrack(name, tool, item, store); }
+  function storeFor(lang, tz) { return /^en-AU$/i.test(String(lang || '')) || /^Australia\//.test(String(tz || '')) ? 'au' : 'us'; }
+  function store() {
+    var tz = ''; try { tz = window.Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    return storeFor(navigator.language, tz);
+  }
+  function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
+  function body(form) {
+    var out = [];
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name || el.disabled || (el.type === 'checkbox' && !el.checked) || el.type === 'submit') continue;
+      out.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+    }
+    return out.join('&');
+  }
+  function say(form, msg) {
+    var err = form.querySelector('.gc-nl-err'), em = form.querySelector('input[type="email"]');
+    err.textContent = msg;
+    if (msg) em.setAttribute('aria-invalid', 'true'); else em.removeAttribute('aria-invalid');
+  }
+  function done(form) {
+    put('localStorage', DONE, '1');
+    var ok = document.createElement('p');
+    ok.className = 'gc-nl-ok'; ok.setAttribute('role', 'status'); ok.tabIndex = -1;
+    ok.textContent = 'You\u2019re in. Watch for one email a month, at most.';
+    form.hidden = true; form.parentNode.insertBefore(ok, form.nextSibling);
+    try { ok.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function submit(e) {
+    var form = e.target;
+    if (!form.matches || !form.matches('form.gc-nl-form')) return;
+    e.preventDefault();
+    var em = form.querySelector('input[type="email"]'), consent = form.querySelector('input[name="consent"]'), btn = form.querySelector('button[type="submit"]');
+    var v = (em.value || '').trim();
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(v)) { say(form, 'Enter an email address like name@example.com.'); em.focus(); return; }
+    if (consent && !consent.checked) { say(form, 'Tick the box to say we can email you.'); consent.focus(); return; }
+    say(form, '');
+    var hp = form.querySelector('input[name="bot-field"]');
+    if (hp && hp.value) { done(form); return; } // a bot filled the hidden field: look done, send nothing
+    btn.disabled = true;
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body(form) })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); done(form); track('email_signup', toolOf(form)); })
+      .catch(function () { btn.disabled = false; say(form, 'That didn\u2019t go through. Check your connection and try again.'); });
+  }
+  document.addEventListener('submit', submit);
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('.gc-nl-x');
+    if (x) {
+      var card = x.closest('.gc-nl-card'); card.hidden = true;
+      put('localStorage', DISMISS, String(Date.now()));
+      track('email_dismiss', toolOf(card.querySelector('form')));
+      return;
+    }
+    var a = e.target.closest && e.target.closest('a[data-aff]');
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'), a.getAttribute('data-store'));
+  });
+  function cardAllowed() {
+    if (get('localStorage', DONE)) return false;
+    var d = +get('localStorage', DISMISS);
+    if (d && Date.now() - d < DAYS30) return false;
+    return shownHere || !get('sessionStorage', SESSION);
+  }
+  function gear(tool) {
+    var box = document.getElementById('gc-gear'), cfg = null, src = document.querySelector('script[data-src="/affiliates.json"]');
+    if (!box || box.childNodes.length) return;
+    try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
+    var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var want = store(), ok = function (u) { return typeof u === 'string' && /^https:\/\//.test(u); };
+    var pick = function (it) { var u = it && it.url || {}; return ok(u[want]) ? want : ok(u[cfg.region]) ? cfg.region : null; }; // AU first for AU visitors, else the default store
+    var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
+      var k = pick(it); return (k === 'au' || k === 'us') && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+    }).slice(0, 3);
+    if (!list.length) return; // nothing to show: no heading, no disclosure, no box
+    var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
+    list.forEach(function (it) {
+      var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
+      var k = pick(it);
+      a.href = it.url[k]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool); a.setAttribute('data-store', k);
+      b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
+      a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    var p = document.createElement('p'); p.className = 'gc-gear-disc'; p.textContent = cfg.disclosure || 'We may earn a commission from links on this page.';
+    box.appendChild(p);
+    box.hidden = false;
+  }
+  window.GCGrow = {
+    // call when a calculator shows the user's own result
+    result: function (tool) {
+      var card = document.getElementById('gc-nl-card');
+      if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
+      gear(tool);
+    },
+    gear: gear, cardAllowed: cardAllowed, store: store, storeFor: storeFor, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+  };
+})();
+</script>
+</body>
+</html>

@@ -291,7 +291,7 @@ html{scroll-padding-top:60px}
      "name": "Should I use Course Handicap or Handicap Index?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Course Handicap. The allowances apply to each player's Course Handicap for the tees played; in Australia, use the Daily Handicap. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par."
+      "text": "Course Handicap. In Australia, enter each player's Daily Handicap for the tees played (see our Daily Handicap calculator). It includes Golf Australia's 0.93 multiplier and the Consistency Factor, so it can differ by a stroke or so from a USGA Course Handicap. For the USGA method, choose Handicap Index and enter the Slope, Course Rating and Par."
      }
     },
     {
@@ -348,11 +348,16 @@ html{scroll-padding-top:60px}
      from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
      the link went to. The tool may also be "scramble" (v12).
      scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
-     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap.
+     v13: the tool may also be "matchplay" or "nassau". matchplay_calculate (match play strokes were worked out) carries
+     one parameter only, format: "singles", "fourball-match", "foursomes" or "fourball-stroke"; nassau_settle (a Nassau
+     was settled) carries one parameter only, format: "1v1" or "2v2". Never names, handicaps, scores or money.
+     Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
-    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate', 'matchplay_calculate', 'nassau_settle'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'matchplay', 'nassau', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'],
+    FORMATS = { matchplay_calculate: ['matchplay', ['singles', 'fourball-match', 'foursomes', 'fourball-stroke']], nassau_settle: ['nassau', ['1v1', '2v2']] };
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -375,6 +380,12 @@ html{scroll-padding-top:60px}
     if (name === 'scramble_calculate') { // v12: {mode} only
       if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
       gtag('event', name, { mode: item });
+      return true;
+    }
+    if (Object.prototype.hasOwnProperty.call(FORMATS, name)) { // v13: {format} only
+      var F = FORMATS[name];
+      if (!ON || tool !== F[0] || typeof item !== 'string' || F[1].indexOf(item) < 0) return false;
+      gtag('event', name, { format: item });
       return true;
     }
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
@@ -459,7 +470,7 @@ html{scroll-padding-top:60px}
     <button type="button" class="gc-btn gc-btn-primary" id="btn-share">Share result</button>
     <button type="button" class="gc-btn gc-btn-secondary" id="btn-copy">Copy link</button>
   </div>
-  <div class="gc-card gc-nl-card sc-own" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="scramble"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Nassau, Wolf, scramble. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
+  <div class="gc-card gc-nl-card sc-own" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="scramble"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Wolf, Las Vegas and Nines. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
 
   <p class="gc-muted" style="margin-top:var(--s3)">Allowances are recommendations: the terms of your event decide. <a href="#how-h">How it's calculated</a></p>
   <div class="gc-gear sc-own" id="gc-gear" role="region" aria-label="Gear for this game" hidden></div>
@@ -470,6 +481,7 @@ html{scroll-padding-top:60px}
 <div class="gc-next">
   <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Each player's strokes for today's tees, Golf Australia formula.</span></a>
   <a href="/handicap-calculator"><strong>Handicap Index →</strong><span>Estimate a GA Handicap from the last 20 rounds.</span></a>
+  <a href="/match-play-handicap-calculator"><strong>Match play strokes →</strong><span>Who gets how many strokes, on which holes: singles, four-ball, foursomes.</span></a>
 </div>
 
 <section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
@@ -499,7 +511,7 @@ html{scroll-padding-top:60px}
   <div class="gc-faq-item"><h3>How do you work out a 4-person scramble handicap?</h3><p>Sort the four Course Handicaps from lowest to highest. Take 25% of the lowest, 20% of the next, 15% of the third and 10% of the highest, add them and round to the nearest whole number. The USGA's example team of 10.34, 15.35, 28.26 and 37.57 gets 13.65, so 14.</p></div>
   <div class="gc-faq-item"><h3>What is the difference between Ambrose and a Texas scramble?</h3><p>They work the same way: everyone hits, the team picks the best shot and all play from there. Ambrose is the Australian name, often with a minimum number of drives from each player. Its traditional handicap is the combined Daily Handicaps ÷ 4 for pairs, ÷ 6 for threes and ÷ 8 for fours.</p></div>
   <div class="gc-faq-item"><h3>Does Golf Australia use ÷ 8 for Ambrose?</h3><p>Golf Australia's WHS guide (January 2026, §10(A)) lists the R&amp;A and USGA allowances for “Ambrose or Scramble”: 25/20/15/10% for 4 golfers and 35/15% for 2, with team handicaps usually to one decimal place. Many clubs still use ÷ 8. Use the method your event sheet names.</p></div>
-  <div class="gc-faq-item"><h3>Should I use Course Handicap or Handicap Index?</h3><p>Course Handicap. The allowances apply to each player's Course Handicap for the tees played; in Australia, use the <a href="/daily-handicap">Daily Handicap</a>. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par.</p></div>
+  <div class="gc-faq-item"><h3>Should I use Course Handicap or Handicap Index?</h3><p>Course Handicap. In Australia, enter each player's Daily Handicap for the tees played (see our <a href="/daily-handicap">Daily Handicap calculator</a>). It includes Golf Australia's 0.93 multiplier and the Consistency Factor, so it can differ by a stroke or so from a USGA Course Handicap. For the USGA method, choose Handicap Index and enter the Slope, Course Rating and Par.</p></div>
   <div class="gc-faq-item"><h3>Do you round each player or the team total?</h3><p>The team total, once. The USGA applies the percentages to unrounded Course Handicaps, adds them and rounds the total to the nearest whole number, with .5 rounding up (Rule 6.2a). Rounding each player first can put you a stroke out. A plus team handicap rounds toward zero.</p></div>
   <div class="gc-faq-item"><h3>Can our event use different percentages?</h3><p>Yes. The Appendix C allowances are recommendations for a normal field, and a committee can set its own in the terms of the competition. Choose Custom % and enter them, lowest handicap first.</p></div>
 <!-- seo:content:end --></section>
@@ -859,7 +871,9 @@ window.GCScrambleUI = { state: function () { return S; }, view: function () { re
   "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
   "daily-handicap": ["rangefinder", "scorecard-holder"],
   "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
-  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"]
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "matchplay": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "nassau": ["scorecard-holder", "golf-balls", "rangefinder"]
  }
 }
 </script>

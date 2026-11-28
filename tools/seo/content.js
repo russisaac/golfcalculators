@@ -120,6 +120,73 @@ module.exports = {
     ]
   },
   // v12: Scramble / Texas scramble / Ambrose team handicap. Sources checked 28 Nov 2026 (see the page's engine comment).
+  'match-play-handicap-calculator': {
+    name: 'Match Play Handicap Calculator',
+    how: `
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Start from each player's Course Handicap for the tees being played (in Australia, Golf Australia's §10B works from the Daily Handicap), unrounded if you work it out from a Handicap Index (Index × Slope ÷ 113 + (Course Rating − Par)). Then apply the allowance for the format and round once, to the nearest whole number (.5 up; a plus handicap moves toward zero):</p>
+  <ul class="gc-learn-list">
+    <li>Singles match play, 100%: the higher player receives the difference in Course Handicap. The lower player plays off 0.</li>
+    <li>Four-ball (4BBB, best-ball) match play, 90%: each player receives 90% of the difference between their Course Handicap and the lowest in the group. Since 2024 the 90% applies to the difference, not to each handicap first.</li>
+    <li>Foursomes match play, 50%: the side with the higher combined Course Handicap receives half the difference between the two combined totals.</li>
+    <li>Four-ball stroke play or Stableford, 85%: each player gets 85% of their own Course Handicap. Nobody plays off the low player.</li>
+  </ul>
+  <p>Strokes fall on the holes with the lowest stroke index: 8 strokes go on stroke index 1 to 8. A player receiving 19 gets one on every hole and a second on stroke index 1. In stroke play a plus player gives strokes back from stroke index 18.</p>
+  <h3>Worked example</h3>
+  <p>This is the four-ball example in Appendix C (C/2). Course Handicaps are A <span data-ex="ch-0">10</span>, B <span data-ex="ch-1">18</span>, C <span data-ex="ch-2">27</span> and D <span data-ex="ch-3">39</span>. A has the lowest, so A plays off 0 and the others take 90% of the difference from 10:</p>
+  <ul class="gc-learn-list">
+    <li>B: 90% × 8 = 7.2, so <span data-ex="fb-1">7</span> strokes, on stroke index 1 to 7</li>
+    <li>C: 90% × 17 = 15.3, so <span data-ex="fb-2">15</span> strokes</li>
+    <li>D: 90% × 29 = 26.1, so <span data-ex="fb-3">26</span> strokes: one on every hole and a second on stroke index 1 to 8</li>
+  </ul>
+  <p class="gc-learn-result">Singles A v B: B receives <span data-ex="singles">8</span>. Foursomes A+B v C+D: 50% × (66 − 28) = <span data-ex="foursomes">19</span> for C and D.</p>
+  <p>Under the pre-2024 method (90% of each handicap, then the difference), players of 11 and 16 got 4 strokes; now it is 90% × 5 = 4.5, so <span data-ex="old-new">5</span>. Tap <strong>Load example</strong> at the top to see the four-ball version with its stroke table.</p>
+  <p class="gc-learn-src" id="rules-source">Rules sources, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C: Handicap Allowances</cite></a>, with Clarifications C/2 and C/3 (effective 1 January 2024); The R&amp;A, <a href="https://www.randa.org/roh/appendices/appendix-c" rel="noopener"><cite>Appendix C</cite></a> (the same table and examples); USGA, <a href="https://www.usga.org/content/usga/home-page/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7g11.htm" rel="noopener"><cite>Four-Ball Match Play (90%)</cite></a> and <a href="https://www.usga.org/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7h2.htm" rel="noopener"><cite>Foursomes Match Play</cite></a>; USGA, <a href="https://www.usga.org/content/dam/usga/pdf/Handicap/2024%20WHS%20Reference%20for%20Clubs.pdf" rel="noopener"><cite>2024 WHS Reference for Clubs</cite></a>; ${GA_CITE}, §10(A)–(C).</p>
+  <p>Need the handicaps first? <a href="/daily-handicap">Work out a Daily Handicap</a>, or <a href="/handicap-calculator">estimate a GA Handicap from recent rounds</a>.</p>`,
+    faq: [
+      ['How many strokes do you get in match play?', 'In singles match play the higher handicap receives the full difference in Course Handicap (100% allowance) and the lower player plays off 0. With Course Handicaps of 10 and 18, the 18 receives 8 strokes, on stroke index 1 to 8 (Rules of Handicapping, Appendix C, checked 28 Nov 2026).'],
+      ['How do four-ball (4BBB) match play handicaps work since 2024?', 'Work out each player\'s Course Handicap, take the difference from the lowest in the group, then apply 90% and round. Before 2024 the 90% was applied to each handicap first. With 11 and 16 the difference is 5, 90% is 4.5, so 5 strokes; the old way gave 4. Source: USGA 2024 WHS Reference for Clubs and Appendix C, checked 28 Nov 2026.'],
+      ['How are foursomes match play strokes worked out?', 'Add each side\'s Course Handicaps. The side with the higher total receives 50% of the difference, rounded once; the other side plays off 0. Course Handicaps 10 + 18 against 27 + 39 give 28 against 66, so the second side receives 19 strokes (Appendix C, C/2 Example 4).'],
+      ['What allowance is used in four-ball stroke play or Stableford?', 'Each player gets 85% of their own Course Handicap, rounded. It is not worked out from the low player, because it is a stroke-play format. Course Handicaps of +4, 16, 7 and 26 become +3, 14, 6 and 22 (Appendix C, C/3).'],
+      ['Should Australians enter their Daily Handicap?', 'Yes. Golf Australia\'s WHS guide (January 2026, §10B) works match play strokes from the difference between the players\' Daily Handicaps, so enter each player\'s Daily Handicap for the tees being played (from your club chart or our Daily Handicap calculator) and choose Course Handicap. A Daily Handicap already includes Golf Australia\'s 0.93 multiplier and the Consistency Factor, so it is not the same number as a USGA Course Handicap and the strokes can differ by a stroke or so. To follow the USGA and R&A method instead, choose Handicap Index and enter the Slope, Scratch Rating and Par. If your competition conditions say otherwise, follow them.', {text:'Daily Handicap calculator', href:'/daily-handicap'}],
+      ['What happens to a plus handicap in match play?', 'In match play the lowest handicap plays off 0 and everyone else receives the difference, so a plus player simply plays off 0 and the others get the extra strokes. In stroke play a plus player gives strokes back to the course, starting at stroke index 18. Allowances move a plus handicap toward zero, including when rounding.'],
+      ['Do you round the Course Handicap before applying the allowance?', 'No. The allowance is applied to the unrounded Course Handicap and the result is rounded once (Rule 6.2a/1). With the USGA\'s worked-example tees (Slope 135, Course Rating 72.3, Par 72), Indexes of 8.4 and 11.4 give Course Handicaps of 10.335 and 13.919. In four-ball, 90% of the 3.584 difference is 3.23, so 3 strokes; rounding the Course Handicaps to 10 and 14 first would give 4.'],
+      ['Where do the strokes fall if I receive more than 18?', 'One on every hole, then a second on the holes with the lowest stroke index. A player receiving 19 gets two strokes on stroke index 1; 26 strokes means two on stroke index 1 to 8. For 9 holes, strokes go on the 9 holes in stroke-index order.']
+    ]
+  },
+  'nassau-calculator': {
+    name: 'Nassau Golf Calculator',
+    how: `
+  <h2 id="how-h">How it's calculated</h2>
+  <p>A Nassau is three bets at the same stake: the front nine, the back nine and the overall 18. Each is a match (holes won, halves allowed) or, if you choose aggregate, the lower total score for those holes. In 2 v 2 better ball, each side's score on a hole is the better of the two partners' scores, gross or net.</p>
+  <ul class="gc-learn-list">
+    <li>Automatic press (on by default): when a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine. Each bet starts at most one automatic press, and a press can itself be pressed.</li>
+    <li>No press starts when the trigger is on the last hole of a nine. The overall 18 is not auto-pressed unless you switch it on under More options.</li>
+    <li>The trailing side can also start a press by hand on any hole left in the nine.</li>
+    <li>Net: strokes come off the low player, 90% of the difference for 2 v 2 (the four-ball match play allowance) and 100% for 1 v 1, then go on the holes with the lowest stroke index.</li>
+  </ul>
+  <p>Every bet won is worth the stake to the winning side. In 2 v 2 the side's result is split equally between partners, then the payments are settled in the fewest transfers, the same way as our Skins calculator.</p>
+  <h3>Worked example</h3>
+  <p>A $5 Nassau, 1 v 1, gross, with automatic presses. Alex wins holes 1 to 4, Blake 5 to 7, Alex 8 and 9. Alex is 2 up after hole 2, so a press starts on hole 3; Alex is 2 up on that press after hole 4, so a second press starts on hole 5; Blake goes 2 up on that one after hole 6, so a third starts on hole 7.</p>
+  <ul class="gc-learn-list">
+    <li>Front: Alex 3 up, +$5. Press 3–9: Alex 1 up, +$5. Press 5–9: Blake 1 up, −$5. Press 7–9: Alex 1 up, +$5.</li>
+    <li>Back: Blake wins 10 and 11, the rest are halved. Blake 2 up, −$5 for Alex; the press from 12 is halved.</li>
+    <li>Overall: Alex 1 up, +$5.</li>
+  </ul>
+  <p class="gc-learn-result">Alex <span data-ex="e2-a">+$10.00</span>, Blake <span data-ex="e2-b">−$10.00</span>: <span data-ex="e2-pay">Blake pays Alex $10.00</span>.</p>
+  <p>Tap <strong>Load example</strong> at the top for a simple $5 Nassau with no presses: Alex wins the front and the overall, Blake the back, so Blake pays Alex $5.</p>
+  <p class="gc-learn-src" id="rules-source">A Nassau and its presses are house conventions, not part of the Rules of Golf; the 2-down automatic press is the usual convention (as at 28 Nov 2026). Net allowances, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C</cite></a> (four-ball match play 90%, individual 100%).</p>`,
+    faq: [
+      ['What is a Nassau in golf?', 'A Nassau is three bets in one round at the same stake: the front nine, the back nine and the overall 18. A $5 Nassau puts up to $15 at stake before any presses. It is a betting game with house rules, not part of the Rules of Golf.'],
+      ['How does a 2-down automatic press work?', 'When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine. Each bet starts at most one automatic press, and none starts if the trigger is on the 9th or 18th. This is the usual convention (28 Nov 2026), so agree it on the first tee.'],
+      ['Can you press a press?', 'Yes. A press is a bet in its own right, so if a side goes 2 down on a press, that press starts its own press on the next hole. Presses can chain like this to the end of the nine.'],
+      ['Is the overall 18 pressed too?', 'Not by default: automatic presses run on the front and back nines only. Switch on “Auto-press the overall 18” under More options if your group presses the overall as well; those presses run to the 18th.'],
+      ['What is the difference between 1 v 1 and 2 v 2 better ball?', 'In 1 v 1 each player plays their own ball against the other. In 2 v 2 better ball, each side counts the better score of its two partners on every hole. Winnings and losses are split equally between partners and then settled in the fewest payments.'],
+      ['Match play or aggregate?', 'Match play counts holes won, so a blow-up hole only loses that hole. Aggregate counts total strokes for the nine or the 18, so every shot matters. With aggregate, “2 down” for an automatic press means 2 strokes behind.'],
+      ['How are handicaps used in a net Nassau?', 'Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). In Australia, enter each player\'s Daily Handicap. You can change the allowance under More options.'],
+      ['Is a Nassau in the Rules of Golf?', 'No. The Rules of Golf and the Rules of Handicapping cover match play and handicap allowances, but the Nassau, its stakes and its presses are a side game played to whatever your group agrees. This calculator follows the common conventions and shows every bet so you can check it.']
+    ]
+  },
   'scramble-handicap-calculator': {
     name: 'Scramble Handicap Calculator',
     how: `
@@ -148,7 +215,7 @@ module.exports = {
       ['How do you work out a 4-person scramble handicap?', 'Sort the four Course Handicaps from lowest to highest. Take 25% of the lowest, 20% of the next, 15% of the third and 10% of the highest, add them and round to the nearest whole number. The USGA\'s example team of 10.34, 15.35, 28.26 and 37.57 gets 13.65, so 14.'],
       ['What is the difference between Ambrose and a Texas scramble?', 'They work the same way: everyone hits, the team picks the best shot and all play from there. Ambrose is the Australian name, often with a minimum number of drives from each player. Its traditional handicap is the combined Daily Handicaps ÷ 4 for pairs, ÷ 6 for threes and ÷ 8 for fours.'],
       ['Does Golf Australia use ÷ 8 for Ambrose?', 'Golf Australia\'s WHS guide (January 2026, §10(A)) lists the R&A and USGA allowances for “Ambrose or Scramble”: 25/20/15/10% for 4 golfers and 35/15% for 2, with team handicaps usually to one decimal place. Many clubs still use ÷ 8. Use the method your event sheet names.'],
-      ['Should I use Course Handicap or Handicap Index?', 'Course Handicap. The allowances apply to each player\'s Course Handicap for the tees played; in Australia, use the Daily Handicap. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par.', {text:'Daily Handicap', href:'/daily-handicap'}],
+      ['Should I use Course Handicap or Handicap Index?', 'Course Handicap. In Australia, enter each player\'s Daily Handicap for the tees played (see our Daily Handicap calculator). It includes Golf Australia\'s 0.93 multiplier and the Consistency Factor, so it can differ by a stroke or so from a USGA Course Handicap. For the USGA method, choose Handicap Index and enter the Slope, Course Rating and Par.', {text:'Daily Handicap calculator', href:'/daily-handicap'}],
       ['Do you round each player or the team total?', 'The team total, once. The USGA applies the percentages to unrounded Course Handicaps, adds them and rounds the total to the nearest whole number, with .5 rounding up (Rule 6.2a). Rounding each player first can put you a stroke out. A plus team handicap rounds toward zero.'],
       ['Can our event use different percentages?', 'Yes. The Appendix C allowances are recommendations for a normal field, and a committee can set its own in the terms of the competition. Choose Custom % and enter them, lowest handicap first.']
     ]
