@@ -196,11 +196,16 @@ html{scroll-padding-top:60px}
      from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
      the link went to. The tool may also be "scramble" (v12).
      scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
-     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap.
+     v13: the tool may also be "matchplay" or "nassau". matchplay_calculate (match play strokes were worked out) carries
+     one parameter only, format: "singles", "fourball-match", "foursomes" or "fourball-stroke"; nassau_settle (a Nassau
+     was settled) carries one parameter only, format: "1v1" or "2v2". Never names, handicaps, scores or money.
+     Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
-    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate', 'matchplay_calculate', 'nassau_settle'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'matchplay', 'nassau', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'],
+    FORMATS = { matchplay_calculate: ['matchplay', ['singles', 'fourball-match', 'foursomes', 'fourball-stroke']], nassau_settle: ['nassau', ['1v1', '2v2']] };
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -223,6 +228,12 @@ html{scroll-padding-top:60px}
     if (name === 'scramble_calculate') { // v12: {mode} only
       if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
       gtag('event', name, { mode: item });
+      return true;
+    }
+    if (Object.prototype.hasOwnProperty.call(FORMATS, name)) { // v13: {format} only
+      var F = FORMATS[name];
+      if (!ON || tool !== F[0] || typeof item !== 'string' || F[1].indexOf(item) < 0) return false;
+      gtag('event', name, { format: item });
       return true;
     }
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;

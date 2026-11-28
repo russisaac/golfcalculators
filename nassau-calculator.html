@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
+<title>Nassau Golf Calculator – Presses, 1v1 &amp; 2v2 Better Ball</title>
+<meta name="description" content="Score a Nassau hole by hole: front, back and overall bets, automatic 2-down presses, 1v1 or 2v2 better ball, then who pays whom in the fewest payments.">
+<link rel="canonical" href="https://golfcalculators.com/nassau-calculator">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="golfcalculators.com">
+<meta property="og:title" content="Nassau Golf Calculator – Presses, 1v1 &amp; 2v2 Better Ball">
+<meta property="og:description" content="Score a Nassau hole by hole: front, back and overall bets, automatic 2-down presses, 1v1 or 2v2 better ball, then who pays whom in the fewest payments.">
+<meta property="og:url" content="https://golfcalculators.com/nassau-calculator">
+<meta property="og:image" content="https://golfcalculators.com/og/nassau-calculator.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Nassau: Front, back and overall, with presses. Who pays whom. golfcalculators.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Nassau Golf Calculator – Presses, 1v1 &amp; 2v2 Better Ball">
+<meta name="twitter:description" content="Score a Nassau hole by hole: front, back and overall bets, automatic 2-down presses, 1v1 or 2v2 better ball, then who pays whom in the fewest payments.">
+<meta name="twitter:image" content="https://golfcalculators.com/og/nassau-calculator.png">
+<meta name="twitter:image:alt" content="Nassau: Front, back and overall, with presses. Who pays whom. golfcalculators.com">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). tests/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
+/* v11 email signup (gc-grow.js): footer form on every page, compact card after a result */
+.gc-nl-foot{max-width:28rem;margin:0 auto var(--s4);padding-top:var(--s5);border-top:1px solid var(--line);text-align:left}
+.gc-nl-t{font-size:var(--fs-md);color:var(--ink);margin-bottom:var(--s2)}
+.gc-nl-foot .gc-nl-t{font-size:var(--fs-sm);font-weight:400;color:var(--ink-2)}
+.gc-nl-p{font-size:var(--fs-sm);color:var(--muted);margin:calc(-1 * var(--s1)) 0 var(--s2)}
+.gc-nl-row{display:flex;gap:var(--s2)}
+.gc-nl-row .gc-input{flex:1;min-width:0}
+.gc-nl-row .gc-btn{flex:none;padding:0 var(--s4)}
+.gc-nl-consent{position:relative;display:flex;align-items:center;min-height:44px;margin-top:var(--s1);font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer}
+.gc-nl-consent input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.gc-nl-consent span{display:flex;align-items:center;gap:var(--s2)}
+.gc-nl-consent span::before{content:"";flex:none;width:24px;height:24px;border:2px solid #64748b;border-radius:6px;background:var(--card) center/16px 16px no-repeat}
+.gc-nl-consent input:checked+span::before{border-color:var(--accent);background-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.gc-nl-consent input:focus-visible+span::before{outline:3px solid #2563eb;outline-offset:2px}
+.gc-nl-err{font-size:var(--fs-sm);color:var(--danger)}
+.gc-nl-err:empty{display:none}
+.gc-nl-ok{font-weight:600;color:var(--accent);padding:var(--s2) 0}
+.gc-nl-ok:focus{outline:none}
+.gc-input[aria-invalid="true"]{border-color:var(--danger)}
+.gc-nl-card{position:relative;margin-top:var(--s3)}
+.gc-nl-card .gc-nl-t{padding-right:44px}
+.gc-nl-x{position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;background:none;font-size:var(--fs-lg);line-height:1;color:var(--muted);cursor:pointer;border-radius:var(--r-sm)}
+.gc-nl-card[hidden],.gc-gear[hidden],.gc-nl-form[hidden]{display:none}
+.gc-footer-links{margin:0}
+.gc-footer-aff{font-size:12px;margin-top:var(--s1)}
+/* v11 Gear for this game (affiliates.json): plain text cards, no prices */
+.gc-gear{margin-top:var(--s4)}
+.gc-gear h2{margin-bottom:var(--s2)}
+.gc-gear-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-gear-list a{display:block;min-height:var(--tap);padding:var(--s3) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-gear-list strong{display:block;color:var(--accent)}
+.gc-gear-list span{display:block;font-size:var(--fs-sm);color:var(--muted)}
+.gc-gear-disc{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s2)}
+</style>
+<style>
+  .ns-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .ns-lede{color:var(--ink-2);margin:0 0 var(--s3)}
+  .ns-row+.ns-row{margin-top:var(--s4)}
+  .ns-row>.gc-label{display:block;margin-bottom:var(--s2)}
+  .ns-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:var(--s3)}
+  .ns-two .gc-label{margin-bottom:var(--s2)}
+  .ns-fmt{flex-wrap:wrap}
+  .ns-fmt label{flex:1 1 50%}
+  .ns-fmt label:nth-child(3) span{border-left:0}
+  .ns-fmt label:nth-child(n+3) span{border-top:1px solid #cbd5e1}
+  .ns-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+  .ns-grid .gc-input{padding:0 var(--s2)}
+  .ns-team{margin:var(--s2) 0 var(--s1);font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .ns-players{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+  .ns-players+.ns-team{margin-top:var(--s3)}
+  .ns-players+.ns-players{margin-top:var(--s2)}
+  .ns-player{display:flex;gap:var(--s2);align-items:center}
+  .ns-player .gc-input{flex:1;min-width:0}
+  .ns-player .gc-stepper input{width:56px}
+  .ns-help{margin-top:var(--s2);font-size:var(--fs-sm);color:var(--muted)}
+  .ns-err{color:var(--danger);font-size:var(--fs-sm);margin-top:var(--s2)}
+  .ns-err:empty{display:none}
+  details.ns-more{margin-top:var(--s4)}
+  details.ns-more summary{min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--accent);cursor:pointer}
+  .ns-pctrow{display:flex;align-items:center;justify-content:space-between;gap:var(--s2)}
+  .ns-si{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--s1)}
+  .ns-si label{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted);min-width:0}
+  .ns-si input{width:100%;min-height:44px;text-align:center;font:inherit;font-size:var(--fs-md);font-weight:600;border:1px solid #94a3b8;border-radius:var(--r-sm);padding:0}
+  .ns-hero .gc-big{font-size:var(--fs-lg)}
+  .ns-break{list-style:none;margin:var(--s3) 0 0;padding:0;border-top:1px solid rgba(255,255,255,.3)}
+  .ns-break li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s2);align-items:baseline;padding:var(--s2) 0;border-bottom:1px solid rgba(255,255,255,.3);font-size:var(--fs-sm)}
+  .ns-break .ns-n{min-width:0;overflow-wrap:anywhere;font-weight:700;font-size:var(--fs-md)}
+  .ns-break .ns-x{opacity:.95;white-space:nowrap}
+  .ns-break b{font-size:var(--fs-md);font-variant-numeric:tabular-nums;min-width:2.4em;text-align:right}
+  .ns-sub{margin-top:var(--s2);font-size:var(--fs-sm);opacity:.95;overflow-wrap:anywhere}
+  main [hidden]{display:none!important}
+  .ns-tablecard{margin-top:var(--s3);padding:var(--s3)}
+  .ns-h2{font-size:var(--fs-md);margin:0 0 var(--s2)}
+  .ns-tbl{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--fs-sm);font-variant-numeric:tabular-nums}
+  .ns-tbl th,.ns-tbl td{padding:4px 2px;text-align:center;border-bottom:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ns-tbl thead th{font-weight:700;color:var(--ink-2)}
+  .ns-tbl th[scope=row]{font-weight:600}
+  .ns-tbl .z{color:var(--muted)}
+  .ns-tbl .s2{font-weight:800;color:var(--accent)}
+  .ns-tbl .neg{color:var(--danger);font-weight:700}
+  .ns-tbl tfoot td,.ns-tbl tfoot th{font-weight:800;border-bottom:0}
+  .ns-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .ns-wide{grid-column:1/-1}
+  .gc-next[hidden]{display:none}
+  .ns-play{padding:var(--s3)}
+  .ns-strip{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s3) var(--s4);overflow-wrap:anywhere}
+  .ns-strip strong{display:block;font-size:var(--fs-lg);line-height:1.25}
+  .ns-strip span{display:block;font-size:var(--fs-sm);color:var(--ink-2);margin-top:var(--s1)}
+  .ns-holehead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-top:var(--s3);flex-wrap:wrap}
+  .ns-holeno{font-size:var(--fs-xl);font-weight:800;line-height:1.1;margin:0}
+  .ns-progress{display:flex;gap:2px;margin-top:var(--s2)}
+  .ns-progress i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .ns-progress i.done{background:var(--accent-line)}
+  .ns-progress i.cur{background:var(--accent)}
+  .ns-score{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);padding:var(--s2) 0}
+  .ns-score+.ns-score{border-top:1px solid var(--line)}
+  .ns-who{flex:1;min-width:0}
+  .ns-who b{display:block;overflow-wrap:anywhere;line-height:1.25}
+  .ns-who small{font-size:var(--fs-sm);color:var(--muted)}
+  .ns-score.is-win .ns-who b{color:var(--accent)}
+  .ns-side{margin:var(--s3) 0 0;font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .ns-nav{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .ns-final{margin-top:var(--s3)}
+  .ns-final .gc-hero .gc-big{font-size:var(--fs-xl)}
+  .ns-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
+  .ns-view .ns-shared{display:block}
+  .ns-view .ns-own{display:none!important}
+  .ns-view:not(.ns-ready) main{visibility:hidden;animation:ns-reveal 0s 3s forwards}
+  @keyframes ns-reveal{to{visibility:visible}}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px}
+  .ns-err-v .ns-shared{display:block;background:var(--warn-soft);border-color:#fcd34d}
+  .ns-err-v #ns-own{display:none}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn p a{padding:12px 0}
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
+  @media (max-width:359px){.ns-player .gc-stepper input{width:48px}.ns-player .gc-stepper button{width:44px}.ns-two{grid-template-columns:1fr}.ns-si{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .ns-money{display:flex;align-items:center;gap:var(--s1);font-weight:700}
+  .ns-money input{text-align:right}
+  .ns-check{display:flex;align-items:center;gap:var(--s2);min-height:44px;font-weight:600;color:var(--ink-2)}
+  .ns-check input{flex:none;width:24px;height:24px;margin:0}
+  .ns-team{margin:var(--s2) 0 var(--s1);font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .ns-strip{position:sticky;top:49px;z-index:4;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s2) var(--s3)}
+  .ns-bets{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px var(--s3);font-size:var(--fs-sm);line-height:1.35}
+  .ns-bets li{min-width:0;overflow-wrap:anywhere}
+  .ns-bets b{color:var(--ink)}
+  .ns-bets .ns-p{color:var(--ink-2)}
+  .ns-news{margin:var(--s1) 0 0;font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .ns-news:empty{display:none}
+  .ns-hero .ns-pay{display:flex;justify-content:space-between;gap:var(--s2);font-size:var(--fs-lg);font-weight:800;margin-top:var(--s2);overflow-wrap:anywhere}
+  .ns-hero .ns-pay span:last-child{white-space:nowrap}
+  .ns-ledger{margin-top:var(--s3);padding:var(--s3)}
+  .ns-ledger h3{font-size:var(--fs-md);margin:var(--s3) 0 var(--s1)}
+  .ns-ledger h3:first-child{margin-top:0}
+  .ns-ledger ul{list-style:none;margin:0;padding:0}
+  .ns-ledger li{display:flex;justify-content:space-between;gap:var(--s2);padding:var(--s1) 0;border-bottom:1px solid var(--line);font-size:var(--fs-sm);overflow-wrap:anywhere}
+  .ns-ledger li span:last-child{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
+  .ns-ledger .neg{color:var(--danger)}
+  .ns-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .ns-wide{grid-column:1/-1}
+</style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/nassau-calculator#app",
+   "name": "Nassau Golf Calculator",
+   "url": "https://golfcalculators.com/nassau-calculator",
+   "description": "Score a Nassau hole by hole: front, back and overall bets, automatic 2-down presses, 1v1 or 2v2 better ball, then who pays whom in the fewest payments.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/nassau-calculator#faq",
+   "url": "https://golfcalculators.com/nassau-calculator",
+   "inLanguage": "en",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What is a Nassau in golf?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "A Nassau is three bets in one round at the same stake: the front nine, the back nine and the overall 18. A $5 Nassau puts up to $15 at stake before any presses. It is a betting game with house rules, not part of the Rules of Golf."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How does a 2-down automatic press work?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine. Each bet starts at most one automatic press, and none starts if the trigger is on the 9th or 18th. This is the usual convention (28 Nov 2026), so agree it on the first tee."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can you press a press?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. A press is a bet in its own right, so if a side goes 2 down on a press, that press starts its own press on the next hole. Presses can chain like this to the end of the nine."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is the overall 18 pressed too?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Not by default: automatic presses run on the front and back nines only. Switch on “Auto-press the overall 18” under More options if your group presses the overall as well; those presses run to the 18th."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the difference between 1 v 1 and 2 v 2 better ball?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "In 1 v 1 each player plays their own ball against the other. In 2 v 2 better ball, each side counts the better score of its two partners on every hole. Winnings and losses are split equally between partners and then settled in the fewest payments."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Match play or aggregate?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Match play counts holes won, so a blow-up hole only loses that hole. Aggregate counts total strokes for the nine or the 18, so every shot matters. With aggregate, “2 down” for an automatic press means 2 strokes behind."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How are handicaps used in a net Nassau?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). You can change it under More options."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is a Nassau in the Rules of Golf?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. The Rules of Golf and the Rules of Handicapping cover match play and handicap allowances, but the Nassau, its stakes and its presses are a side game played to whatever your group agrees. This calculator follows the common conventions and shows every bet so you can check it."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/nassau-calculator#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Nassau Golf Calculator",
+     "item": "https://golfcalculators.com/nassau-calculator"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Anonymous events, each with one parameter, the tool ("skins", "stableford", "handicap", "daily-handicap", or "site"
+     for a page that is not a calculator): round_settled, result_shared, shared_link_opened, start_own_from_viewer,
+     hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
+     dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
+     email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
+     from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
+     the link went to. The tool may also be "scramble" (v12).
+     scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap.
+     v13: the tool may also be "matchplay" or "nassau". matchplay_calculate (match play strokes were worked out) carries
+     one parameter only, format: "singles", "fourball-match", "foursomes" or "fourball-stroke"; nassau_settle (a Nassau
+     was settled) carries one parameter only, format: "1v1" or "2v2". Never names, handicaps, scores or money.
+     Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate', 'matchplay_calculate', 'nassau_settle'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'matchplay', 'nassau', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'],
+    FORMATS = { matchplay_calculate: ['matchplay', ['singles', 'fourball-match', 'foursomes', 'fourball-stroke']], nassau_settle: ['nassau', ['1v1', '2v2']] };
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool, item, store) {
+    if (name === 'scramble_calculate') { // v12: {mode} only
+      if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
+      gtag('event', name, { mode: item });
+      return true;
+    }
+    if (Object.prototype.hasOwnProperty.call(FORMATS, name)) { // v13: {format} only
+      var F = FORMATS[name];
+      if (!ON || tool !== F[0] || typeof item !== 'string' || F[1].indexOf(item) < 0) return false;
+      gtag('event', name, { format: item });
+      return true;
+    }
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    var p = { tool: tool };
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item) || STORES.indexOf(store) < 0) return false; p.item = item; p.store = store; }
+    gtag('event', name, p);
+    return true;
+  };
+})();
+</script>
+<script>if (/^#r=/.test(location.hash)) document.documentElement.classList.add('ns-view'); // a shared result: read-only, no flash of your own data</script>
+</head>
+<body data-gc="nassau-v1">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+<main class="gc-main">
+<div class="gc-card ns-shared" id="ns-shared" role="status"><h2 id="ns-shared-t" style="margin:0">Shared Nassau</h2><p class="gc-muted" id="ns-shared-p" style="margin-top:var(--s1)">Read-only, as entered by the scorer.</p>
+  <button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="ns-own" style="margin-top:var(--s3)">Start your own Nassau</button></div>
+<div class="ns-title"><h1 id="ns-h">Nassau Golf Calculator</h1><button type="button" class="gc-btn gc-btn-ghost ns-own" id="btn-example">Load example</button></div>
+<p class="ns-lede ns-own ns-setup">Front 9, back 9 and overall at one stake, with automatic 2-down presses. Score it hole by hole and see who pays whom.</p>
+
+<section class="gc-card ns-own ns-setup" id="entry" aria-labelledby="entry-h">
+  <h2 id="entry-h" class="sr-only">Your Nassau</h2>
+  <div class="ns-row"><span class="gc-label" id="fmt-l">Format</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="fmt-l">
+      <label><input type="radio" name="fmt" value="1v1" checked><span>1 v 1</span></label>
+      <label><input type="radio" name="fmt" value="2v2"><span>2 v 2 better ball</span></label>
+    </div></div>
+  <div class="ns-row"><span class="gc-label" id="players-l">Players</span>
+    <p class="ns-team" id="side0-l">Side 1</p>
+    <ol class="ns-players" aria-labelledby="players-l">
+      <li class="ns-player" id="row0"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" type="text" autocomplete="off" maxlength="24" placeholder="Player 1"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="0" aria-label="Player 1: lower handicap">−</button><label class="sr-only" for="ph0">Player 1 Course Handicap</label><input id="ph0" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="0" aria-label="Player 1: raise handicap">+</button></div></li>
+      <li class="ns-player" id="row1" hidden><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="1" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph1">Player 2 Course Handicap</label><input id="ph1" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="1" aria-label="Player 2: raise handicap">+</button></div></li>
+    </ol>
+    <p class="ns-team" id="side1-l">Side 2</p>
+    <ol class="ns-players" aria-labelledby="players-l" start="3">
+      <li class="ns-player" id="row2"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" type="text" autocomplete="off" maxlength="24" placeholder="Player 3"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="2" aria-label="Player 3: lower handicap">−</button><label class="sr-only" for="ph2">Player 3 Course Handicap</label><input id="ph2" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="2" aria-label="Player 3: raise handicap">+</button></div></li>
+      <li class="ns-player" id="row3" hidden><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" type="text" autocomplete="off" maxlength="24" placeholder="Player 4"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="3" aria-label="Player 4: lower handicap">−</button><label class="sr-only" for="ph3">Player 4 Course Handicap</label><input id="ph3" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="3" aria-label="Player 4: raise handicap">+</button></div></li>
+    </ol></div>
+  <div class="ns-row ns-two">
+    <div><label class="gc-label" for="stake">Stake per bet</label><span class="ns-money">$<input class="gc-input" id="stake" type="text" inputmode="decimal" autocomplete="off" aria-describedby="stake-help"></span></div>
+    <div><span class="gc-label" id="net-l">Scores</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="net-l">
+        <label><input type="radio" name="net" value="0" checked><span>Gross</span></label>
+        <label><input type="radio" name="net" value="1"><span>Net</span></label>
+      </div></div>
+  </div>
+  <p class="ns-help" id="stake-help">Front, back and overall are each worth this, and so is every press.</p>
+  <div class="ns-row"><span class="gc-label" id="game-l">Each bet is</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="game-l">
+      <label><input type="radio" name="game" value="match" checked><span>Match play (holes)</span></label>
+      <label><input type="radio" name="game" value="agg"><span>Aggregate (strokes)</span></label>
+    </div></div>
+  <div class="ns-row"><span class="gc-label" id="ap-l">Automatic presses</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="ap-l">
+      <label><input type="radio" name="ap" value="1" checked><span>On, 2 down</span></label>
+      <label><input type="radio" name="ap" value="0"><span>Off</span></label>
+    </div>
+    <p class="ns-help" id="ap-help">When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine.</p></div>
+  <details class="ns-more" id="more"><summary>More options</summary>
+    <div class="ns-row" id="allow-row"><div class="ns-pctrow"><span class="gc-label" id="pct-l" style="margin:0">Net allowance</span>
+      <div class="gc-stepper"><button type="button" data-pct="-5" aria-label="Lower the allowance">−</button><label class="sr-only" for="pct">Net handicap allowance, %</label><input id="pct" type="text" inputmode="numeric" autocomplete="off" aria-describedby="pct-help"><button type="button" data-pct="5" aria-label="Raise the allowance">+</button></div></div>
+      <p class="ns-help" id="pct-help">Off the low player. 2 v 2: 90% of the difference (four-ball match play); 1 v 1: 100%.</p></div>
+    <div class="ns-row"><label class="ns-check"><input type="checkbox" id="po"> <span>Auto-press the overall 18 too</span></label></div>
+    <div class="ns-row"><span class="gc-label" id="ml-l">Fewest holes left to start a press</span>
+      <div class="gc-seg" role="radiogroup" aria-labelledby="ml-l">
+        <label><input type="radio" name="ml" value="1" checked><span>1</span></label>
+        <label><input type="radio" name="ml" value="2"><span>2</span></label>
+        <label><input type="radio" name="ml" value="3"><span>3</span></label>
+      </div></div>
+    <div class="ns-row" id="si-row"><span class="gc-label" id="si-l">Stroke index by hole (net)</span>
+      <div class="ns-si" id="si-grid" role="group" aria-labelledby="si-l"></div>
+      <button type="button" class="gc-btn gc-btn-ghost" id="btn-si-reset">Reset stroke index</button></div>
+  </details>
+  <p class="ns-err" id="err" role="alert"></p>
+  <button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-start" style="margin-top:var(--s4)">Start hole 1 →</button>
+</section>
+
+<section class="gc-card ns-play" id="play" aria-labelledby="play-h" hidden>
+  <div class="ns-strip" id="ns-strip" role="status" aria-live="polite"><ul class="ns-bets" id="ns-bets"></ul><p class="ns-news" id="ns-news"></p></div>
+  <div class="ns-holehead"><h2 class="ns-holeno" id="play-h">Hole 1</h2><span class="gc-muted" id="hole-of">Front nine · 1 of 18</span></div>
+  <div class="ns-progress" id="progress" aria-hidden="true"></div>
+  <div id="scores"></div>
+  <button type="button" class="gc-btn gc-btn-ghost gc-btn-block" id="btn-press">Press from this hole</button>
+  <div class="ns-nav">
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-prev">← Setup</button>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-next">Next hole →</button>
+  </div>
+  <button type="button" class="gc-btn gc-btn-ghost gc-btn-block" id="btn-settle">Settle now</button>
+</section>
+
+<section id="result" aria-labelledby="result-h" hidden>
+  <h2 id="result-h" class="sr-only">Who pays whom</h2>
+  <div class="gc-hero ns-hero" id="hero"></div>
+  <div class="gc-card ns-ledger" id="ledger"></div>
+  <div class="ns-actions" id="actions">
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-share">Share result</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-copy">Copy link</button>
+    <button type="button" class="gc-btn gc-btn-secondary ns-own ns-wide" id="btn-back">← Back to the scores</button>
+  </div>
+  <div class="gc-card gc-nl-card ns-own" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="nassau"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Wolf, Las Vegas and Nines. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
+  <p class="gc-muted" style="margin-top:var(--s3)">A Nassau is a betting game with house rules, not part of the Rules of Golf. <a href="#how-h">How it's calculated</a></p>
+  <div class="gc-gear ns-own" id="gc-gear" role="region" aria-label="Gear for this game" hidden></div>
+  <p class="gc-muted gc-fb ns-own" id="fb-after">How did the calculator go? <a href="/feedback?from=nassau-calculator">Send feedback</a></p>
+</section>
+
+<h2 style="margin:var(--s6) 0 var(--s3)">Related calculators</h2>
+<div class="gc-next">
+  <a href="/skins"><strong>Skins →</strong><span>Hole-by-hole skins with carryovers, settled in fewest payments.</span></a>
+  <a href="/match-play-handicap-calculator"><strong>Match play strokes →</strong><span>Who gets how many strokes on which holes: singles, four-ball, foursomes.</span></a>
+</div>
+
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>A Nassau is three bets at the same stake: the front nine, the back nine and the overall 18. Each is a match (holes won, halves allowed) or, if you choose aggregate, the lower total score for those holes. In 2 v 2 better ball, each side's score on a hole is the better of the two partners' scores, gross or net.</p>
+  <ul class="gc-learn-list">
+    <li>Automatic press (on by default): when a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine. Each bet starts at most one automatic press, and a press can itself be pressed.</li>
+    <li>No press starts when the trigger is on the last hole of a nine. The overall 18 is not auto-pressed unless you switch it on under More options.</li>
+    <li>The trailing side can also start a press by hand on any hole left in the nine.</li>
+    <li>Net: strokes come off the low player, 90% of the difference for 2 v 2 (the four-ball match play allowance) and 100% for 1 v 1, then go on the holes with the lowest stroke index.</li>
+  </ul>
+  <p>Every bet won is worth the stake to the winning side. In 2 v 2 the side's result is split equally between partners, then the payments are settled in the fewest transfers, the same way as our Skins calculator.</p>
+  <h3>Worked example</h3>
+  <p>A $5 Nassau, 1 v 1, gross, with automatic presses. Alex wins holes 1 to 4, Blake 5 to 7, Alex 8 and 9. Alex is 2 up after hole 2, so a press starts on hole 3; Alex is 2 up on that press after hole 4, so a second press starts on hole 5; Blake goes 2 up on that one after hole 6, so a third starts on hole 7.</p>
+  <ul class="gc-learn-list">
+    <li>Front: Alex 3 up, +$5. Press 3–9: Alex 1 up, +$5. Press 5–9: Blake 1 up, −$5. Press 7–9: Alex 1 up, +$5.</li>
+    <li>Back: Blake wins 10 and 11, the rest are halved. Blake 2 up, −$5 for Alex; the press from 12 is halved.</li>
+    <li>Overall: Alex 1 up, +$5.</li>
+  </ul>
+  <p class="gc-learn-result">Alex <span data-ex="e2-a">+$10.00</span>, Blake <span data-ex="e2-b">−$10.00</span>: <span data-ex="e2-pay">Blake pays Alex $10.00</span>.</p>
+  <p>Tap <strong>Load example</strong> at the top for a simple $5 Nassau with no presses: Alex wins the front and the overall, Blake the back, so Blake pays Alex $5.</p>
+  <p class="gc-learn-src" id="rules-source">A Nassau and its presses are house conventions, not part of the Rules of Golf; the 2-down automatic press is the usual convention (as at 28 Nov 2026). Net allowances, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C</cite></a> (four-ball match play 90%, individual 100%).</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>What is a Nassau in golf?</h3><p>A Nassau is three bets in one round at the same stake: the front nine, the back nine and the overall 18. A $5 Nassau puts up to $15 at stake before any presses. It is a betting game with house rules, not part of the Rules of Golf.</p></div>
+  <div class="gc-faq-item"><h3>How does a 2-down automatic press work?</h3><p>When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine. Each bet starts at most one automatic press, and none starts if the trigger is on the 9th or 18th. This is the usual convention (28 Nov 2026), so agree it on the first tee.</p></div>
+  <div class="gc-faq-item"><h3>Can you press a press?</h3><p>Yes. A press is a bet in its own right, so if a side goes 2 down on a press, that press starts its own press on the next hole. Presses can chain like this to the end of the nine.</p></div>
+  <div class="gc-faq-item"><h3>Is the overall 18 pressed too?</h3><p>Not by default: automatic presses run on the front and back nines only. Switch on “Auto-press the overall 18” under More options if your group presses the overall as well; those presses run to the 18th.</p></div>
+  <div class="gc-faq-item"><h3>What is the difference between 1 v 1 and 2 v 2 better ball?</h3><p>In 1 v 1 each player plays their own ball against the other. In 2 v 2 better ball, each side counts the better score of its two partners on every hole. Winnings and losses are split equally between partners and then settled in the fewest payments.</p></div>
+  <div class="gc-faq-item"><h3>Match play or aggregate?</h3><p>Match play counts holes won, so a blow-up hole only loses that hole. Aggregate counts total strokes for the nine or the 18, so every shot matters. With aggregate, “2 down” for an automatic press means 2 strokes behind.</p></div>
+  <div class="gc-faq-item"><h3>How are handicaps used in a net Nassau?</h3><p>Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). You can change it under More options.</p></div>
+  <div class="gc-faq-item"><h3>Is a Nassau in the Rules of Golf?</h3><p>No. The Rules of Golf and the Rules of Handicapping cover match play and handicap allowances, but the Nassau, its stakes and its presses are a side game played to whatever your group agrees. This calculator follows the common conventions and shows every bet so you can check it.</p></div>
+<!-- seo:content:end --></section>
+</main>
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer">
+<div class="gc-nl-foot"><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-f-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="nassau"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><p class="gc-nl-t" id="nl-f-t"><strong>New golf calculators, first.</strong> One email a month, max.</p><label class="gc-label" for="nl-f-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-f-email" name="email" autocomplete="email" aria-describedby="nl-f-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-f-err" aria-live="polite"></p></form></div>
+<p class="gc-footer-links"><a href="/feedback?from=nassau-calculator">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</p>
+<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases (Amazon.com.au and Amazon.com).</p>
+</footer>
+<script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
+   page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
+   A result link is https://golfcalculators.com/<tool>#r=<tag>.<payload>. The data sits in the #fragment, which
+   browsers never send to the server, so names and scores never reach Netlify, a CDN, a Referer or a preview
+   crawler. Tags: "1z." = v1, deflate-raw then base64url; "1." = v1, plain base64url (no CompressionStream).
+   Everything decoded is treated as hostile: size caps, strict base64url, fatal UTF-8, JSON.parse only; each
+   page then rebuilds its state field by field from a whitelist (never Object.assign). */
+(function () {
+  var MAX = 4096, CAP = 16384;
+  function err(code) { var e = new Error(code); e.code = code; return e; }
+  function b64u(bytes) {
+    var s = '', i;
+    for (i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, Array.prototype.slice.call(bytes, i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64u(str) {
+    if (!/^[A-Za-z0-9_-]+$/.test(str) || str.length % 4 === 1) return null;
+    var b = str.replace(/-/g, '+').replace(/_/g, '/'), s, u, i;
+    while (b.length % 4) b += '=';
+    try { s = atob(b); } catch (e) { return null; }
+    u = new Uint8Array(s.length);
+    for (i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    return u;
+  }
+  function pump(bytes, stream, cap) { // write all bytes through a (De)CompressionStream; stop past cap bytes out
+    var w = stream.writable.getWriter(), r = stream.readable.getReader(), parts = [], n = 0;
+    w.write(bytes).catch(function () {}); w.close().catch(function () {});
+    return new Promise(function (res, rej) {
+      (function next() {
+        r.read().then(function (x) {
+          if (x.done) { var out = new Uint8Array(n), o = 0; parts.forEach(function (p) { out.set(p, o); o += p.length; }); return res(out); }
+          n += x.value.length;
+          if (n > cap) { r.cancel().catch(function () {}); return rej(err('bad')); }
+          parts.push(x.value); next();
+        }, function () { rej(err('bad')); });
+      })();
+    });
+  }
+  function canZip() { return typeof CompressionStream === 'function'; }
+  function encode(obj, plain) { // -> Promise of "1z.<payload>" (or "1.<payload>")
+    var bytes = new TextEncoder().encode(JSON.stringify(obj));
+    if (!plain && canZip()) return pump(bytes, new CompressionStream('deflate-raw'), Infinity).then(function (z) { return '1z.' + b64u(z); });
+    return Promise.resolve('1.' + b64u(bytes));
+  }
+  function decode(raw) { // -> Promise of the parsed JSON object; rejects with code 'bad' or 'browser'
+    return new Promise(function (res, rej) {
+      if (typeof raw !== 'string' || raw.length > MAX) return rej(err('bad'));
+      var m = /^(1z?)\.([A-Za-z0-9_-]+)$/.exec(raw);
+      if (!m) return rej(err('bad'));
+      var bytes = unb64u(m[2]);
+      if (!bytes) return rej(err('bad'));
+      var zipped = m[1] === '1z';
+      if (zipped && typeof DecompressionStream !== 'function') return rej(err('browser'));
+      if (!zipped && bytes.length > CAP) return rej(err('bad'));
+      (zipped ? pump(bytes, new DecompressionStream('deflate-raw'), CAP) : Promise.resolve(bytes)).then(function (b) {
+        var o;
+        try { o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(b)); } catch (e) { return rej(err('bad')); }
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return rej(err('bad'));
+        res(o);
+      }, rej);
+    });
+  }
+  function fromHash(hash) { var m = /^#r=([^&#]*)$/.exec(hash || ''); return m ? m[1] : null; } // r= is the only key
+  function get(o, k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; } // own keys only
+  function cleanText(s, max) { // NFC, no C0/C1 or bidi controls, trimmed, at most max code points
+    if (typeof s !== 'string') return '';
+    if (s.normalize) s = s.normalize('NFC');
+    s = s.replace(/[\u0000-\u001F\u007F-\u009F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '').trim();
+    return Array.from(s).slice(0, max).join('').trim();
+  }
+  function gsm(text) { // share text in plain ASCII where we wrote it, so SMS stays GSM-7 (PO, 12 Nov)
+    return String(text).replace(/\s*\u00B7\s*/g, ' - ').replace(/[\u2013\u2014\u2212]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+      .replace(/\u2192/g, '->').replace(/\u2026/g, '...').replace(/\u00D7/g, 'x').replace(/\u00A0/g, ' ');
+  }
+  var TEXT = { title: 'Shared result', line: 'Read-only, as entered by the scorer.',
+    bad: ['This result link can\u2019t be opened', 'It is incomplete or from a newer version of the calculator.'],
+    browser: ['This link needs a newer browser', 'Update your browser to see this result, or start your own round.'] };
+  function banner(mode) { // mode: 'ok' | 'bad' | 'browser'; the banner is pre-rendered in the page (no layout shift)
+    var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
+    if (t) t.textContent = x[0];
+    if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
+    var h = document.documentElement.classList;
+    h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
+  }
+  function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]utm_[a-z]+=[^&]*/g, '').replace(/^&/, '?')); } // v9 P6: the share link's utm_* tags go too
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
+    TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
+})();
+</script>
+<script>
+(function () {
+/* Nassau: front 9, back 9 and overall 18 at one stake, 1v1 or 2v2 better ball, match play or aggregate, with
+   automatic 2-down presses (v13, 28 Nov 2026). A Nassau is a betting game played to house conventions; nothing here
+   is in the Rules of Golf. Conventions used (PO spec, 28 Nov 2026): auto press when a side goes 2 down in an active
+   bet, starting on the next hole and running to the end of that nine (overall: to the 18th); each bet starts at most
+   one automatic press; a press can itself be pressed; no press when the trigger is on the last hole of a nine (or when
+   fewer holes are left than the minimum); auto presses on the nines only unless the overall is switched on.
+   Net strokes reuse the match play allowances (USGA/R&A Rules of Handicapping, Appendix C, checked 28 Nov 2026,
+   https://www.usga.org/handicapping/roh/Content/rules/Appendix%20C%20Handicap%20Allowances.htm): 2v2 four-ball
+   match play 90% of the difference from the lowest, 1v1 singles 100%, applied to the unrounded Course Handicap and
+   rounded once (.5 up; plus toward zero). Settling: the side result is split equally between partners, then the
+   Skins fewest-payments rule (largest debtor pays largest creditor) runs on the personal balances. */
+var FORMATS = ['1v1', '2v2'];
+function fix(x) { return +(+x).toFixed(9); }
+function roundTo(x, dp) { var f = dp ? 10 : 1, v = Math.round(fix(x * f)) / f; return v === 0 ? 0 : v; } // .5 up; a plus (negative) .5 moves toward zero
+function cents(x) { return Math.round(x * 100) / 100; }
+function ranks(si) { var ord = si.map(function (v, i) { return i; }).sort(function (a, b) { return si[a] - si[b] || a - b; }), r = []; ord.forEach(function (h, k) { r[h] = k + 1; }); return r; }
+function perHole(n, si) {
+  var N = si.length, rk = ranks(si), a = Math.abs(n), base = Math.floor(a / N), ex = a % N;
+  return rk.map(function (r) { var v = n >= 0 ? base + (r <= ex ? 1 : 0) : -(base + (r > N - ex ? 1 : 0)); return v === 0 ? 0 : v; });
+}
+function strokes(chs, pct) { // off the low player: pct% of the difference, rounded once
+  var lo = Math.min.apply(null, chs); return chs.map(function (c) { return roundTo(fix(fix(c - lo) * pct / 100)); });
+}
+function sideOf(f) { return f === '2v2' ? [[0, 1], [2, 3]] : [[0], [1]]; }
+function fewest(balances) { // = the Skins page's fewest-payments rule (greedy: largest debtor pays largest creditor)
+  var cr = [], dr = [];
+  balances.forEach(function (v, i) { if (v > 0.005) cr.push({ i: i, a: v }); if (v < -0.005) dr.push({ i: i, a: -v }); });
+  var byAmt = function (p, q) { return q.a - p.a; };
+  cr.sort(byAmt); dr.sort(byAmt);
+  var payments = [];
+  while (cr.length && dr.length) {
+    var c = cr[0], d = dr[0], pay = cents(Math.min(c.a, d.a));
+    payments.push({ from: d.i, to: c.i, amount: pay });
+    c.a = cents(c.a - pay); d.a = cents(d.a - pay);
+    if (c.a < 0.005) cr.shift(); if (d.a < 0.005) dr.shift();
+    cr.sort(byAmt); dr.sort(byAmt);
+  }
+  return payments;
+}
+/* g: { f: '1v1'|'2v2', stake, game: 'match'|'agg', net: bool, strokes: [per player], si: [18], auto: bool,
+        overall: bool (auto-press the 18), minLeft: 1-3, manual: [start holes], scores: {hole: [gross per player]} } */
+function nassau(g) {
+  var sd = sideOf(g.f), per = g.net ? g.strokes.map(function (n) { return perHole(n, g.si); }) : null;
+  var bets = [{ id: 'F', label: 'Front', start: 1, end: 9, nine: 0 }, { id: 'B', label: 'Back', start: 10, end: 18, nine: 1 }, { id: 'O', label: 'Overall', start: 1, end: 18, nine: 2 }];
+  bets.forEach(function (b) { b.diff = 0; b.thru = 0; b.pressed = false; b.auto = false; b.manual = false; b.depth = 0; });
+  var events = [], played = 0, holes = [];
+  var manual = (g.manual || []).slice().sort(function (a, b) { return a - b; });
+  for (var h = 1; h <= 18; h++) {
+    var sc = g.scores[h]; if (!sc) break;
+    manual.forEach(function (m) { if (m === h) { var end = h <= 9 ? 9 : 18; bets.push({ id: 'M' + h, label: 'Press', start: h, end: end, nine: h <= 9 ? 0 : 1, diff: 0, thru: 0, pressed: false, auto: false, manual: true, depth: 1 }); } });
+    var net = sc.map(function (x, i) { return per ? x - per[i][h - 1] : x; });
+    var side = sd.map(function (ix) { return Math.min.apply(null, ix.map(function (i) { return net[i]; })); });
+    var w = side[0] < side[1] ? 0 : side[1] < side[0] ? 1 : -1;
+    holes.push({ hole: h, side: side, win: w }); played = h;
+    var live = bets.filter(function (b) { return b.start <= h && h <= b.end; });
+    live.forEach(function (b) { b.diff += g.game === 'agg' ? side[1] - side[0] : (w === 0 ? 1 : w === 1 ? -1 : 0); b.thru = h; });
+    if (g.auto) live.forEach(function (b) { // each bet starts at most one automatic press; a press can be pressed
+      if (b.pressed || Math.abs(b.diff) < 2 || (b.nine === 2 && !g.overall)) return;
+      var s = h + 1; if (s > b.end || b.end - s + 1 < (g.minLeft || 1)) return; // no hole left (or too few) in this nine
+      b.pressed = true;
+      bets.push({ id: b.id + 'p', label: 'Press', start: s, end: b.end, nine: b.nine, diff: 0, thru: 0, pressed: false, auto: true, manual: false, depth: b.depth + 1, parent: b.id, by: b.diff > 0 ? 1 : 0 });
+      events.push({ hole: h, start: s, end: b.end });
+    });
+  }
+  var sideBal = [0, 0];
+  bets.forEach(function (b) {
+    b.started = b.start <= played; b.final = played >= b.end;
+    b.win = !b.started || b.diff === 0 ? -1 : b.diff > 0 ? 0 : 1;
+    if (b.win >= 0) { sideBal[b.win] = cents(sideBal[b.win] + g.stake); sideBal[1 - b.win] = cents(sideBal[1 - b.win] - g.stake); }
+  });
+  var bal = [];
+  if (g.f === '2v2') sd.forEach(function (ix, k) { // split equally; an odd cent goes to the first partner
+    var c = Math.round(sideBal[k] * 100), a = Math.trunc(c / 2), b2 = c - a; bal[ix[0]] = b2 / 100; bal[ix[1]] = a / 100; });
+  else bal = sideBal.slice();
+  bal = bal.map(function (v) { return v === 0 ? 0 : v; });
+  return { bets: bets, events: events, played: played, holes: holes, sideBal: sideBal, bal: bal, payments: fewest(bal) };
+}
+window.GCNassau = { FORMATS: FORMATS, nassau: nassau, strokes: strokes, perHole: perHole, fewest: fewest, roundTo: roundTo };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_nassau_v1', URL = 'https://golfcalculators.com/nassau-calculator';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function cleanName(s) { return window.GCShare ? GCShare.cleanText(s, 24) : String(s || '').slice(0, 24); }
+function money(x) { return '$' + Math.abs(x).toFixed(2); }
+function signed(x) { var c = cents(x); return (c < 0 ? '\u2212' : c > 0 ? '+' : '') + money(c); }
+function defSI() { var a = []; for (var i = 1; i <= 18; i++) a.push(i); return a; }
+function okH(v) { return typeof v === 'number' && isFinite(v) && v >= -15 && v <= 72; }
+function parseH(t) { var m = /^([+\-\u2212]?)\s*(\d{1,2}(?:[.,]\d{1,2})?)$/.exec(String(t).trim()); if (!m) return null; var v = +m[2].replace(',', '.'); if (m[1]) v = -v; v = v === 0 ? 0 : v; return okH(v) ? v : null; }
+function fmtH(v) { if (v == null) return ''; var s = String(Math.abs(v)); return v < 0 ? '+' + s : s; }
+function blank() { return { fmt: '1v1', names: ['', '', '', ''], hc: [0, 0, 0, 0], stake: 5, net: 0, game: 'match', ap: 1, po: 0, ml: 1, pct: null, si: defSI(), manual: [], scores: {}, hole: 1, screen: 'setup' }; }
+function okSI(si) { var seen = {}; return si.length === 18 && si.every(function (v) { if (v !== Math.round(v) || v < 1 || v > 18 || seen[v]) return false; seen[v] = 1; return true; }); }
+function nP(f) { return f === '2v2' ? 4 : 2; }
+function clean(o) { // whitelist, field by field (storage and #r= links); null if unusable
+  if (!o || typeof o !== 'object') return null;
+  var g = function (k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };
+  var s = blank(), f = g('f'), n = g('n'), hc = g('hc'), stk = g('st'), net = g('net'), game = g('g'), ap = g('ap'), po = g('po'), ml = g('ml'), x = g('x'), si = g('si'), mp = g('mp'), sc = g('sc'), cur = g('cur'), scr = g('scr');
+  if (FORMATS.indexOf(f) < 0 || !Array.isArray(n) || n.length < 2 || n.length > 4 || !n.every(function (v) { return typeof v === 'string'; })) return null;
+  if (typeof stk !== 'number' || !(stk > 0) || stk > 10000 || cents(stk) !== stk) return null;
+  if ([0, 1].indexOf(net) < 0 || ['match', 'agg'].indexOf(game) < 0 || [0, 1].indexOf(ap) < 0 || [0, 1].indexOf(po) < 0 || [1, 2, 3].indexOf(ml) < 0) return null;
+  s.fmt = f; s.stake = stk; s.net = net; s.game = game; s.ap = ap; s.po = po; s.ml = ml;
+  n.forEach(function (v, i) { s.names[i] = cleanName(v); });
+  if (hc !== undefined) { if (!Array.isArray(hc) || hc.length > 4 || !hc.every(okH)) return null; hc.forEach(function (v, i) { s.hc[i] = v; }); }
+  if (x !== undefined && x !== null) { if (x !== Math.round(x) || x < 0 || x > 100) return null; s.pct = x; }
+  if (si !== undefined) { if (!Array.isArray(si) || !okSI(si)) return null; s.si = si.slice(); }
+  if (mp !== undefined) { if (!Array.isArray(mp) || mp.length > 18 || !mp.every(function (v) { return v === Math.round(v) && v >= 1 && v <= 18; })) return null; s.manual = mp.filter(function (v, i) { return mp.indexOf(v) === i; }); }
+  if (sc !== undefined) { if (!sc || typeof sc !== 'object' || Array.isArray(sc)) return null; var ne = nP(f);
+    for (var hk in sc) { if (!Object.prototype.hasOwnProperty.call(sc, hk)) continue; var row = sc[hk];
+      if (!/^\d{1,2}$/.test(hk) || +hk < 1 || +hk > 18 || !Array.isArray(row) || row.length !== ne || !row.every(function (v) { return v === Math.round(v) && v >= 1 && v <= 20; })) return null;
+      s.scores[+hk] = row.slice(); } }
+  if (cur !== undefined) { if (cur !== Math.round(cur) || cur < 1 || cur > 18) return null; s.hole = cur; }
+  if (scr !== undefined) { if (['setup', 'play', 'settle'].indexOf(scr) < 0) return null; s.screen = scr; }
+  return s;
+}
+function isDefSI(si) { return si.every(function (v, i) { return v === i + 1; }); }
+function pack(st, all) {
+  var n = nP(st.fmt), o = { v: 1, f: st.fmt, n: st.names.slice(0, all ? 4 : n), st: st.stake, net: st.net, g: st.game, ap: st.ap, po: st.po, ml: st.ml };
+  if (all || st.net) o.hc = st.hc.slice(0, all ? 4 : n);
+  if (st.pct != null) o.x = st.pct;
+  if (all || (st.net && !isDefSI(st.si))) o.si = st.si.slice();
+  if (st.manual.length) o.mp = st.manual.slice();
+  if (Object.keys(st.scores).length) o.sc = st.scores;
+  if (all) { o.cur = st.hole; o.scr = st.screen; }
+  return o;
+}
+function load() { try { return clean(JSON.parse(localStorage.getItem(KEY) || 'null')) || blank(); } catch (e) { return blank(); } }
+var S = load(), VIEW = null, EXAMPLE_ON = false, SENT = {}, LINK = null, BAD = {};
+function st() { return VIEW || S; }
+function save() { if (VIEW) return; try { localStorage.setItem(KEY, JSON.stringify(pack(S, true))); } catch (e) {} }
+function track(name, item) { if (window.gcTrack) gcTrack(name, 'nassau', item); } // nassau_settle: {format} only
+// E1 (PO spec): $5, 1v1, gross, no presses. Winner 4, loser 5.
+var E1 = 'AAAABABAB' + 'ABBABABAB';
+var EXAMPLE = { fmt: '1v1', names: ['Alex', 'Blake'], stake: 5, ap: 0, scores: E1.split('').map(function (c) { return c === 'A' ? [4, 5] : [5, 4]; }) };
+window.GCNassau.EXAMPLE = EXAMPLE;
+function pctOf(s) { return s.pct == null ? (s.fmt === '2v2' ? 90 : 100) : s.pct; }
+function names(s) { return s.names.slice(0, nP(s.fmt)).map(function (v, i) { return v || 'Player ' + (i + 1); }); }
+function sideNames(s) { var n = names(s); return s.fmt === '2v2' ? [n[0] + ' & ' + n[1], n[2] + ' & ' + n[3]] : [n[0], n[1]]; }
+function game(s) { return { f: s.fmt, stake: s.stake, game: s.game, net: !!s.net, strokes: s.net ? strokes(s.hc.slice(0, nP(s.fmt)), pctOf(s)) : [0, 0, 0, 0].slice(0, nP(s.fmt)), si: s.si, auto: !!s.ap, overall: !!s.po, minLeft: s.ml, manual: s.manual, scores: s.scores }; }
+window.GCNassau.game = game;
+function thruN(s) { var n = 0; while (s.scores[n + 1]) n++; return n; }
+function betName(b) { return b.id === 'F' || b.id === 'B' || b.id === 'O' ? b.label : 'Press (' + b.start + '\u2013' + b.end + ')'; }
+function standing(s, b, sn) { // "Alex 2 up" / "all square" / "—"
+  if (!b.started) return '\u2014';
+  if (!b.diff) return s.game === 'agg' ? 'level' : 'all square';
+  var who = sn[b.diff > 0 ? 0 : 1]; return who + ' ' + (s.game === 'agg' ? 'by ' + Math.abs(b.diff) : Math.abs(b.diff) + ' up');
+}
+function stripHtml(s, r) {
+  var sn = sideNames(s), order = ['F', 'B', 'O'], main = {}, list = [];
+  r.bets.forEach(function (b) { main[b.id] = b; });
+  // Front, its presses, Back, its presses, Overall, its presses
+  [0, 1, 2].forEach(function (nine) {
+    var m = main[order[nine]]; list.push(m);
+    r.bets.filter(function (b) { return b.nine === nine && b !== m; }).sort(function (a, b) { return a.start - b.start; }).forEach(function (b) { list.push(b); });
+  });
+  return list.map(function (b) { var p = b.id.length > 1; return '<li' + (p ? ' class="ns-p"' : '') + '><b>' + esc(betName(b)) + ':</b> ' + esc(standing(s, b, sn)) + '</li>'; }).join('');
+}
+function stripText(s, r) { var sn = sideNames(s); return ['F', 'B', 'O'].map(function (id) { var b = r.bets.filter(function (x) { return x.id === id; })[0]; return b.label + ': ' + standing(s, b, sn); }).join(' \u00b7 '); }
+function render() {
+  var s = st(), n = nP(s.fmt), two = n === 4;
+  if (!VIEW) {
+    [].forEach.call(document.querySelectorAll('input[name=fmt]'), function (x) { x.checked = x.value === s.fmt; });
+    [].forEach.call(document.querySelectorAll('input[name=net]'), function (x) { x.checked = +x.value === s.net; });
+    [].forEach.call(document.querySelectorAll('input[name=game]'), function (x) { x.checked = x.value === s.game; });
+    [].forEach.call(document.querySelectorAll('input[name=ap]'), function (x) { x.checked = +x.value === s.ap; });
+    [].forEach.call(document.querySelectorAll('input[name=ml]'), function (x) { x.checked = +x.value === s.ml; });
+    $('po').checked = !!s.po;
+    $('side0-l').textContent = two ? 'Side 1 (better ball)' : 'Side 1'; $('side1-l').textContent = two ? 'Side 2 (better ball)' : 'Side 2';
+    for (var i = 0; i < 4; i++) {
+      $('row' + i).hidden = two ? false : i === 1 || i === 3;
+      var pn = $('pn' + i); if (document.activeElement !== pn) pn.value = s.names[i];
+      var ph = $('ph' + i); if (document.activeElement !== ph && !BAD['ph' + i]) ph.value = fmtH(s.hc[i]);
+    }
+    [].forEach.call(document.querySelectorAll('.ns-hc'), function (x) { x.hidden = !s.net; });
+    var stk = $('stake'); if (document.activeElement !== stk && !BAD.stake) stk.value = trimMoney(s.stake);
+    var pc = $('pct'); if (document.activeElement !== pc && !BAD.pct) pc.value = pctOf(s) + '%';
+    $('allow-row').hidden = !s.net; $('si-row').hidden = !s.net;
+    siGrid(s);
+    var errs = Object.keys(BAD).filter(function (k) { return BAD[k]; });
+    $('err').textContent = errs.length ? BAD[errs[0]] : (!okSI(s.si) ? 'Stroke index: use each number from 1 to 18 once.' : '');
+    var t = thruN(s); $('btn-start').textContent = t ? (t >= 18 ? 'See the result \u2192' : 'Continue at hole ' + (t + 1) + ' \u2192') : 'Start hole 1 \u2192';
+    $('btn-start').disabled = !okSI(s.si) || !!errs.length;
+  }
+  var screen = VIEW ? 'settle' : s.screen;
+  [].forEach.call(document.querySelectorAll('.ns-setup'), function (el) { el.hidden = screen !== 'setup' && !VIEW; });
+  if (VIEW) [].forEach.call(document.querySelectorAll('.ns-setup'), function (el) { el.hidden = true; });
+  $('play').hidden = screen !== 'play'; $('result').hidden = screen !== 'settle';
+  $('btn-example').hidden = !!VIEW || screen !== 'setup' || S.names.some(Boolean) || thruN(S) > 0;
+  var r = nassau(game(s));
+  if (screen === 'play') renderPlay(s, r);
+  if (screen === 'settle') renderSettle(s, r);
+  LINK = null;
+  if (screen === 'settle' && window.GCShare) { var mine = s; GCShare.encode(pack(s, false)).then(function (code) { if (st() === mine) LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=nassau#r=' + code; }); }
+  document.documentElement.classList.add('ns-ready');
+}
+function trimMoney(v) { return (+v).toFixed(2).replace(/\.00$/, ''); }
+function siGrid(s) {
+  var g = $('si-grid');
+  if (g.childNodes.length !== 18) { var h = ''; for (var i = 0; i < 18; i++) h += '<label for="si' + i + '">Hole ' + (i + 1) + '<input id="si' + i + '" type="text" inputmode="numeric" autocomplete="off" maxlength="2"></label>'; g.innerHTML = h; }
+  for (var j = 0; j < 18; j++) { var el = $('si' + j); if (document.activeElement !== el && !BAD['si' + j]) el.value = s.si[j]; }
+}
+function renderPlay(s, r) {
+  var t = thruN(s), h = Math.max(1, Math.min(18, S.hole || 1)); if (h > t + 1) h = t + 1; if (h > 18) h = 18; S.hole = h;
+  $('ns-bets').innerHTML = stripHtml(s, r);
+  var ev = r.events.filter(function (e) { return e.hole === t; });
+  $('ns-news').textContent = ev.map(function (e) { return 'Press started on hole ' + e.start + ' (to ' + e.end + ').'; }).join(' ');
+  $('play-h').textContent = 'Hole ' + h;
+  $('hole-of').textContent = (h <= 9 ? 'Front nine' : 'Back nine') + ' \u00b7 ' + h + ' of 18' + (s.net ? ' \u00b7 SI ' + s.si[h - 1] : '');
+  var pr = ''; for (var x = 1; x <= 18; x++) pr += '<i class="' + (x === h ? 'cur' : x <= t ? 'done' : '') + '"></i>'; $('progress').innerHTML = pr;
+  var nm = names(s), sn = sideNames(s), sd = sideOf(s.fmt), g = game(s), per = s.net ? g.strokes.map(function (k) { return perHole(k, s.si); }) : null;
+  var have = s.scores[h], def = !have, vals = have ? have.slice() : nm.map(function () { return 4; });
+  $('scores').innerHTML = '<h3 class="sr-only">Gross scores, hole ' + h + '</h3>' + sd.map(function (ix, k) {
+    return (ix.length > 1 ? '<p class="ns-side">' + esc(sn[k]) + '</p>' : '') + ix.map(function (i) {
+      var n0 = esc(nm[i]), sk = per ? per[i][h - 1] : 0, note = !s.net ? 'gross' : sk > 0 ? 'gets ' + (sk === 1 ? 'a stroke' : sk + ' strokes') : sk < 0 ? 'gives a stroke' : 'no stroke';
+      return '<div class="ns-score" id="srow' + i + '"><div class="ns-who"><b>' + n0 + '</b><small>' + note + '</small></div>' +
+        '<span class="gc-stepper' + (def ? ' is-default' : '') + '"><button type="button" data-sc="-1" data-i="' + i + '" aria-label="One less for ' + n0 + '">\u2212</button>' +
+        '<input id="sc' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + n0 + ' score, hole ' + h + '" value="' + vals[i] + '">' +
+        '<button type="button" data-sc="1" data-i="' + i + '" aria-label="One more for ' + n0 + '">+</button></span></div>'; }).join(''); }).join('');
+  var end = h <= 9 ? 9 : 18, can = end - h + 1 >= s.ml && trailing(r, h), on = s.manual.indexOf(h) >= 0;
+  $('btn-press').hidden = !can && !on; $('btn-press').textContent = on ? 'Cancel the press from hole ' + h : 'Press from hole ' + h + ' to ' + end;
+  $('btn-prev').textContent = h === 1 ? '\u2190 Setup' : '\u2190 Hole ' + (h - 1);
+  $('btn-next').textContent = h === 18 ? 'Settle \u2192' : 'Next hole \u2192';
+}
+function trailing(r, h) { return r.bets.some(function (b) { return b.start < h && b.end >= h && b.diff !== 0; }); } // someone is down in a live bet
+function curVals() { var n = nP(S.fmt), a = []; for (var i = 0; i < n; i++) { var el = $('sc' + i), v = el ? parseInt(el.value, 10) : 4; a.push(v >= 1 && v <= 20 ? v : 4); } return a; }
+function renderSettle(s, r) {
+  var nm = names(s), sn = sideNames(s), t = r.played, done = t >= 18;
+  var kick = (done ? 'Nassau settled' : 'So far \u00b7 thru ' + t + ' of 18') + ' \u00b7 ' + money(s.stake) + ' a bet' + (VIEW ? ' \u00b7 shared' : '');
+  var pays = r.payments.length ? r.payments.map(function (p) { return '<p class="ns-pay"><span>' + esc(nm[p.from]) + ' pays ' + esc(nm[p.to]) + '</span> <span>' + money(p.amount) + '</span></p>'; }).join('')
+    : '<p class="gc-big">' + (t ? 'All square: no payments' : 'No holes scored yet') + '</p>';
+  $('hero').innerHTML = '<p class="gc-kicker">' + esc(kick) + '</p><div id="ns-pays">' + pays + '</div><p class="ns-sub">' + esc(stripText(s, r)) + '</p>';
+  var sec = [['Front nine', 0], ['Back nine', 1], ['Overall', 2]].map(function (x) {
+    var list = r.bets.filter(function (b) { return b.nine === x[1]; }).sort(function (a, b) { return (a.id.length > 1) - (b.id.length > 1) || a.start - b.start; });
+    return '<h3>' + x[0] + '</h3><ul>' + list.map(function (b) {
+      var res = !b.started ? 'not started' : b.win < 0 ? 'halved, $0' : sn[b.win] + ' ' + signed(s.stake);
+      return '<li><span>' + esc(betName(b)) + (b.manual ? ' (manual)' : '') + ': ' + esc(standing(s, b, sn)) + '</span><span>' + esc(res) + '</span></li>'; }).join('') + '</ul>';
+  }).join('');
+  var tot = '<h3>Each player</h3><ul id="ns-bal">' + nm.map(function (x, i) { return '<li><span>' + esc(x) + '</span><span' + (r.bal[i] < 0 ? ' class="neg"' : '') + '>' + signed(r.bal[i]) + '</span></li>'; }).join('') + '</ul>' +
+    (s.fmt === '2v2' ? '<p class="gc-muted">Each side\u2019s result is split equally between partners, then settled in the fewest payments.</p>' : '');
+  $('ledger').innerHTML = sec + tot;
+  $('btn-back').textContent = done ? '\u2190 Edit scores' : '\u2190 Back to hole ' + Math.min(18, t + 1);
+  if (!VIEW && t > 0) {
+    if (!EXAMPLE_ON && !SENT[s.fmt]) { SENT[s.fmt] = true; track('nassau_settle', s.fmt); }
+    if (window.GCGrow) { if (EXAMPLE_ON) GCGrow.gear('nassau'); else GCGrow.result('nassau'); }
+  }
+}
+function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; }
+function shareText() { // <= 6 lines, link last
+  var s = st(), r = nassau(game(s)), sn = sideNames(s), nm = names(s);
+  var head = 'Nassau ' + money(s.stake) + ': ' + sn[0] + ' v ' + sn[1] + ' (' + (s.net ? 'net' : 'gross') + ', ' + (s.game === 'agg' ? 'aggregate' : 'match play') + (s.ap ? ', 2-down presses' : '') + (r.played < 18 ? ', thru ' + r.played : '') + ')';
+  var line = function (nine) { return r.bets.filter(function (b) { return b.nine === nine && b.started; }).sort(function (a, b) { return (a.id.length > 1) - (b.id.length > 1) || a.start - b.start; })
+    .map(function (b) { return betName(b) + ' ' + standing(s, b, sn); }).join('; ') || ['Front', 'Back', 'Overall'][nine] + ' not started'; };
+  var pay = r.payments.length ? r.payments.map(function (p) { return nm[p.from] + ' pays ' + nm[p.to] + ' ' + money(p.amount); }).join('; ') : 'No payments: all square';
+  return GCShare.gsm([head, line(0), line(1), line(2), pay, (LINK || linkBase())].join('\n'));
+}
+function whenLink() { return LINK ? Promise.resolve(LINK) : GCShare.encode(pack(st(), false)).then(function (code) { return LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=nassau#r=' + code; }); }
+function share() {
+  track('result_shared');
+  var go2 = function () { var text = shareText(); if (navigator.share) return navigator.share({ title: 'Nassau', text: text }).catch(function () {}); return copyText(text, 'Copied'); };
+  return LINK ? go2() : whenLink().then(go2);
+}
+function copyText(t, msg) {
+  window._copied = t;
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { toast(msg); }, function () { toast('Copy failed'); });
+  toast(msg); return Promise.resolve();
+}
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function edited() { EXAMPLE_ON = false; save(); render(); }
+function loadExample() {
+  S = blank(); BAD = {}; S.fmt = EXAMPLE.fmt; S.names = EXAMPLE.names.concat(['', '']); S.stake = EXAMPLE.stake; S.ap = EXAMPLE.ap;
+  EXAMPLE.scores.forEach(function (row, i) { S.scores[i + 1] = row.slice(); }); S.hole = 18; S.screen = 'settle';
+  EXAMPLE_ON = true; save(); render();
+}
+function leaveView() { VIEW = null; GCShare.clearHash(); document.documentElement.classList.remove('ns-view'); track('start_own_from_viewer'); render(); }
+function hasScores() { return thruN(S) > 0 || Object.keys(S.scores).length > 0; }
+function go(delta) {
+  var h = S.hole;
+  if (delta > 0) { S.scores[h] = curVals(); if (h === 18) S.screen = 'settle'; else S.hole = h + 1; }
+  else if (h === 1) S.screen = 'setup'; else S.hole = h - 1;
+  EXAMPLE_ON = false; save(); render(); window.scrollTo(0, 0);
+}
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'btn-share') share();
+  else if (t.id === 'btn-copy') { track('result_shared'); whenLink().then(function (l) { copyText(l, 'Link copied'); }); }
+  else if (t.id === 'btn-example') loadExample();
+  else if (t.id === 'ns-own') leaveView();
+  else if (t.id === 'btn-start') { var n = thruN(S); if (n >= 18) S.screen = 'settle'; else { S.screen = 'play'; S.hole = n + 1; } edited(); }
+  else if (t.id === 'btn-next') go(1);
+  else if (t.id === 'btn-prev') go(-1);
+  else if (t.id === 'btn-settle') { S.screen = 'settle'; edited(); }
+  else if (t.id === 'btn-back') { var n2 = thruN(S); S.screen = 'play'; S.hole = Math.min(18, n2 + (n2 >= 18 ? 0 : 1)); edited(); }
+  else if (t.id === 'btn-press') { var h = S.hole, k = S.manual.indexOf(h); if (k >= 0) S.manual.splice(k, 1); else S.manual.push(h); edited(); }
+  else if (t.id === 'btn-si-reset') { S.si = defSI(); BAD = {}; edited(); }
+  else if (t.dataset.sc) { var i = +t.dataset.i, el = $('sc' + i); el.value = Math.max(1, Math.min(20, (parseInt(el.value, 10) || 4) + +t.dataset.sc)); [].forEach.call(document.querySelectorAll('#scores .gc-stepper'), function (x) { x.classList.remove('is-default'); }); }
+  else if (t.dataset.pct) { var p = Math.max(0, Math.min(100, pctOf(S) + +t.dataset.pct)); S.pct = p === (S.fmt === '2v2' ? 90 : 100) ? null : p; BAD.pct = ''; edited(); }
+  else if (t.dataset.step) { var j = +t.dataset.i, nv = Math.round(((S.hc[j] || 0) + +t.dataset.step) * 100) / 100; if (okH(nv)) { S.hc[j] = nv; BAD['ph' + j] = ''; $('ph' + j).removeAttribute('aria-invalid'); edited(); } }
+});
+document.addEventListener('change', function (e) {
+  var el = e.target;
+  if (el.name === 'fmt') { if (S.fmt === el.value) return; if (hasScores() && !window.confirm('Change the format? The scores entered so far will be cleared.')) { render(); return; } S.fmt = el.value; S.scores = {}; S.manual = []; S.hole = 1; S.pct = null; edited(); }
+  else if (el.name === 'net') { S.net = +el.value; edited(); }
+  else if (el.name === 'game') { S.game = el.value; edited(); }
+  else if (el.name === 'ap') { S.ap = +el.value; edited(); }
+  else if (el.name === 'ml') { S.ml = +el.value; edited(); }
+  else if (el.id === 'po') { S.po = el.checked ? 1 : 0; edited(); }
+});
+document.addEventListener('input', function (e) {
+  var id = e.target.id, m, v = e.target.value;
+  if ((m = /^pn(\d)$/.exec(id))) { S.names[+m[1]] = cleanName(v); edited(); }
+  else if ((m = /^ph(\d)$/.exec(id))) { var x = v.trim() === '' ? 0 : parseH(v); BAD[id] = x == null ? 'Player ' + (+m[1] + 1) + ': enter a Course Handicap like 14 (plus: +2).' : ''; if (x != null) { S.hc[+m[1]] = x; e.target.removeAttribute('aria-invalid'); } else e.target.setAttribute('aria-invalid', 'true'); edited(); }
+  else if (id === 'stake') { var t = v.trim().replace(',', '.').replace('$', ''), ok = /^\d{1,5}(\.\d{1,2})?$/.test(t) && +t > 0; BAD.stake = ok ? '' : 'Enter a stake above $0, e.g. 5'; if (ok) { S.stake = +t; e.target.removeAttribute('aria-invalid'); } else e.target.setAttribute('aria-invalid', 'true'); edited(); }
+  else if (id === 'pct') { var q = v.trim().replace('%', ''), good = /^\d{1,3}$/.test(q) && +q <= 100; BAD.pct = good ? '' : 'The allowance is a whole percentage from 0 to 100.'; if (good) S.pct = +q === (S.fmt === '2v2' ? 90 : 100) ? null : +q; edited(); }
+  else if ((m = /^si(\d{1,2})$/.exec(id))) { var w = v.trim(), g2 = /^\d{1,2}$/.test(w) && +w >= 1 && +w <= 18; BAD[id] = g2 ? '' : 'Stroke index is a whole number from 1 to 18.'; if (g2) S.si[+m[1]] = +w; edited(); }
+});
+document.addEventListener('focusout', function (e) { if (/^(ph\d|pn\d|stake|pct|si\d{1,2})$/.test(e.target.id || '')) setTimeout(render, 0); });
+
+var raw = window.GCShare ? GCShare.fromHash(location.hash) : null;
+if (raw != null) {
+  GCShare.decode(raw).then(function (o) {
+    var s = clean(o); if (!s) throw { code: 'bad' };
+    VIEW = s; track('shared_link_opened'); render();
+  }).catch(function (e) {
+    var x = GCShare.TEXT[e && e.code === 'browser' ? 'browser' : 'bad'];
+    $('ns-shared-t').textContent = x[0]; $('ns-shared-p').textContent = x[1];
+    document.documentElement.classList.remove('ns-view'); document.documentElement.classList.add('ns-err-v');
+    render();
+  });
+} else render();
+window.GCNassauUI = { state: function () { return S; }, view: function () { return VIEW; }, render: render, loadExample: loadExample, share: share, shareText: shareText, link: whenLink, leaveView: leaveView, clean: clean, pack: pack, go: go };
+})();
+</script>
+<!-- Email signup + gear (v11): verbatim copy of /gc-grow.js. tests/run fails if it drifts. -->
+<script type="application/json" data-src="/affiliates.json">{
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per store (us: amazon.com, tag golfcalc-20; au: amazon.com.au, tag golfcalc-22). A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts. v12: AU visitors (navigator.language en-AU or an Australia/* time zone) get the au url, everyone else the default region (us).",
+ "region": "us",
+ "tag": "golfcalc-20",
+ "tags": {"us": "golfcalc-20", "au": "golfcalc-22"},
+ "disclosure": "We may earn a commission from links on this page.",
+ "items": [
+  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+rangefinder&tag=golfcalc-22"}},
+  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+balls&tag=golfcalc-22"}},
+  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+scorecard+holder&tag=golfcalc-22"}}
+ ],
+ "tools": {
+  "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
+  "daily-handicap": ["rangefinder", "scorecard-holder"],
+  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "matchplay": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "nassau": ["scorecard-holder", "golf-balls", "rangefinder"]
+ }
+}
+</script>
+<script data-src="/gc-grow.js">/* gc-grow.js: golfcalculators.com email signup + "Gear for this game" (v11, Nov 2026). Inlined verbatim into every page as
+   <script data-src="/gc-grow.js">; tests/run fails if a copy drifts from this file.
+   - Newsletter forms (footer on every page, and the card after a result on the four calculators) post to Netlify Forms
+     ("newsletter", honeypot bot-field) with fetch: inline "You're in", inline errors, no page jump. The address goes only
+     in the POST body to this site; never into a URL, storage or analytics.
+   - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
+     signup (localStorage keeps only a date or a flag).
+   - Gear: built from the inlined affiliates.json, only items with a url for the store; with none it renders nothing.
+     Store (v12): "au" (amazon.com.au, tag golfcalc-22) when navigator.language is en-AU or the Intl time zone is
+     Australia/*, otherwise "us" (amazon.com, tag golfcalc-20); an item without an AU link falls back to its US link.
+     Worked out in the browser each time; nothing is stored. Links open a new tab with rel="sponsored nofollow noopener";
+     a click sends affiliate_click {tool, item id, store} and nothing else. */
+(function () {
+  var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
+  function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
+  function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
+  function track(name, tool, item, store) { if (window.gcTrack) window.gcTrack(name, tool, item, store); }
+  function storeFor(lang, tz) { return /^en-AU$/i.test(String(lang || '')) || /^Australia\//.test(String(tz || '')) ? 'au' : 'us'; }
+  function store() {
+    var tz = ''; try { tz = window.Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    return storeFor(navigator.language, tz);
+  }
+  function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
+  function body(form) {
+    var out = [];
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name || el.disabled || (el.type === 'checkbox' && !el.checked) || el.type === 'submit') continue;
+      out.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+    }
+    return out.join('&');
+  }
+  function say(form, msg) {
+    var err = form.querySelector('.gc-nl-err'), em = form.querySelector('input[type="email"]');
+    err.textContent = msg;
+    if (msg) em.setAttribute('aria-invalid', 'true'); else em.removeAttribute('aria-invalid');
+  }
+  function done(form) {
+    put('localStorage', DONE, '1');
+    var ok = document.createElement('p');
+    ok.className = 'gc-nl-ok'; ok.setAttribute('role', 'status'); ok.tabIndex = -1;
+    ok.textContent = 'You\u2019re in. Watch for one email a month, at most.';
+    form.hidden = true; form.parentNode.insertBefore(ok, form.nextSibling);
+    try { ok.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function submit(e) {
+    var form = e.target;
+    if (!form.matches || !form.matches('form.gc-nl-form')) return;
+    e.preventDefault();
+    var em = form.querySelector('input[type="email"]'), consent = form.querySelector('input[name="consent"]'), btn = form.querySelector('button[type="submit"]');
+    var v = (em.value || '').trim();
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(v)) { say(form, 'Enter an email address like name@example.com.'); em.focus(); return; }
+    if (consent && !consent.checked) { say(form, 'Tick the box to say we can email you.'); consent.focus(); return; }
+    say(form, '');
+    var hp = form.querySelector('input[name="bot-field"]');
+    if (hp && hp.value) { done(form); return; } // a bot filled the hidden field: look done, send nothing
+    btn.disabled = true;
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body(form) })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); done(form); track('email_signup', toolOf(form)); })
+      .catch(function () { btn.disabled = false; say(form, 'That didn\u2019t go through. Check your connection and try again.'); });
+  }
+  document.addEventListener('submit', submit);
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('.gc-nl-x');
+    if (x) {
+      var card = x.closest('.gc-nl-card'); card.hidden = true;
+      put('localStorage', DISMISS, String(Date.now()));
+      track('email_dismiss', toolOf(card.querySelector('form')));
+      return;
+    }
+    var a = e.target.closest && e.target.closest('a[data-aff]');
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'), a.getAttribute('data-store'));
+  });
+  function cardAllowed() {
+    if (get('localStorage', DONE)) return false;
+    var d = +get('localStorage', DISMISS);
+    if (d && Date.now() - d < DAYS30) return false;
+    return shownHere || !get('sessionStorage', SESSION);
+  }
+  function gear(tool) {
+    var box = document.getElementById('gc-gear'), cfg = null, src = document.querySelector('script[data-src="/affiliates.json"]');
+    if (!box || box.childNodes.length) return;
+    try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
+    var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var want = store(), ok = function (u) { return typeof u === 'string' && /^https:\/\//.test(u); };
+    var pick = function (it) { var u = it && it.url || {}; return ok(u[want]) ? want : ok(u[cfg.region]) ? cfg.region : null; }; // AU first for AU visitors, else the default store
+    var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
+      var k = pick(it); return (k === 'au' || k === 'us') && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+    }).slice(0, 3);
+    if (!list.length) return; // nothing to show: no heading, no disclosure, no box
+    var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
+    list.forEach(function (it) {
+      var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
+      var k = pick(it);
+      a.href = it.url[k]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool); a.setAttribute('data-store', k);
+      b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
+      a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    var p = document.createElement('p'); p.className = 'gc-gear-disc'; p.textContent = cfg.disclosure || 'We may earn a commission from links on this page.';
+    box.appendChild(p);
+    box.hidden = false;
+  }
+  window.GCGrow = {
+    // call when a calculator shows the user's own result
+    result: function (tool) {
+      var card = document.getElementById('gc-nl-card');
+      if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
+      gear(tool);
+    },
+    gear: gear, cardAllowed: cardAllowed, store: store, storeFor: storeFor, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+  };
+})();
+</script>
+</body>
+</html>

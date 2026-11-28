@@ -518,9 +518,9 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         return {h1Right:Math.round(h1.right),sampleX:Math.round(sm.x),sampleTop:Math.round(sm.top),cardTops:cards,mainW:Math.round(m.width),h1:parseFloat(getComputedStyle(document.querySelector('.lp-hero h1')).fontSize),sw:document.documentElement.scrollWidth,vw:innerWidth,
           lines:[...document.querySelectorAll('#lp-sample .lp-pay')].map(e=>e.textContent.replace(/\s+/g,' ').trim())};});
       await p.screenshot({path:path.join(OUT,'v11-p1-home-1280.png')});
-      const bad=!(r.sampleX>r.h1Right&&r.cardTops.length===4&&new Set(r.cardTops).size===1&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
+      const bad=!(r.sampleX>r.h1Right&&(r.cardTops.length===4&&new Set(r.cardTops).size===1||r.cardTops.length===6&&new Set(r.cardTops).size===2&&r.cardTops.filter(t=>t===r.cardTops[0]).length===3)&&r.mainW>=1024&&r.mainW<=1152&&r.h1>=36&&r.sw<=r.vw&&r.lines.join('|')==='Alex pays Drew $75.00|Blake pays Drew $75.00|Casey pays Drew $35.00');
       if(bad)fail=1;rows.push({name:'v11 home 1280',width:1280,home:r});
-      console.log(`${gate(bad)}  v11 home @1280: two columns (sample x ${r.sampleX} > h1 right ${r.h1Right}), cards in one row (${r.cardTops.join('/')}), main ${r.mainW}px, h1 ${r.h1}px, sample ${r.lines.length} lines`);await ctx.close();}
+      console.log(`${gate(bad)}  v11 home @1280: two columns (sample x ${r.sampleX} > h1 right ${r.h1Right}), cards ${r.cardTops.length===6?'in two rows of 3':'in one row'} (${r.cardTops.join('/')}), main ${r.mainW}px, h1 ${r.h1}px, sample ${r.lines.length} lines`);await ctx.close();}
     for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
       await check('v11 P1 daily-handicap: example result (shared hero)',w,'/daily-handicap',async p=>{await p.click('#dh-example');await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById('result').scrollIntoView({block:'start'}));},`v11-p1-dh-example-result-${sz}.png`,hgt);
       {const p=await page(w,hgt);await p.goto(base+'/daily-handicap',{waitUntil:'load'});await p.click('#dh-example');await p.waitForTimeout(100);const men=await p.textContent('#dailyOut');await p.selectOption('#gender','women');await p.waitForTimeout(100);const women=await p.textContent('#dailyOut');
@@ -549,18 +549,78 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         console.log(`${gate(bad)}  v12 scramble @${sz}: ${r.n} controls, under 44px ${r.small.length}${r.small.length?' ('+r.small.slice(0,6).join(', ')+')':''}, clipped ${r.cut.length}${r.cut.length?' ('+r.cut.slice(0,5).join(', ')+')':''}, page ${r.sw}/${r.vw}px, custom result ${r.out}`);await p.context().close();}
     }
   }
+  // v13: /match-play-handicap-calculator and /nassau-calculator at 375x812 and 320x568: fresh input, every control open
+  // (4 players, Handicap Index, all 18 SI), the example result, the live strip mid-round, the final/settle view, a shared
+  // #r= view; axe and fit on each; every visible control >= 44px tall (stepper buttons >= 44px wide), nothing clipped,
+  // the sticky strip sits directly under the sticky header (no overlap, no gap) and stays inside the viewport.
+  const MPSH='/match-play-handicap-calculator?utm_source=share&utm_medium=link&utm_campaign=matchplay#r=1z.HcdNDoIwEIDRu3zrMXF0QZkd6i2aLoopIaEEU3-QEO9OcPfeygdTocPopndpY86HMb7uPcKA8UePqRMemPc0OX0RPQbxXHIcEqJuzzU-04Kcqj23kmbkXIfw2wA';
+  const NSSH='/nassau-calculator?utm_source=share&utm_medium=link&utm_campaign=nassau#r=1z.Rc0xCoNAEEbhu7x6CsfsqpkuuYZYiJgEokZQJCDePSBhtprHV_yzs2EqPDB0U4QJq7kN_RfhPrTvnkZYViwKU79imfDEGNu1eyG080nz5zzjcM4tHbajWB0kNkLudfEKXhGro4RGKNxKt8rt6qaZo2rSPGX6oyFpTFokLZNWfz2OHw';
+  const v13radio=(name,v)=>`(()=>{const r=document.querySelector('input[name=${name}][value="${v}"]');r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}));})()`;
+  const v13fit=async(p,sel)=>p.evaluate(sel=>{const els=[...document.querySelectorAll(sel)].filter(e=>e.getClientRects().length&&e.type!=='radio'&&e.type!=='checkbox'&&!e.closest('[hidden]'));
+    const small=els.filter(e=>{const b=e.getBoundingClientRect();return b.height<44||(e.closest('.gc-stepper')&&e.tagName==='BUTTON'&&b.width<44);}).map(e=>(e.id||e.textContent.trim().slice(0,16)||e.tagName)+' '+Math.round(e.getBoundingClientRect().width)+'x'+Math.round(e.getBoundingClientRect().height));
+    const cut=[];for(const e of document.querySelectorAll('main *')){if(!e.getClientRects().length||e.closest('.sr-only')||e.tagName==='INPUT')continue;if(e.clientWidth>0&&e.scrollWidth>e.clientWidth+1)cut.push(e.id||e.className||e.tagName);}
+    return {n:els.length,small,cut,sw:document.documentElement.scrollWidth,vw:innerWidth};},sel);
+  const v13strip=async(p,id)=>p.evaluate(id=>{const s=document.getElementById(id),hd=document.querySelector('.gc-header');const y=s.getBoundingClientRect().top+scrollY,room=s.parentElement.getBoundingClientRect().bottom-s.getBoundingClientRect().bottom;window.scrollTo(0,y-hd.offsetHeight+Math.max(1,Math.min(120,room-8)));
+    const a=s.getBoundingClientRect(),h=hd.getBoundingClientRect();return {sticky:getComputedStyle(s).position,top:Math.round(a.top),hb:Math.round(h.bottom),right:Math.round(a.right),vw:innerWidth,h:Math.round(a.height),vh:innerHeight};},id);
+  const v13log=(name,sz,r,extra,bad)=>{if(bad)fail=1;rows.push({name:`${name} ${sz}`,v13:r});console.log(`${gate(bad)}  ${name} @${sz}: ${r.n} controls, under 44px ${r.small.length}${r.small.length?' ('+r.small.slice(0,6).join(', ')+')':''}, clipped ${r.cut.length}${r.cut.length?' ('+r.cut.slice(0,5).join(', ')+')':''}, page ${r.sw}/${r.vw}px${extra}`);};
+  if(pages.some(p=>p[0]==='match-play-handicap-calculator')){const U='/match-play-handicap-calculator';
+    const all=async p=>{await p.evaluate(v13radio('fmt','fourball-match'));await p.evaluate(v13radio('kind','hi'));await p.evaluate(()=>{document.getElementById('more').open=true;
+      ['Bartholomew-Fitzgerald','Blake','Casey','Drew'].forEach((v,i)=>{const e=document.getElementById('pn'+i);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));});
+      [['ph0','8.4'],['ph1','12.6'],['ph2','23.4'],['ph3','31.2'],['sl','135'],['cr','72.3'],['par','72']].forEach(([k,v])=>{const e=document.getElementById(k);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));});});await p.waitForTimeout(150);};
+    const ex=async p=>{await p.click('#btn-example');await p.waitForTimeout(150);};
+    const holes=async(p,n,pat)=>{for(let i=0;i<n;i++){await p.evaluate(c=>{const v=c==='A'?[4,4,6,6]:c==='B'?[5,5,4,4]:[4,5,5,6];[0,1,2,3].forEach(k=>{const e=document.getElementById('sc'+k);if(e)e.value=String(v[k]);});document.getElementById('btn-next').click();},pat[i%pat.length]);await p.waitForTimeout(30);}};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v13 match play: input (fresh)',w,U,null,`v13-matchplay-input-${sz}.png`,hgt);
+      await check('v13 match play: all controls (four-ball, 4 players, Handicap Index, SI grid)',w,U,async p=>{await all(p);await p.evaluate(()=>document.getElementById('more').scrollIntoView({block:'start'}));},`v13-matchplay-input-all-${sz}.png`,hgt);
+      await check('v13 match play: Load example result (hero + stroke table)',w,U,async p=>{await ex(p);await p.evaluate(()=>document.getElementById('hero').scrollIntoView({block:'start'}));},`v13-matchplay-result-${sz}.png`,hgt);
+      await check('v13 match play: live strip mid-round (thru 6)',w,U,async p=>{await ex(p);await p.click('#btn-play');await holes(p,6,'AAHBAH');await p.evaluate(()=>window.scrollTo(0,document.getElementById('play').getBoundingClientRect().top+scrollY-60));},`v13-matchplay-live-${sz}.png`,hgt);
+      await check('v13 match play: final (won 3 & 2)',w,U,async p=>{await ex(p);await p.click('#btn-play');await holes(p,16,'AAAHHHHHHHHHHHHH');await p.evaluate(()=>document.getElementById('final').scrollIntoView({block:'center'}));},`v13-matchplay-final-${sz}.png`,hgt);
+      await check('v13 match play: shared #r= view',w,MPSH,null,`v13-matchplay-shared-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await all(p);const r=await v13fit(p,'#entry button,#entry input,#entry summary,#entry .gc-seg span,#actions button');
+        const tbl=await p.evaluate(()=>{const t=document.getElementById('mp-table')||document.getElementById('table-card');return t?{sw:t.scrollWidth,cw:t.clientWidth}:null;});
+        v13log('v13 match play controls',sz,r,'',r.small.length>0||r.cut.length>0||r.sw>r.vw);await p.context().close();}
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await ex(p);await p.click('#btn-play');await holes(p,6,'AAHBAH');
+        const r=await v13fit(p,'#play button,#play input');const st=await p.evaluate(()=>document.getElementById('mp-status').textContent.trim());const s=await v13strip(p,'mp-strip');
+        const okStrip=s.sticky==='sticky'&&Math.abs(s.top-s.hb)<=1&&s.right<=s.vw;
+        v13log('v13 match play live',sz,r,` · strip "${st}" ${s.sticky} at ${s.top}px under header ${s.hb}px, ${s.h}px tall`,r.small.length>0||r.cut.length>0||r.sw>r.vw||!okStrip||st!=='Alex & Blake are 2 up through 6');await p.context().close();}
+    }
+  }
+  if(pages.some(p=>p[0]==='nassau-calculator')){const U='/nassau-calculator';
+    const all=async p=>{await p.evaluate(v13radio('fmt','2v2'));await p.evaluate(v13radio('net','1'));await p.evaluate(()=>{document.getElementById('more').open=true;
+      ['Bartholomew-Fitzgerald','Ben','Christabel-Rose','Dana'].forEach((v,i)=>{const e=document.getElementById('pn'+i);e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));});
+      [['ph0','4'],['ph1','12'],['ph2','6'],['ph3','8'],['stake','12.50']].forEach(([k,v])=>{const e=document.getElementById(k);if(e){e.value=v;e.dispatchEvent(new Event('input',{bubbles:true}));}});});await p.waitForTimeout(150);};
+    const holes=async(p,pat)=>{for(const c of pat){await p.evaluate(c=>{const v=c==='A'?[4,6,5,6]:c==='B'?[5,6,4,6]:[4,6,4,6];[0,1,2,3].forEach(k=>{const e=document.getElementById('sc'+k);if(e)e.value=String(v[k]);});document.getElementById('btn-next').click();},c);await p.waitForTimeout(30);}};
+    const live=async p=>{await all(p);await p.evaluate(v13radio('net','0'));await p.click('#btn-start');await holes(p,'AAAABB');}; // 4 players, presses from holes 3 and 5 live (chain)
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v13 nassau: setup (fresh)',w,U,null,`v13-nassau-setup-${sz}.png`,hgt);
+      await check('v13 nassau: all controls (2v2 net, 4 players, More options)',w,U,async p=>{await all(p);await p.evaluate(()=>document.getElementById('more').scrollIntoView({block:'start'}));},`v13-nassau-setup-all-${sz}.png`,hgt);
+      await check('v13 nassau: live strip mid-round (2v2, press chain, thru 6)',w,U,async p=>{await live(p);await p.evaluate(()=>window.scrollTo(0,document.getElementById('play').getBoundingClientRect().top+scrollY-60));},`v13-nassau-live-${sz}.png`,hgt);
+      await check('v13 nassau: settle (Load example)',w,U,async p=>{await p.click('#btn-example');await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('result').scrollIntoView({block:'start'}));},`v13-nassau-settle-${sz}.png`,hgt);
+      await check('v13 nassau: settle, 2v2 with presses (ledger)',w,U,async p=>{await live(p);await holes(p,'BAAHHH'+'BBHHHHHHH'.replace(/H/g,'A'));await p.waitForTimeout(100);await p.evaluate(()=>document.getElementById('ledger').scrollIntoView({block:'start'}));},`v13-nassau-settle-ledger-${sz}.png`,hgt);
+      await check('v13 nassau: shared #r= view',w,NSSH,null,`v13-nassau-shared-${sz}.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await all(p);const r=await v13fit(p,'#entry button,#entry input,#entry summary,#entry .gc-seg span');
+        v13log('v13 nassau setup controls',sz,r,'',r.small.length>0||r.cut.length>0||r.sw>r.vw);await p.context().close();}
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await live(p);
+        const r=await v13fit(p,'#play button,#play input');const st=await p.evaluate(()=>({bets:document.querySelectorAll('#ns-bets li').length,txt:document.getElementById('ns-bets').textContent}));const s=await v13strip(p,'ns-strip');
+        const okStrip=s.sticky==='sticky'&&Math.abs(s.top-s.hb)<=1&&s.right<=s.vw&&s.h<=s.vh*0.45;
+        v13log('v13 nassau live',sz,r,` · strip ${st.bets} bets, ${s.sticky} at ${s.top}px under header ${s.hb}px, ${s.h}px tall of ${s.vh}`,r.small.length>0||r.cut.length>0||r.sw>r.vw||!okStrip||st.bets<4);await p.context().close();}
+    }
+  }
   // v11 P2 monetisation: the email card after a real result and the gear block on each calculator, the footer signup,
   // its error and success states (fetch stubbed: nothing is posted from a test), at 375x812 and 320x568, with axe and fit.
   if(fs.existsSync(path.join(SITE,'gc-grow.js'))){
     const real={skins:"(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
       stableford:"(()=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
-      'daily-handicap':null,'handicap-calculator':null,'scramble-handicap-calculator':null};
+      'daily-handicap':null,'handicap-calculator':null,'scramble-handicap-calculator':null,'match-play-handicap-calculator':null,
+      'nassau-calculator':null};
     const result=async(p,t)=>{if(real[t])await p.evaluate(real[t]);else if(t==='daily-handicap'){await p.fill('#ga','12.4');await p.fill('#slope','131');await p.fill('#scratch','70.5');await p.fill('#par','72');}
+      else if(t==='nassau-calculator'){await p.click('#btn-start');await p.click('#btn-next');await p.click('#btn-settle');}
+      else if(t==='match-play-handicap-calculator'){await p.fill('#ph0','14');await p.fill('#ph1','8');}
       else if(t==='scramble-handicap-calculator'){for(const [i,v] of [[0,'14'],[1,'8'],[2,'22'],[3,'30']])await p.fill('#ph'+i,v);}
       else{for(const sc of ['92','95','90']){await p.fill('#score',sc);await p.fill('#cr','71.3');await p.fill('#sl','129');await p.click('#btn-add');}}await p.waitForTimeout(150);};
     const stub=async p=>{await p.evaluate(()=>{window.fetch=()=>Promise.resolve({ok:true,status:200});});};
     for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
-      for(const t of ['skins','stableford','daily-handicap','handicap-calculator'].concat(pages.some(p=>p[0]==='scramble-handicap-calculator')?['scramble-handicap-calculator']:[])){
+      for(const t of ['skins','stableford','daily-handicap','handicap-calculator'].concat(['scramble-handicap-calculator','match-play-handicap-calculator','nassau-calculator'].filter(n=>pages.some(p=>p[0]===n)))){
         await check(`v11 P2 ${t}: email card after a real result`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-nl-card').scrollIntoView({block:'center'}));},`v11-p2-${t}-email-card-${sz}.png`,hgt);
         await check(`v11 P2 ${t}: gear for this game`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-gear').scrollIntoView({block:'center'}));},`v11-p2-${t}-gear-${sz}.png`,hgt);
         const p=await page(w,hgt);await p.goto(base+'/'+t,{waitUntil:'load'});await result(p,t);
@@ -597,8 +657,8 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
   const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['handicap-calculator','/handicap-calculator'],['handicap-shared','/handicap-calculator#d=181.208.164.181.216.173.218.236'],['scramble-handicap-calculator','/scramble-handicap-calculator'],['scramble-shared','/scramble-handicap-calculator#r=1.eyJ2IjoxLCJzIjo0LCJtIjoidXNnYSIsImsiOiJoaSIsInIiOjAsInAiOltbIkFsZXgiLDguNF0sWyJCbGFrZSIsMTIuNl0sWyJDYXNleSIsMjMuNF0sWyJEcmV3IiwzMS4yXV0sImMiOlsxMzUsNzIuMyw3Ml19'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
-    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare)&&!(n==='handicap-shared'&&pages.some(p=>p[0]==='handicap-calculator'))&&!(n==='scramble-shared'&&pages.some(p=>p[0]==='scramble-handicap-calculator')))continue;
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['handicap-calculator','/handicap-calculator'],['handicap-shared','/handicap-calculator#d=181.208.164.181.216.173.218.236'],['scramble-handicap-calculator','/scramble-handicap-calculator'],['scramble-shared','/scramble-handicap-calculator#r=1.eyJ2IjoxLCJzIjo0LCJtIjoidXNnYSIsImsiOiJoaSIsInIiOjAsInAiOltbIkFsZXgiLDguNF0sWyJCbGFrZSIsMTIuNl0sWyJDYXNleSIsMjMuNF0sWyJEcmV3IiwzMS4yXV0sImMiOlsxMzUsNzIuMyw3Ml19'],['match-play-handicap-calculator','/match-play-handicap-calculator'],['matchplay-shared',MPSH],['nassau-calculator','/nassau-calculator'],['nassau-shared',NSSH],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
+    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare)&&!(n==='handicap-shared'&&pages.some(p=>p[0]==='handicap-calculator'))&&!(n==='scramble-shared'&&pages.some(p=>p[0]==='scramble-handicap-calculator'))&&!(n==='matchplay-shared'&&pages.some(p=>p[0]==='match-play-handicap-calculator'))&&!(n==='nassau-shared'&&pages.some(p=>p[0]==='nassau-calculator')))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;
     let runs=[runLh(0)];if(!budget(runs[0]))runs.push(runLh(1),runLh(2));

@@ -12,6 +12,7 @@ if(!fs.existsSync(path.join(SITE,'gc-grow.js'))){console.log('SKIP  v11 monetisa
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort();
 const TOOLS={'skins.html':'skins','stableford.html':'stableford','daily-handicap.html':'daily-handicap','handicap-calculator.html':'handicap'};
 if(fs.existsSync(path.join(SITE,'scramble-handicap-calculator.html')))TOOLS['scramble-handicap-calculator.html']='scramble'; // v12
+if(fs.existsSync(path.join(SITE,'nassau-calculator.html'))){TOOLS['match-play-handicap-calculator.html']='matchplay';TOOLS['nassau-calculator.html']='nassau';} // v13
 const grow=rd('gc-grow.js'),affSrc=rd('affiliates.json'),aff=JSON.parse(affSrc);
 const EMAIL='golfer.test+v11@example.com';
 // ---- static markup ----
@@ -30,7 +31,7 @@ for(const n of pages){const d=new JSDOM(rd(n)).window.document,t=TOOLS[n]||'site
   ok(`${n}: no form can send the address in a URL (no GET newsletter form)`,[...d.querySelectorAll('form.gc-nl-form')].every(f=>f.getAttribute('method')==='POST'));
   if(TOOLS[n]){const c=d.getElementById('gc-nl-card');
     ok(`${n}: result card present but hidden on load, with a 44px x and the same form`,!!c&&c.hasAttribute('hidden')&&!!c.querySelector('button.gc-nl-x[aria-label]')&&formOk(c.querySelector('form'),t)==='');
-    ok(`${n}: card copy: "Get new golf game calculators first" + "Nassau, Wolf, scramble. One email a month, max."`,!!c&&/Get new golf game calculators first/.test(c.textContent)&&/Nassau, Wolf, scramble\. One email a month, max\./.test(c.textContent));
+    ok(`${n}: card copy: "Get new golf game calculators first" + "Wolf, Las Vegas and Nines. One email a month, max." (v13)`,!!c&&/Get new golf game calculators first/.test(c.textContent)&&/Wolf, Las Vegas and Nines\. One email a month, max\./.test(c.textContent));
     const g=d.getElementById('gc-gear');ok(`${n}: gear slot empty and hidden on load (nothing between inputs and result, no CLS)`,!!g&&g.hasAttribute('hidden')&&!g.children.length);
     const all=[...d.body.querySelectorAll('*')],res=d.getElementById(n==='daily-handicap.html'?'result':n==='handicap-calculator.html'?'hero':'hero');
     ok(`${n}: card and gear come after the result in the page`,all.indexOf(c)>all.indexOf(res)&&all.indexOf(g)>all.indexOf(res));
@@ -57,8 +58,10 @@ function realResult(h,n){
   if(n==='skins.html'||n==='stableford.html'){const U=h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'];U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');}
   else if(n==='daily-handicap.html'){h.set('ga','12.4');h.set('slope','131');h.set('scratch','70.5');h.set('par','72');}
   else if(n==='scramble-handicap-calculator.html'){['14','8','22','30'].forEach((v,i)=>h.set('ph'+i,v));}
+  else if(n==='match-play-handicap-calculator.html'){['14','8'].forEach((v,i)=>h.set('ph'+i,v));} // v13
+  else if(n==='nassau-calculator.html'){h.$('btn-start').click();h.$('btn-next').click();h.$('btn-settle').click();} // v13: one hole scored, then Settle now
   else{for(const sc of ['92','95','90']){h.$('score').value=sc;h.$('cr').value='71.3';h.$('sl').value='129';h.$('btn-add').click();}}}
-function example(h,n){if(n==='daily-handicap.html')h.$('dh-example').click();else if(n==='handicap-calculator.html'||n==='scramble-handicap-calculator.html')h.$('btn-example').click();else h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'].loadExample();}
+function example(h,n){if(n==='daily-handicap.html')h.$('dh-example').click();else if(n==='handicap-calculator.html'||n==='scramble-handicap-calculator.html'||n==='match-play-handicap-calculator.html'||n==='nassau-calculator.html')h.$('btn-example').click();else h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'].loadExample();}
 const visible=e=>!!e&&!e.hidden&&!e.closest('[hidden]');
 (async()=>{
 for(const [n,tool] of Object.entries(TOOLS)){
@@ -87,7 +90,7 @@ for(const [n,tool] of Object.entries(TOOLS)){
    ok(`${n}: email_signup {tool:"${tool}"} sent once`,evs(h).filter(a=>a[1]==='email_signup').length===1&&JSON.stringify(evs(h).find(a=>a[1]==='email_signup')[2])===JSON.stringify({tool}));
    const store=JSON.stringify({...h.w.localStorage})+JSON.stringify({...h.w.sessionStorage});
    ok(`${n}: the address is nowhere but the POST body: not in GA, the URL, localStorage or sessionStorage`,!JSON.stringify(dl(h)).includes('example.com')&&!h.w.location.href.includes('example')&&!store.includes('example.com')&&!store.includes('golfer'));
-   ok(`${n}: dataLayer events are only known names with {tool} (+item for affiliate_click; v12 scramble_calculate: {mode} only)`,evs(h).every(a=>a.length===3&&(a[1]==='scramble_calculate'?Object.keys(a[2]).join()==='mode'&&['usga','ambrose','custom'].includes(a[2].mode):typeof a[2].tool==='string'&&Object.keys(a[2]).every(k=>k==='tool'||((k==='item'||k==='store')&&a[1]==='affiliate_click')))));}
+   ok(`${n}: dataLayer events are only known names with {tool} (+item for affiliate_click; v12 scramble_calculate: {mode} only)`,evs(h).every(a=>a.length===3&&(a[1]==='scramble_calculate'?Object.keys(a[2]).join()==='mode'&&['usga','ambrose','custom'].includes(a[2].mode):a[1]==='matchplay_calculate'?Object.keys(a[2]).join()==='format'&&['singles','fourball-match','foursomes','fourball-stroke'].includes(a[2].format):a[1]==='nassau_settle'?Object.keys(a[2]).join()==='format'&&['1v1','2v2'].includes(a[2].format):typeof a[2].tool==='string'&&Object.keys(a[2]).every(k=>k==='tool'||((k==='item'||k==='store')&&a[1]==='affiliate_click')))));}
   {const h=make(n,{session:{gc_nl_shown_v1:'1'}});realResult(h,n);ok(`${n}: already shown this session: no card`,h.$('gc-nl-card').hidden);}
   {const h=make(n,{storage:{gc_nl_done_v1:'1'}});realResult(h,n);ok(`${n}: already signed up: no card`,h.$('gc-nl-card').hidden);}
   {const h=make(n);realResult(h,n);h.$('gc-nl-card').querySelector('.gc-nl-x').click();

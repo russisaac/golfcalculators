@@ -195,11 +195,16 @@ html{scroll-padding-top:60px}
      from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
      the link went to. The tool may also be "scramble" (v12).
      scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
-     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap.
+     v13: the tool may also be "matchplay" or "nassau". matchplay_calculate (match play strokes were worked out) carries
+     one parameter only, format: "singles", "fourball-match", "foursomes" or "fourball-stroke"; nassau_settle (a Nassau
+     was settled) carries one parameter only, format: "1v1" or "2v2". Never names, handicaps, scores or money.
+     Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
-    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate', 'matchplay_calculate', 'nassau_settle'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'matchplay', 'nassau', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'],
+    FORMATS = { matchplay_calculate: ['matchplay', ['singles', 'fourball-match', 'foursomes', 'fourball-stroke']], nassau_settle: ['nassau', ['1v1', '2v2']] };
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -222,6 +227,12 @@ html{scroll-padding-top:60px}
     if (name === 'scramble_calculate') { // v12: {mode} only
       if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
       gtag('event', name, { mode: item });
+      return true;
+    }
+    if (Object.prototype.hasOwnProperty.call(FORMATS, name)) { // v13: {format} only
+      var F = FORMATS[name];
+      if (!ON || tool !== F[0] || typeof item !== 'string' || F[1].indexOf(item) < 0) return false;
+      gtag('event', name, { format: item });
       return true;
     }
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
@@ -607,7 +618,7 @@ html{scroll-padding-top:60px}
   <div id="playoff" class="gc-card gc-own-only" style="margin-top:var(--s3)" hidden></div>
   <div class="sk-actions gc-own-only" id="share-row" style="position:static;background:none;padding-bottom:0"><button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="btn-share">Share result</button></div>
   <div class="gc-card sk-pad gc-ask gc-own-only" id="course-ask" style="margin-top:var(--s3)" hidden></div>
-  <div class="gc-card gc-nl-card gc-own-only" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="skins"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Nassau, Wolf, scramble. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
+  <div class="gc-card gc-nl-card gc-own-only" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="skins"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Wolf, Las Vegas and Nines. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
   <div class="gc-card" style="margin-top:var(--s3)">
     <h2>Totals</h2>
     <div class="sk-totals" id="totals"></div>
@@ -630,11 +641,13 @@ html{scroll-padding-top:60px}
   <div class="gc-next">
     <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Work out everyone's strokes for today's course.</span></a>
     <a href="/stableford"><strong>Stableford calculator →</strong><span>Points for the same round.</span></a>
+    <a href="/nassau-calculator"><strong>Nassau →</strong><span>Front, back and overall bets with presses, settled the same way.</span></a>
   </div>
 </section>
 
 <div class="gc-next" id="setup-next" style="margin-top:var(--s6)">
   <a href="/daily-handicap"><strong>Need handicaps? Daily Handicap →</strong><span>Golf Australia formula, 18 or 9 holes.</span></a>
+  <a href="/nassau-calculator"><strong>Playing a Nassau? →</strong><span>Front, back and overall bets with 2-down presses, 1v1 or 2v2 better ball.</span></a>
 </div>
 <section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
   <h2 id="how-h">How it's calculated</h2>
@@ -1569,7 +1582,9 @@ else {
   "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
   "daily-handicap": ["rangefinder", "scorecard-holder"],
   "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
-  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"]
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "matchplay": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "nassau": ["scorecard-holder", "golf-balls", "rangefinder"]
  }
 }
 </script>
