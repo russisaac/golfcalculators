@@ -1,0 +1,983 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Golf Calcs">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#166534">
+<title>Scramble Handicap Calculator – Texas Scramble &amp; Ambrose</title>
+<meta name="description" content="Team handicap for a 2, 3 or 4-person scramble: USGA allowances (35/15, 30/20/10, 25/20/15/10%), Ambrose ÷ 8 or your own %, with the working shown.">
+<link rel="canonical" href="https://golfcalculators.com/scramble-handicap-calculator">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="golfcalculators.com">
+<meta property="og:title" content="Scramble Handicap Calculator – Texas Scramble &amp; Ambrose">
+<meta property="og:description" content="Team handicap for a 2, 3 or 4-person scramble: USGA allowances (35/15, 30/20/10, 25/20/15/10%), Ambrose ÷ 8 or your own %, with the working shown.">
+<meta property="og:url" content="https://golfcalculators.com/scramble-handicap-calculator">
+<meta property="og:image" content="https://golfcalculators.com/og/scramble-handicap-calculator.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Scramble &amp; Ambrose: Team handicaps for 2, 3 or 4 players, USGA or Ambrose. golfcalculators.com">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Scramble Handicap Calculator – Texas Scramble &amp; Ambrose">
+<meta name="twitter:description" content="Team handicap for a 2, 3 or 4-person scramble: USGA allowances (35/15, 30/20/10, 25/20/15/10%), Ambrose ÷ 8 or your own %, with the working shown.">
+<meta name="twitter:image" content="https://golfcalculators.com/og/scramble-handicap-calculator.png">
+<meta name="twitter:image:alt" content="Scramble &amp; Ambrose: Team handicaps for 2, 3 or 4 players, USGA or Ambrose. golfcalculators.com">
+<!-- Shared design system: verbatim copy of /gc.css, inlined so the first paint needs no extra request (LCP). tests/run fails if it drifts from gc.css. -->
+<style data-src="/gc.css">/* gc.css: golfcalculators.com shared design system (v1, Nov 2026)
+   One accent, neutrals, 4px spacing scale, 4 font sizes (14/16/22/30),
+   shared header nav, card, button, stepper, segmented, hero, toast, footer. */
+:root{
+  --accent:#166534; --accent-ink:#fff; --accent-soft:#dcfce7; --accent-line:#86efac;
+  --ink:#0f172a; --ink-2:#334155; --muted:#475569; --line:#e2e8f0; --bg:#f6f8f7; --card:#fff;
+  --warn:#92400e; --warn-soft:#fef3c7; --danger:#b91c1c;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px;
+  --fs-sm:14px; --fs-md:16px; --fs-lg:22px; --fs-xl:30px;
+  --r:12px; --r-sm:8px; --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 12px rgba(15,23,42,.06);
+  --tap:48px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:var(--fs-md);line-height:1.5;color:var(--ink);background:var(--bg)}
+h1,h2,h3{margin:0;line-height:1.25}
+h1{font-size:var(--fs-lg)}
+h2{font-size:var(--fs-md)}
+p{margin:0}
+a{color:var(--accent)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+
+/* Header + nav */
+.gc-header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.gc-header-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s3)}
+.gc-brand{flex:none;display:flex;align-items:center;justify-content:center;gap:6px;min-width:44px;min-height:var(--tap);color:var(--ink);text-decoration:none}
+.gc-brand img{display:block;width:28px;height:28px;border-radius:7px}
+/* v11 wordmark: "Golf Calculators" beside the flag (system font). Stacked at 12px on phones so the three nav links
+   still fit at 375px; visually hidden under 360px (the link keeps its "Golf Calculators home" name). */
+.gc-word{display:block;font-size:12px;font-weight:750;letter-spacing:-.02em;line-height:1.1;white-space:nowrap}
+.gc-word span{display:block}
+.gc-nav{display:flex;flex:1;justify-content:flex-end;gap:var(--s1)}
+.gc-nav a{display:flex;align-items:center;min-height:var(--tap);padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--muted);text-decoration:none;border-bottom:3px solid transparent;white-space:nowrap}
+.gc-nav a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+@media (max-width:479px){.gc-header-in{padding:0 var(--s2)}.gc-nav{gap:0}.gc-nav a{padding:0 6px}}
+@media (max-width:359px){.gc-word{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}
+@media (min-width:480px){.gc-word{font-size:var(--fs-md)}.gc-word span{display:inline}}
+
+/* Layout */
+.gc-main{max-width:640px;margin:0 auto;padding:var(--s4) var(--s4) var(--s8)}
+.gc-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s4);box-shadow:var(--shadow)}
+.gc-stack>*+*{margin-top:var(--s3)}
+.gc-muted{color:var(--muted);font-size:var(--fs-sm)}
+.gc-label{display:block;font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);margin-bottom:var(--s1)}
+
+/* Buttons */
+.gc-btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:var(--tap);min-width:44px;padding:0 var(--s5);border-radius:var(--r-sm);border:1px solid transparent;font:inherit;font-weight:600;font-size:var(--fs-md);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.gc-btn-primary{background:var(--accent);color:var(--accent-ink)}
+.gc-btn-secondary{background:var(--card);color:var(--ink);border-color:#cbd5e1}
+.gc-btn-ghost{background:transparent;color:var(--accent)}
+.gc-btn-block{width:100%}
+.gc-btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* Inputs */
+.gc-input{width:100%;min-height:var(--tap);padding:0 var(--s3);font:inherit;font-size:var(--fs-md);color:var(--ink);background:var(--card);border:1px solid #94a3b8;border-radius:var(--r-sm)}
+
+/* Stepper */
+.gc-stepper{flex:none;display:inline-flex;align-items:center;border:1px solid #94a3b8;border-radius:var(--r-sm);background:var(--card);overflow:hidden}
+.gc-stepper button{width:var(--tap);height:var(--tap);border:0;background:#f1f5f9;color:var(--ink);font-size:var(--fs-lg);font-weight:600;line-height:1;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.gc-stepper button:active{background:var(--accent-soft)}
+.gc-stepper input{width:52px;height:var(--tap);border:0;text-align:center;font:inherit;font-size:var(--fs-lg);font-weight:700;color:var(--ink);background:transparent}
+.gc-stepper.is-default input{color:var(--muted)}
+
+/* Segmented control (radio group) */
+.gc-seg{display:flex;border:1px solid #94a3b8;border-radius:var(--r-sm);overflow:hidden;background:var(--card)}
+.gc-seg label{flex:1;position:relative}
+.gc-seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.gc-seg span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--ink-2);text-align:center}
+.gc-seg label+label span{border-left:1px solid #cbd5e1}
+.gc-seg input:checked+span{background:var(--accent);color:var(--accent-ink)}
+.gc-seg input:focus-visible+span{outline:3px solid #2563eb;outline-offset:-3px}
+
+/* Hero result */
+.gc-hero{background:var(--accent);color:#fff;border-radius:var(--r);padding:var(--s5) var(--s4);box-shadow:var(--shadow)}
+.gc-hero .gc-kicker{font-size:var(--fs-sm);font-weight:600;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.gc-hero .gc-big{font-size:var(--fs-xl);font-weight:800;line-height:1.2;margin-top:var(--s2)}
+.gc-hero .gc-big+.gc-big{margin-top:var(--s1)}
+
+/* Next-step cards */
+.gc-next{display:grid;gap:var(--s3)}
+.gc-next a{display:block;padding:var(--s4);min-height:var(--tap);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-next a strong{display:block;color:var(--accent)}
+.gc-next a span{font-size:var(--fs-sm);color:var(--muted)}
+
+/* Toast */
+.gc-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:var(--s2) var(--s4);border-radius:999px;font-size:var(--fs-sm);font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.gc-toast.show{opacity:1}
+
+/* Footer */
+.gc-footer{text-align:center;padding:var(--s4) var(--s4) var(--s8);color:var(--muted);font-size:var(--fs-sm)}
+.gc-footer a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s2);color:var(--muted)}
+
+/* Your courses (gc-courses.js) */
+.gc-courses{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-courses li{display:flex;gap:var(--s2);align-items:stretch}
+.gc-courses-use{flex:1;min-width:0;flex-direction:column;align-items:flex-start;justify-content:center;text-align:left;padding:var(--s2) var(--s3);gap:0}
+.gc-courses-use b{display:block;max-width:100%;overflow-wrap:anywhere}
+.gc-courses-use span{font-size:var(--fs-sm);font-weight:400;color:var(--muted)}
+.gc-courses-del{flex:none;width:var(--tap);padding:0;color:var(--muted)}
+.gc-courses-ask{flex-wrap:wrap;align-items:center;background:var(--warn-soft);border-radius:var(--r-sm);padding:var(--s2) var(--s3)}
+.gc-courses-ask>span:first-child{flex:1 1 100%;overflow-wrap:anywhere}
+.gc-courses-yn{display:flex;gap:var(--s2)}
+.gc-ask{border-left:4px solid var(--accent)}
+.gc-ask h2{margin-bottom:var(--s1)}
+.gc-ask .gc-ask-btns{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+/* v9 P4 feedback: "Send feedback" line after a result */
+.gc-fb{margin-top:var(--s3)}
+.gc-fb a{display:inline-flex;align-items:center;min-height:44px;font-weight:600;color:var(--accent)}
+/* v9 P5 Add to Home Screen tip (gc-a2hs.js) */
+.gc-a2hs-t,.gc-a2hs-p{margin:0}
+.gc-a2hs-p{margin:var(--s1) 0 var(--s2)}
+.gc-a2hs-ico{vertical-align:-3px;color:var(--accent)}
+.gc-a2hs-b{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* in-page jumps (How it's calculated, scrollIntoView) land below the sticky header, not under it */
+html{scroll-padding-top:60px}
+/* v11 email signup (gc-grow.js): footer form on every page, compact card after a result */
+.gc-nl-foot{max-width:28rem;margin:0 auto var(--s4);padding-top:var(--s5);border-top:1px solid var(--line);text-align:left}
+.gc-nl-t{font-size:var(--fs-md);color:var(--ink);margin-bottom:var(--s2)}
+.gc-nl-foot .gc-nl-t{font-size:var(--fs-sm);font-weight:400;color:var(--ink-2)}
+.gc-nl-p{font-size:var(--fs-sm);color:var(--muted);margin:calc(-1 * var(--s1)) 0 var(--s2)}
+.gc-nl-row{display:flex;gap:var(--s2)}
+.gc-nl-row .gc-input{flex:1;min-width:0}
+.gc-nl-row .gc-btn{flex:none;padding:0 var(--s4)}
+.gc-nl-consent{position:relative;display:flex;align-items:center;min-height:44px;margin-top:var(--s1);font-size:var(--fs-sm);color:var(--ink-2);cursor:pointer}
+.gc-nl-consent input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.gc-nl-consent span{display:flex;align-items:center;gap:var(--s2)}
+.gc-nl-consent span::before{content:"";flex:none;width:24px;height:24px;border:2px solid #64748b;border-radius:6px;background:var(--card) center/16px 16px no-repeat}
+.gc-nl-consent input:checked+span::before{border-color:var(--accent);background-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 8.5l3 3 7-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+.gc-nl-consent input:focus-visible+span::before{outline:3px solid #2563eb;outline-offset:2px}
+.gc-nl-err{font-size:var(--fs-sm);color:var(--danger)}
+.gc-nl-err:empty{display:none}
+.gc-nl-ok{font-weight:600;color:var(--accent);padding:var(--s2) 0}
+.gc-nl-ok:focus{outline:none}
+.gc-input[aria-invalid="true"]{border-color:var(--danger)}
+.gc-nl-card{position:relative;margin-top:var(--s3)}
+.gc-nl-card .gc-nl-t{padding-right:44px}
+.gc-nl-x{position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;background:none;font-size:var(--fs-lg);line-height:1;color:var(--muted);cursor:pointer;border-radius:var(--r-sm)}
+.gc-nl-card[hidden],.gc-gear[hidden],.gc-nl-form[hidden]{display:none}
+.gc-footer-links{margin:0}
+.gc-footer-aff{font-size:12px;margin-top:var(--s1)}
+/* v11 Gear for this game (affiliates.json): plain text cards, no prices */
+.gc-gear{margin-top:var(--s4)}
+.gc-gear h2{margin-bottom:var(--s2)}
+.gc-gear-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+.gc-gear-list a{display:block;min-height:var(--tap);padding:var(--s3) var(--s4);background:var(--card);border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--ink)}
+.gc-gear-list strong{display:block;color:var(--accent)}
+.gc-gear-list span{display:block;font-size:var(--fs-sm);color:var(--muted)}
+.gc-gear-disc{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--s2)}
+</style>
+<style>
+  .sc-title{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s3)}
+  .sc-lede{color:var(--ink-2);margin:0 0 var(--s3)}
+  .sc-row+.sc-row{margin-top:var(--s4)}
+  .sc-row>.gc-label{display:block;margin-bottom:var(--s2)}
+  .sc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+  .sc-grid .gc-input{padding:0 var(--s2)}
+  .sc-players{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+  .sc-player{display:flex;gap:var(--s2);align-items:center}
+  .sc-player .gc-input{flex:1;min-width:0}
+  .sc-player .gc-stepper input,.sc-pct .gc-stepper input{width:64px}
+  .sc-pcts{list-style:none;margin:0;padding:0;display:grid;gap:var(--s2)}
+  .sc-pct{display:flex;justify-content:space-between;align-items:center;gap:var(--s2)}
+  .sc-pct>span{font-size:var(--fs-sm);font-weight:600;color:var(--ink-2)}
+  .sc-help{margin-top:var(--s2);font-size:var(--fs-sm);color:var(--muted)}
+  .sc-err{color:var(--danger);font-size:var(--fs-sm);margin-top:var(--s2)}
+  .sc-err:empty{display:none}
+  .sc-hero .gc-big{font-size:var(--fs-xl)}
+  .sc-break{list-style:none;margin:var(--s3) 0 0;padding:0;border-top:1px solid rgba(255,255,255,.3)}
+  .sc-break li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s2);align-items:baseline;padding:var(--s2) 0;border-bottom:1px solid rgba(255,255,255,.3);font-size:var(--fs-sm)}
+  .sc-break .sc-n{min-width:0;overflow-wrap:anywhere;font-weight:700;font-size:var(--fs-md)}
+  .sc-break .sc-x{opacity:.95;white-space:nowrap}
+  .sc-break b{font-size:var(--fs-md);font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+  .sc-sub{margin-top:var(--s2);font-size:var(--fs-sm);opacity:.95;overflow-wrap:anywhere}
+  main [hidden]{display:none!important}
+  .sc-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
+  .gc-next[hidden]{display:none}
+  .gc-learn{margin-top:var(--s8);border-top:1px solid var(--line);padding-top:var(--s6);color:var(--ink-2)}
+  .gc-learn h2{font-size:var(--fs-lg);color:var(--ink);margin:var(--s6) 0 var(--s3)}
+  .gc-learn h2:first-child{margin-top:0}
+  .gc-learn h3{font-size:var(--fs-md);color:var(--ink);margin:var(--s5) 0 var(--s2)}
+  .gc-learn p,.gc-learn li{margin:0 0 var(--s3)}
+  .gc-learn-list{padding-left:var(--s5);margin:0 0 var(--s3)}
+  .gc-learn-result{font-weight:700;color:var(--ink)}
+  .gc-learn-src{font-size:var(--fs-sm);color:var(--muted)}
+  .gc-learn p a{padding:12px 0}
+  .gc-faq-item{border-top:1px solid var(--line);padding-top:var(--s3)}
+  .sc-shared{display:none;border-color:var(--accent-line);background:var(--accent-soft);margin-bottom:var(--s3)}
+  .sc-view .sc-shared{display:block}
+  .sc-view .sc-own{display:none!important}
+  /* a shared #r= view stays invisible until it is drawn (the link is decoded asynchronously), so nothing shifts; 3 s failsafe */
+  .sc-view:not(.sc-ready) main{visibility:hidden;animation:sc-reveal 0s 3s forwards}
+  @keyframes sc-reveal{to{visibility:visible}}
+  .gc-toast{width:max-content;max-width:calc(100vw - 2 * var(--s4));text-align:center;border-radius:16px}
+  .sc-err .sc-shared{display:block;background:var(--warn-soft);border-color:#fcd34d}
+  .sc-err #sc-own{display:none}
+  @media (max-width:359px){.sc-player .gc-stepper input,.sc-pct .gc-stepper input{width:54px}.sc-player .gc-stepper button,.sc-pct .gc-stepper button{width:44px}}
+</style>
+<!-- seo:jsonld:start -->
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "@id": "https://golfcalculators.com/scramble-handicap-calculator#app",
+   "name": "Scramble Handicap Calculator",
+   "url": "https://golfcalculators.com/scramble-handicap-calculator",
+   "description": "Team handicap for a 2, 3 or 4-person scramble: USGA allowances (35/15, 30/20/10, 25/20/15/10%), Ambrose ÷ 8 or your own %, with the working shown.",
+   "applicationCategory": "SportsApplication",
+   "operatingSystem": "Any",
+   "offers": {
+    "@type": "Offer",
+    "price": 0,
+    "priceCurrency": "AUD"
+   },
+   "inLanguage": "en"
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://golfcalculators.com/scramble-handicap-calculator#faq",
+   "url": "https://golfcalculators.com/scramble-handicap-calculator",
+   "inLanguage": "en",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "What are the USGA scramble handicap allowances?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The Rules of Handicapping, Appendix C, recommends 35% of the lower Course Handicap plus 15% of the higher for 2 players; 30%, 20% and 10% for 3; and 25%, 20%, 15% and 10% for 4, from the lowest Course Handicap to the highest. Add the shares, then round the total once (USGA, checked 28 Nov 2026)."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "How do you work out a 4-person scramble handicap?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Sort the four Course Handicaps from lowest to highest. Take 25% of the lowest, 20% of the next, 15% of the third and 10% of the highest, add them and round to the nearest whole number. The USGA's example team of 10.34, 15.35, 28.26 and 37.57 gets 13.65, so 14."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is the difference between Ambrose and a Texas scramble?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "They work the same way: everyone hits, the team picks the best shot and all play from there. Ambrose is the Australian name, often with a minimum number of drives from each player. Its traditional handicap is the combined Daily Handicaps ÷ 4 for pairs, ÷ 6 for threes and ÷ 8 for fours."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Does Golf Australia use ÷ 8 for Ambrose?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Golf Australia's WHS guide (January 2026, §10(A)) lists the R&A and USGA allowances for “Ambrose or Scramble”: 25/20/15/10% for 4 golfers and 35/15% for 2, with team handicaps usually to one decimal place. Many clubs still use ÷ 8. Use the method your event sheet names."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Should I use Course Handicap or Handicap Index?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Course Handicap. The allowances apply to each player's Course Handicap for the tees played; in Australia, use the Daily Handicap. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Do you round each player or the team total?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "The team total, once. The USGA applies the percentages to unrounded Course Handicaps, adds them and rounds the total to the nearest whole number, with .5 rounding up (Rule 6.2a). Rounding each player first can put you a stroke out. A plus team handicap rounds toward zero."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Can our event use different percentages?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Yes. The Appendix C allowances are recommendations for a normal field, and a committee can set its own in the terms of the competition. Choose Custom % and enter them, lowest handicap first."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "@id": "https://golfcalculators.com/scramble-handicap-calculator#breadcrumb",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://golfcalculators.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Scramble Handicap Calculator",
+     "item": "https://golfcalculators.com/scramble-handicap-calculator"
+    }
+   ]
+  }
+ ]
+}
+</script>
+<!-- seo:jsonld:end -->
+<!-- Analytics (v9 P6): verbatim copy of /gc-ga.js. Production hostnames only; see /privacy. tests/run fails if it drifts. -->
+<script data-src="/gc-ga.js">/* gc-ga.js: golfcalculators.com Google Analytics 4 (G-DH32H3GWKE), v9 P6, Nov 2026. Inlined verbatim into every page
+   as <script data-src="/gc-ga.js">; tests/run fails if a copy drifts from this file.
+   - Loads only on the production hostnames (golfcalculators.com, www.): previews, drafts and localhost send nothing.
+   - page_location is always origin + path + the utm_* parameters only: never the #fragment (shared result links
+     carry names and scores in #r=) and never other query values (such as a handicap passed back with ?dh=).
+   - Anonymous events, each with one parameter, the tool ("skins", "stableford", "handicap", "daily-handicap", or "site"
+     for a page that is not a calculator): round_settled, result_shared, shared_link_opened, start_own_from_viewer,
+     hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
+     dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
+     email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
+     from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
+     the link went to. The tool may also be "scramble" (v12).
+     scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
+(function () {
+  var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  function pageLocation() {
+    var keep = (location.search || '').replace(/^\?/, '').split('&').filter(function (kv) { return /^utm_(source|medium|campaign|term|content)=[A-Za-z0-9_.-]*$/.test(kv); });
+    return location.origin + location.pathname + (keep.length ? '?' + keep.join('&') : '');
+  }
+  if (ON) {
+    window.gtag = gtag;
+    var tag = document.createElement('script');
+    tag.async = true;
+    tag.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+    document.head.appendChild(tag);
+    gtag('js', new Date());
+    gtag('config', ID, { page_location: pageLocation() });
+    var reset = function () { gtag('set', { page_location: pageLocation() }); };
+    addEventListener('popstate', reset);
+    addEventListener('hashchange', reset);
+  }
+  window.gcTrack = function (name, tool, item, store) {
+    if (name === 'scramble_calculate') { // v12: {mode} only
+      if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
+      gtag('event', name, { mode: item });
+      return true;
+    }
+    if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
+    var p = { tool: tool };
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item) || STORES.indexOf(store) < 0) return false; p.item = item; p.store = store; }
+    gtag('event', name, p);
+    return true;
+  };
+})();
+</script>
+<script>if (/^#r=/.test(location.hash)) document.documentElement.classList.add('sc-view'); // a shared result: read-only, no flash of your own team</script>
+</head>
+<body data-gc="scramble-v1">
+<header class="gc-header"><div class="gc-header-in">
+  <a class="gc-brand" href="/" aria-label="Golf Calculators home"><img src="/favicon.svg" alt="" width="28" height="28"><span class="gc-word">Golf <span>Calculators</span></span></a>
+  <nav class="gc-nav" aria-label="Calculators">
+    <a href="/skins">Skins</a>
+    <a href="/stableford">Stableford</a>
+    <a href="/daily-handicap">Daily Hcp</a>
+  </nav>
+</div></header>
+<main class="gc-main">
+<div class="gc-card sc-shared" id="sc-shared" role="status"><h2 id="sc-shared-t" style="margin:0">Shared team handicap</h2><p class="gc-muted" id="sc-shared-p" style="margin-top:var(--s1)">Read-only, as entered by the sender.</p>
+  <button type="button" class="gc-btn gc-btn-primary gc-btn-block" id="sc-own" style="margin-top:var(--s3)">Work out your own</button></div>
+<div class="sc-title"><h1 id="sc-h">Scramble handicap calculator</h1><button type="button" class="gc-btn gc-btn-ghost sc-own" id="btn-example">Load example</button></div>
+<p class="sc-lede sc-own">Team handicap for 2, 3 or 4 players: USGA scramble allowances, Ambrose, or your own percentages.</p>
+
+<section class="gc-card sc-own" id="entry" aria-labelledby="entry-h">
+  <h2 id="entry-h" class="sr-only">Your team</h2>
+  <div class="sc-row"><span class="gc-label" id="size-l">Team size</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="size-l">
+      <label><input type="radio" name="size" value="2"><span>2 players</span></label>
+      <label><input type="radio" name="size" value="3"><span>3 players</span></label>
+      <label><input type="radio" name="size" value="4" checked><span>4 players</span></label>
+    </div></div>
+  <div class="sc-row"><span class="gc-label" id="mode-l">Method</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="mode-l">
+      <label><input type="radio" name="mode" value="usga" checked><span>USGA scramble</span></label>
+      <label><input type="radio" name="mode" value="ambrose"><span>Ambrose</span></label>
+      <label><input type="radio" name="mode" value="custom"><span>Custom %</span></label>
+    </div>
+    <p class="sc-help" id="mode-help">25%, 20%, 15% and 10% of the Course Handicaps, lowest to highest (USGA Appendix C).</p></div>
+  <div class="sc-row" id="custom-box" hidden><span class="gc-label" id="custom-l">Allowance for each player, lowest handicap first</span>
+    <ol class="sc-pcts" aria-labelledby="custom-l">
+      <li class="sc-pct" id="pctrow0"><span id="pctl0">Lowest handicap</span><div class="gc-stepper"><button type="button" data-pstep="-5" data-i="0" aria-label="Lowest handicap: lower %">−</button><label class="sr-only" for="pc0" id="pcl0">Lowest handicap, % allowance</label><input id="pc0" type="text" inputmode="numeric" autocomplete="off"><button type="button" data-pstep="5" data-i="0" aria-label="Lowest handicap: raise %">+</button></div></li>
+      <li class="sc-pct" id="pctrow1"><span id="pctl1">2nd lowest handicap</span><div class="gc-stepper"><button type="button" data-pstep="-5" data-i="1" aria-label="2nd lowest handicap: lower %">−</button><label class="sr-only" for="pc1" id="pcl1">2nd lowest handicap, % allowance</label><input id="pc1" type="text" inputmode="numeric" autocomplete="off"><button type="button" data-pstep="5" data-i="1" aria-label="2nd lowest handicap: raise %">+</button></div></li>
+      <li class="sc-pct" id="pctrow2"><span id="pctl2">3rd lowest handicap</span><div class="gc-stepper"><button type="button" data-pstep="-5" data-i="2" aria-label="3rd lowest handicap: lower %">−</button><label class="sr-only" for="pc2" id="pcl2">3rd lowest handicap, % allowance</label><input id="pc2" type="text" inputmode="numeric" autocomplete="off"><button type="button" data-pstep="5" data-i="2" aria-label="3rd lowest handicap: raise %">+</button></div></li>
+      <li class="sc-pct" id="pctrow3"><span id="pctl3">Highest handicap</span><div class="gc-stepper"><button type="button" data-pstep="-5" data-i="3" aria-label="Highest handicap: lower %">−</button><label class="sr-only" for="pc3" id="pcl3">Highest handicap, % allowance</label><input id="pc3" type="text" inputmode="numeric" autocomplete="off"><button type="button" data-pstep="5" data-i="3" aria-label="Highest handicap: raise %">+</button></div></li>
+    </ol></div>
+  <div class="sc-row"><span class="gc-label" id="kind-l">Each player's</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="kind-l">
+      <label><input type="radio" name="kind" value="ch" checked><span>Course / Daily Hcp</span></label>
+      <label><input type="radio" name="kind" value="hi"><span>Handicap Index</span></label>
+    </div></div>
+  <div class="sc-row" id="course-box" hidden>
+    <div class="sc-grid">
+      <div><label class="gc-label" for="sl">Slope</label><input class="gc-input" id="sl" type="text" inputmode="numeric" autocomplete="off" placeholder="113" aria-describedby="course-help"></div>
+      <div><label class="gc-label" for="cr">Course Rating</label><input class="gc-input" id="cr" type="text" inputmode="decimal" autocomplete="off" placeholder="72.0" aria-describedby="course-help"></div>
+      <div><label class="gc-label" for="par">Par</label><input class="gc-input" id="par" type="text" inputmode="numeric" autocomplete="off" placeholder="72" aria-describedby="course-help"></div>
+    </div>
+    <p class="sc-help" id="course-help">For the tees you play. Course Handicap = Index × Slope ÷ 113 + (Course Rating − Par).</p></div>
+  <div class="sc-row"><span class="gc-label" id="players-l">Players</span>
+    <ol class="sc-players" aria-labelledby="players-l">
+    <li class="sc-player" id="row0"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input sc-name" id="pn0" type="text" autocomplete="off" maxlength="24" placeholder="Player 1"><div class="gc-stepper"><button type="button" data-step="-1" data-i="0" aria-label="Player 1: lower handicap">−</button><label class="sr-only" for="ph0" id="phl0">Player 1 Course Handicap</label><input id="ph0" type="text" inputmode="decimal" autocomplete="off" placeholder="–" aria-describedby="players-help"><button type="button" data-step="1" data-i="0" aria-label="Player 1: raise handicap">+</button></div></li>
+    <li class="sc-player" id="row1"><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input sc-name" id="pn1" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper"><button type="button" data-step="-1" data-i="1" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph1" id="phl1">Player 2 Course Handicap</label><input id="ph1" type="text" inputmode="decimal" autocomplete="off" placeholder="–" aria-describedby="players-help"><button type="button" data-step="1" data-i="1" aria-label="Player 2: raise handicap">+</button></div></li>
+    <li class="sc-player" id="row2"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input sc-name" id="pn2" type="text" autocomplete="off" maxlength="24" placeholder="Player 3"><div class="gc-stepper"><button type="button" data-step="-1" data-i="2" aria-label="Player 3: lower handicap">−</button><label class="sr-only" for="ph2" id="phl2">Player 3 Course Handicap</label><input id="ph2" type="text" inputmode="decimal" autocomplete="off" placeholder="–" aria-describedby="players-help"><button type="button" data-step="1" data-i="2" aria-label="Player 3: raise handicap">+</button></div></li>
+    <li class="sc-player" id="row3"><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input sc-name" id="pn3" type="text" autocomplete="off" maxlength="24" placeholder="Player 4"><div class="gc-stepper"><button type="button" data-step="-1" data-i="3" aria-label="Player 4: lower handicap">−</button><label class="sr-only" for="ph3" id="phl3">Player 4 Course Handicap</label><input id="ph3" type="text" inputmode="decimal" autocomplete="off" placeholder="–" aria-describedby="players-help"><button type="button" data-step="1" data-i="3" aria-label="Player 4: raise handicap">+</button></div></li>
+    </ol>
+    <p class="sc-help" id="players-help">Names are optional. Write a plus handicap as +2.</p>
+    <p class="sc-err" id="err" role="alert"></p></div>
+  <div class="sc-row"><span class="gc-label" id="round-l">Round the team handicap to</span>
+    <div class="gc-seg" role="radiogroup" aria-labelledby="round-l">
+      <label><input type="radio" name="round" value="0" checked><span>Whole number</span></label>
+      <label><input type="radio" name="round" value="1"><span>One decimal</span></label>
+    </div></div>
+</section>
+
+<section id="result" aria-labelledby="result-h" style="margin-top:var(--s3)">
+  <h2 id="result-h" class="sr-only">Team handicap</h2>
+  <div class="gc-hero sc-hero" id="hero"><p class="gc-kicker">Team handicap</p><p class="gc-big">Enter 4 handicaps</p><p class="sc-sub">Each player's Course Handicap (in Australia, Daily Handicap) for the tees you play.</p></div>
+  <div class="sc-actions" id="actions" hidden>
+    <button type="button" class="gc-btn gc-btn-primary" id="btn-share">Share result</button>
+    <button type="button" class="gc-btn gc-btn-secondary" id="btn-copy">Copy link</button>
+  </div>
+  <div class="gc-card gc-nl-card sc-own" id="gc-nl-card" role="region" aria-label="Email signup" hidden><button type="button" class="gc-nl-x" aria-label="Dismiss email signup">×</button><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-c-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="scramble"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><h2 class="gc-nl-t" id="nl-c-t">Get new golf game calculators first</h2><p class="gc-nl-p">Nassau, Wolf, scramble. One email a month, max.</p><label class="gc-label" for="nl-c-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-c-email" name="email" autocomplete="email" aria-describedby="nl-c-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-c-err" aria-live="polite"></p></form></div>
+
+  <p class="gc-muted" style="margin-top:var(--s3)">Allowances are recommendations: the terms of your event decide. <a href="#how-h">How it's calculated</a></p>
+  <div class="gc-gear sc-own" id="gc-gear" role="region" aria-label="Gear for this game" hidden></div>
+  <p class="gc-muted gc-fb sc-own" id="fb-after">How did the calculator go? <a href="/feedback?from=scramble-handicap-calculator">Send feedback</a></p>
+</section>
+
+<h2 style="margin:var(--s6) 0 var(--s3)">Next step</h2>
+<div class="gc-next">
+  <a href="/daily-handicap"><strong>Daily Handicap →</strong><span>Each player's strokes for today's tees, Golf Australia formula.</span></a>
+  <a href="/handicap-calculator"><strong>Handicap Index →</strong><span>Estimate a GA Handicap from the last 20 rounds.</span></a>
+</div>
+
+<section class="gc-learn" id="learn" aria-labelledby="how-h"><!-- seo:content:start -->
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Each player needs a Course Handicap for the tees being played (in Australia, the Daily Handicap). The team handicap takes a share of each and is rounded once:</p>
+  <ul class="gc-learn-list">
+    <li>USGA scramble (Rules of Handicapping, Appendix C): 2 players, 35% of the lower Course Handicap plus 15% of the higher; 3 players, 30%, 20% and 10%; 4 players, 25%, 20%, 15% and 10%, from the lowest Course Handicap to the highest.</li>
+    <li>Ambrose, the traditional Australian club method: add the handicaps and divide by 4 for 2 players, 6 for 3 and 8 for 4.</li>
+    <li>Custom: the percentages your event's terms set, lowest handicap first.</li>
+  </ul>
+  <p>From a Handicap Index, Course Handicap = Index × Slope ÷ 113 + (Course Rating − Par), kept unrounded. The team total is rounded to the nearest whole number with .5 rounding up (Rule 6.2a), or to one decimal place if your event says so.</p>
+  <h3>Worked example</h3>
+  <p>This is the USGA's own 4-player example. The Handicap Indexes are <span data-ex="hi-0">8.4</span>, <span data-ex="hi-1">12.6</span>, <span data-ex="hi-2">23.4</span> and <span data-ex="hi-3">31.2</span>, on tees with a Course Rating of <span data-ex="cr">72.3</span>, a Slope of <span data-ex="sl">135</span> and par <span data-ex="par">72</span>. The lowest Course Handicap is 8.4 × 135 ÷ 113 + 0.3 = <span data-ex="ch-0">10.34</span>; the others are <span data-ex="ch-1">15.35</span>, <span data-ex="ch-2">28.26</span> and <span data-ex="ch-3">37.57</span>.</p>
+  <ul class="gc-learn-list">
+    <li>25% × 10.34 = <span data-ex="share-0">2.58</span></li>
+    <li>20% × 15.35 = <span data-ex="share-1">3.07</span></li>
+    <li>15% × 28.26 = <span data-ex="share-2">4.24</span></li>
+    <li>10% × 37.57 = <span data-ex="share-3">3.76</span></li>
+  </ul>
+  <p class="gc-learn-result">Team handicap: <span data-ex="raw">13.65</span> → <span data-ex="team">14</span></p>
+  <p>Played as Ambrose off whole-number handicaps of 10, 15, 28 and 38, the same team gets (10 + 15 + 28 + 38) ÷ 8 = <span data-ex="amb-raw">11.38</span>, so <span data-ex="amb-team">11</span>. Tap <strong>Load example</strong> at the top to see the USGA version worked.</p>
+  <p class="gc-learn-src" id="rules-source">Rules sources, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7h5.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C: Scramble</cite></a> (effective 1 January 2024), with Rule 6.1 (Course Handicap) and Rule 6.2a (rounding); Golf Australia, <a href="https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf" rel="noopener"><cite>WHS Official reference guide for Australian administrators, Operational Guidance &amp; Supporting Regulations</cite></a>, Edition January 2026, §10(A) handicap allowances. Ambrose ÷ 8 is the traditional Australian club method, as in <a href="https://www.leuragolfclub.com.au/competition-rules-and-etiquette/" rel="noopener">Leura Golf Club's competition rules</a>.</p>
+  <p>Need the handicaps first? <a href="/daily-handicap">Work out each player's Daily Handicap</a>, or <a href="/handicap-calculator">estimate a GA Handicap from recent rounds</a>.</p>
+
+  <h2 id="faq-h">Frequently asked questions</h2>
+  <div class="gc-faq-item"><h3>What are the USGA scramble handicap allowances?</h3><p>The Rules of Handicapping, Appendix C, recommends 35% of the lower Course Handicap plus 15% of the higher for 2 players; 30%, 20% and 10% for 3; and 25%, 20%, 15% and 10% for 4, from the lowest Course Handicap to the highest. Add the shares, then round the total once (USGA, checked 28 Nov 2026).</p></div>
+  <div class="gc-faq-item"><h3>How do you work out a 4-person scramble handicap?</h3><p>Sort the four Course Handicaps from lowest to highest. Take 25% of the lowest, 20% of the next, 15% of the third and 10% of the highest, add them and round to the nearest whole number. The USGA's example team of 10.34, 15.35, 28.26 and 37.57 gets 13.65, so 14.</p></div>
+  <div class="gc-faq-item"><h3>What is the difference between Ambrose and a Texas scramble?</h3><p>They work the same way: everyone hits, the team picks the best shot and all play from there. Ambrose is the Australian name, often with a minimum number of drives from each player. Its traditional handicap is the combined Daily Handicaps ÷ 4 for pairs, ÷ 6 for threes and ÷ 8 for fours.</p></div>
+  <div class="gc-faq-item"><h3>Does Golf Australia use ÷ 8 for Ambrose?</h3><p>Golf Australia's WHS guide (January 2026, §10(A)) lists the R&amp;A and USGA allowances for “Ambrose or Scramble”: 25/20/15/10% for 4 golfers and 35/15% for 2, with team handicaps usually to one decimal place. Many clubs still use ÷ 8. Use the method your event sheet names.</p></div>
+  <div class="gc-faq-item"><h3>Should I use Course Handicap or Handicap Index?</h3><p>Course Handicap. The allowances apply to each player's Course Handicap for the tees played; in Australia, use the <a href="/daily-handicap">Daily Handicap</a>. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par.</p></div>
+  <div class="gc-faq-item"><h3>Do you round each player or the team total?</h3><p>The team total, once. The USGA applies the percentages to unrounded Course Handicaps, adds them and rounds the total to the nearest whole number, with .5 rounding up (Rule 6.2a). Rounding each player first can put you a stroke out. A plus team handicap rounds toward zero.</p></div>
+  <div class="gc-faq-item"><h3>Can our event use different percentages?</h3><p>Yes. The Appendix C allowances are recommendations for a normal field, and a committee can set its own in the terms of the competition. Choose Custom % and enter them, lowest handicap first.</p></div>
+<!-- seo:content:end --></section>
+</main>
+<div class="gc-toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="gc-footer">
+<div class="gc-nl-foot"><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-f-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="scramble"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><p class="gc-nl-t" id="nl-f-t"><strong>New golf calculators, first.</strong> One email a month, max.</p><label class="gc-label" for="nl-f-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-f-email" name="email" autocomplete="email" aria-describedby="nl-f-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-f-err" aria-live="polite"></p></form></div>
+<p class="gc-footer-links"><a href="/feedback?from=scramble-handicap-calculator">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</p>
+<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases (Amazon.com.au and Amazon.com).</p>
+</footer>
+<script data-src="/gc-share.js">/* gc-share.js: golfcalculators.com shared result links (v1, Nov 2026). Inlined verbatim into each calculator
+   page as <script data-src="/gc-share.js"> (like gc.css); tests/run fails if a copy drifts from this file.
+   A result link is https://golfcalculators.com/<tool>#r=<tag>.<payload>. The data sits in the #fragment, which
+   browsers never send to the server, so names and scores never reach Netlify, a CDN, a Referer or a preview
+   crawler. Tags: "1z." = v1, deflate-raw then base64url; "1." = v1, plain base64url (no CompressionStream).
+   Everything decoded is treated as hostile: size caps, strict base64url, fatal UTF-8, JSON.parse only; each
+   page then rebuilds its state field by field from a whitelist (never Object.assign). */
+(function () {
+  var MAX = 4096, CAP = 16384;
+  function err(code) { var e = new Error(code); e.code = code; return e; }
+  function b64u(bytes) {
+    var s = '', i;
+    for (i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, Array.prototype.slice.call(bytes, i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function unb64u(str) {
+    if (!/^[A-Za-z0-9_-]+$/.test(str) || str.length % 4 === 1) return null;
+    var b = str.replace(/-/g, '+').replace(/_/g, '/'), s, u, i;
+    while (b.length % 4) b += '=';
+    try { s = atob(b); } catch (e) { return null; }
+    u = new Uint8Array(s.length);
+    for (i = 0; i < s.length; i++) u[i] = s.charCodeAt(i);
+    return u;
+  }
+  function pump(bytes, stream, cap) { // write all bytes through a (De)CompressionStream; stop past cap bytes out
+    var w = stream.writable.getWriter(), r = stream.readable.getReader(), parts = [], n = 0;
+    w.write(bytes).catch(function () {}); w.close().catch(function () {});
+    return new Promise(function (res, rej) {
+      (function next() {
+        r.read().then(function (x) {
+          if (x.done) { var out = new Uint8Array(n), o = 0; parts.forEach(function (p) { out.set(p, o); o += p.length; }); return res(out); }
+          n += x.value.length;
+          if (n > cap) { r.cancel().catch(function () {}); return rej(err('bad')); }
+          parts.push(x.value); next();
+        }, function () { rej(err('bad')); });
+      })();
+    });
+  }
+  function canZip() { return typeof CompressionStream === 'function'; }
+  function encode(obj, plain) { // -> Promise of "1z.<payload>" (or "1.<payload>")
+    var bytes = new TextEncoder().encode(JSON.stringify(obj));
+    if (!plain && canZip()) return pump(bytes, new CompressionStream('deflate-raw'), Infinity).then(function (z) { return '1z.' + b64u(z); });
+    return Promise.resolve('1.' + b64u(bytes));
+  }
+  function decode(raw) { // -> Promise of the parsed JSON object; rejects with code 'bad' or 'browser'
+    return new Promise(function (res, rej) {
+      if (typeof raw !== 'string' || raw.length > MAX) return rej(err('bad'));
+      var m = /^(1z?)\.([A-Za-z0-9_-]+)$/.exec(raw);
+      if (!m) return rej(err('bad'));
+      var bytes = unb64u(m[2]);
+      if (!bytes) return rej(err('bad'));
+      var zipped = m[1] === '1z';
+      if (zipped && typeof DecompressionStream !== 'function') return rej(err('browser'));
+      if (!zipped && bytes.length > CAP) return rej(err('bad'));
+      (zipped ? pump(bytes, new DecompressionStream('deflate-raw'), CAP) : Promise.resolve(bytes)).then(function (b) {
+        var o;
+        try { o = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(b)); } catch (e) { return rej(err('bad')); }
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return rej(err('bad'));
+        res(o);
+      }, rej);
+    });
+  }
+  function fromHash(hash) { var m = /^#r=([^&#]*)$/.exec(hash || ''); return m ? m[1] : null; } // r= is the only key
+  function get(o, k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; } // own keys only
+  function cleanText(s, max) { // NFC, no C0/C1 or bidi controls, trimmed, at most max code points
+    if (typeof s !== 'string') return '';
+    if (s.normalize) s = s.normalize('NFC');
+    s = s.replace(/[\u0000-\u001F\u007F-\u009F\u200E\u200F\u202A-\u202E\u2066-\u2069]/g, '').trim();
+    return Array.from(s).slice(0, max).join('').trim();
+  }
+  function gsm(text) { // share text in plain ASCII where we wrote it, so SMS stays GSM-7 (PO, 12 Nov)
+    return String(text).replace(/\s*\u00B7\s*/g, ' - ').replace(/[\u2013\u2014\u2212]/g, '-').replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"')
+      .replace(/\u2192/g, '->').replace(/\u2026/g, '...').replace(/\u00D7/g, 'x').replace(/\u00A0/g, ' ');
+  }
+  var TEXT = { title: 'Shared result', line: 'Read-only, as entered by the scorer.',
+    bad: ['This result link can\u2019t be opened', 'It is incomplete or from a newer version of the calculator.'],
+    browser: ['This link needs a newer browser', 'Update your browser to see this result, or start your own round.'] };
+  function banner(mode) { // mode: 'ok' | 'bad' | 'browser'; the banner is pre-rendered in the page (no layout shift)
+    var t = document.getElementById('gc-shared-t'), p = document.getElementById('gc-shared-p'), x = mode === 'ok' ? [TEXT.title, TEXT.line] : TEXT[mode] || TEXT.bad;
+    if (t) t.textContent = x[0];
+    if (p) p.textContent = x[1];
+    // "Start your own round" (primary) sits directly under the result (#hero), so it is on the first screen; on the
+    // error card, directly under the banner. Share result and Copy link are secondary links under it (PO, 12 Nov).
+    var a = document.getElementById('view-actions'), at = document.getElementById(mode === 'ok' ? 'hero' : 'gc-shared');
+    if (a && at && at.nextElementSibling !== a) at.parentNode.insertBefore(a, at.nextSibling);
+    var h = document.documentElement.classList;
+    h.add('gc-view'); h.remove('gc-wait'); h.toggle('gc-view-err', mode !== 'ok');
+  }
+  function leave() { var h = document.documentElement.classList; h.remove('gc-view', 'gc-wait', 'gc-view-err'); }
+  // Start your own round, step 1 of 1 for the URL: drop the #r= fragment BEFORE anything else runs. This is the only
+  // history call in viewer mode (pages never push or replace state while #r= is in the URL), so GA's history
+  // listener never sees a URL holding names (PO, 12 Nov).
+  function clearHash() { if (history.replaceState) history.replaceState(null, '', location.pathname + location.search.replace(/[?&]utm_[a-z]+=[^&]*/g, '').replace(/^&/, '?')); } // v9 P6: the share link's utm_* tags go too
+  window.GCShare = { encode: encode, decode: decode, fromHash: fromHash, get: get, cleanText: cleanText, gsm: gsm, banner: banner, leave: leave, clearHash: clearHash,
+    TEXT: TEXT, MAX: MAX, CAP: CAP, b64u: b64u, unb64u: unb64u };
+})();
+</script>
+<script>
+(function () {
+/* Scramble / Texas scramble / Ambrose team handicap (v12, 28 Nov 2026).
+   Sources, checked 28 Nov 2026:
+   [USGA] Rules of Handicapping (USGA/R&A, effective 1 Jan 2024), Appendix C, Scramble:
+          https://www.usga.org/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7h5.htm
+          4 players 25%/20%/15%/10%, 3 players 30%/20%/10%, 2 players 35%/15%, from the lowest to the highest handicap,
+          applied to Course Handicaps; worked example HI 8.4/12.6/23.4/31.2, CR 72.3, Slope 135, par 72 -> 13.650 -> 14.
+          Rule 6.1 Course Handicap = Index x Slope / 113 + (Course Rating - Par); Rule 6.2a round to the nearest whole
+          number, .5 up; 6.2a/1 apply allowances to the unrounded Course Handicap.
+   [GA]   Golf Australia, WHS Official reference guide for Australian administrators, Edition January 2026, s10(A):
+          "Ambrose or Scramble" 25/20/15/10% (4 golfers) and 35%/15% (2 golfers); team handicaps in these formats are
+          typically rounded to one decimal place; plus handicaps move toward zero when rounded (s10(C), s3(H) notes).
+          https://static.golf.com.au/clubs/1000/uploads/resources/whs%20reference%20guide%20for%20australian%20administrators%20(1-1-2026).pdf
+   Ambrose mode is the traditional Australian club method: combined handicaps / (2 x players), i.e. /4, /6, /8
+   (e.g. North Ryde GC Golf Competition Manual, May 2024; Leura GC competition rules; Yarrambat GC, Sept 2026). */
+var USGA = { 2: [35, 15], 3: [30, 20, 10], 4: [25, 20, 15, 10] };
+var MODES = ['usga', 'ambrose', 'custom'];
+function fix(x) { return +(+x).toFixed(9); }
+function roundTo(x, dp) { var f = dp ? 10 : 1, v = Math.round(fix(x * f)) / f; return v === 0 ? 0 : v; } // .5 up; a plus (negative) .5 moves toward zero
+function courseHcp(hi, sl, cr, par) { return fix(hi * sl / 113 + (cr - par)); } // unrounded (Rule 6.1, 6.2a/1)
+function team(players, mode, pcts) { // players: [{name, ch}] (ch unrounded); -> breakdown lowest to highest, raw total
+  var n = players.length, div = 2 * n;
+  var sorted = players.map(function (p, i) { return { name: p.name, ch: +p.ch, i: i }; }).sort(function (a, b) { return a.ch - b.ch || a.i - b.i; });
+  var p = mode === 'ambrose' ? sorted.map(function () { return 100 / div; }) : (mode === 'custom' ? pcts : USGA[n]).slice(0, n);
+  sorted.forEach(function (x, k) { x.pct = p[k]; x.share = fix(mode === 'ambrose' ? x.ch / div : x.ch * p[k] / 100); });
+  var raw = fix(mode === 'ambrose' ? sorted.reduce(function (s, x) { return s + x.ch; }, 0) / div : sorted.reduce(function (s, x) { return s + x.share; }, 0));
+  return { n: n, mode: mode, div: div, pcts: p, sorted: sorted, raw: raw };
+}
+function plus(s, x) { return x < 0 ? '+' + s.replace('-', '') : s; }
+function trim(s) { return s.indexOf('.') < 0 ? s : s.replace(/0+$/, '').replace(/\.$/, ''); }
+function fmtNum(x, d) { return plus(trim((+x).toFixed(d)), x); }   // 2 dp max, trailing zeros dropped, plus sign
+function fmtRaw(x, dp) { var s = (+x).toFixed(2); if (roundTo(+s, dp) !== roundTo(x, dp)) s = (+x).toFixed(3); return plus(trim(s), x); } // never shows a value that would round differently
+function fmtTeam(x, dp) { return plus(dp ? (+x).toFixed(1) : String(Math.abs(x)), x); }
+window.GCScramble = { USGA: USGA, MODES: MODES, courseHcp: courseHcp, team: team, roundTo: roundTo, fmtNum: fmtNum, fmtRaw: fmtRaw, fmtTeam: fmtTeam };
+
+/* ---------- UI ---------- */
+var KEY = 'gc_scramble_v1', URL = 'https://golfcalculators.com/scramble-handicap-calculator';
+var $ = function (id) { return document.getElementById(id); };
+function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function cleanName(s) { return window.GCShare ? GCShare.cleanText(s, 24) : String(s || '').slice(0, 24); }
+var LIM = { ch: [-15, 72], hi: [-10, 54] };
+function okH(v, k) { return typeof v === 'number' && isFinite(v) && v >= LIM[k][0] && v <= LIM[k][1]; }
+function okCourse(c) { return !!c && c.sl === Math.round(c.sl) && c.sl >= 55 && c.sl <= 155 && c.cr >= 25 && c.cr <= 85 && c.par === Math.round(c.par) && c.par >= 25 && c.par <= 80; }
+function parseH(t, k) { // "+2" (or "-2", "−2") is a plus handicap, stored as -2; Index to 1 dp, Course Handicap to 2 dp
+  var m = (k === 'hi' ? /^([+\-\u2212]?)\s*(\d{1,2}(?:[.,]\d)?)$/ : /^([+\-\u2212]?)\s*(\d{1,2}(?:[.,]\d{1,2})?)$/).exec(String(t).trim());
+  if (!m) return null; var v = +m[2].replace(',', '.'); if (m[1]) v = -v; v = v === 0 ? 0 : v;
+  return okH(v, k) ? v : null;
+}
+function fmtH(v, k) { if (v == null) return ''; return k === 'hi' ? plus(Math.abs(v).toFixed(1), v) : fmtNum(v, 2); }
+function blank() { return { size: 4, mode: 'usga', kind: 'ch', round: 0, players: [0, 1, 2, 3].map(function () { return { n: '', v: null }; }), course: { sl: null, cr: null, par: null }, custom: USGA[4].slice() }; }
+function clean(o) { // whitelist, field by field (storage and #r= links); null if unusable
+  if (!o || typeof o !== 'object') return null;
+  var g = function (k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };
+  var s = blank(), size = g('s'), mode = g('m'), kind = g('k'), rd = g('r'), p = g('p'), c = g('c'), x = g('x');
+  if ([2, 3, 4].indexOf(size) < 0 || MODES.indexOf(mode) < 0 || ['ch', 'hi'].indexOf(kind) < 0 || [0, 1].indexOf(rd) < 0 || !Array.isArray(p) || p.length > 4) return null;
+  s.size = size; s.mode = mode; s.kind = kind; s.round = rd;
+  for (var i = 0; i < p.length; i++) { var e = p[i]; if (!Array.isArray(e) || e.length !== 2 || typeof e[0] !== 'string') return null;
+    s.players[i] = { n: cleanName(e[0]), v: e[1] === null ? null : (okH(e[1], kind) ? +e[1] : null) }; if (e[1] !== null && s.players[i].v === null) return null; }
+  if (c !== undefined) { if (!Array.isArray(c) || c.length !== 3) return null; var cc = { sl: c[0], cr: c[1], par: c[2] };
+    if (c.every(function (v) { return v === null; })) cc = { sl: null, cr: null, par: null }; else if (!okCourse(cc)) return null; s.course = cc; }
+  if (x !== undefined) { if (!Array.isArray(x) || x.length !== 4 || !x.every(function (v) { return v === Math.round(v) && v >= 0 && v <= 100; })) return null; s.custom = x.slice(); }
+  return s;
+}
+function pack(st, all) { // -> plain object; all = keep 4 players (storage) or only the team (a link)
+  var o = { v: 1, s: st.size, m: st.mode, k: st.kind, r: st.round, p: st.players.slice(0, all ? 4 : st.size).map(function (p) { return [p.n, p.v]; }) };
+  if (all || st.kind === 'hi') o.c = [st.course.sl, st.course.cr, st.course.par];
+  if (all || st.mode === 'custom') o.x = st.custom.slice();
+  return o;
+}
+function load() { try { return clean(JSON.parse(localStorage.getItem(KEY) || 'null')) || blank(); } catch (e) { return blank(); } }
+var S = load(), VIEW = null, EXAMPLE_ON = false, SENT = {}, LINK = null, BAD = {};
+function st() { return VIEW || S; }
+function save() { if (VIEW) return; try { localStorage.setItem(KEY, JSON.stringify(pack(S, true))); } catch (e) {} }
+function track(name, item) { if (window.gcTrack) gcTrack(name, 'scramble', item); } // scramble_calculate: {mode} only; others {tool}
+var EXAMPLE = { size: 4, mode: 'usga', kind: 'hi', round: 0, course: { sl: 135, cr: 72.3, par: 72 }, players: [['Alex', 8.4], ['Blake', 12.6], ['Casey', 23.4], ['Drew', 31.2]] }; // [USGA] Appendix C worked example
+window.GCScramble.EXAMPLE = EXAMPLE;
+
+function calc(s) { // -> {need, res} for a state
+  var n = s.size, list = s.players.slice(0, n), hi = s.kind === 'hi';
+  var missing = list.filter(function (p) { return p.v == null; }).length;
+  if (missing) return { need: missing === n ? 'Enter ' + n + ' handicaps' : 'Enter ' + missing + ' more handicap' + (missing === 1 ? '' : 's') };
+  if (hi && !okCourse(s.course)) return { need: 'Enter the Slope, Course Rating and Par' };
+  var players = list.map(function (p, i) { return { name: p.n || 'Player ' + (i + 1), ch: hi ? courseHcp(p.v, s.course.sl, s.course.cr, s.course.par) : p.v }; });
+  var r = team(players, s.mode, s.custom);
+  r.team = roundTo(r.raw, s.round);
+  return { res: r };
+}
+window.GCScramble.calc = calc;
+var RANK = function (k, n) { return k === 0 ? 'Lowest' : k === n - 1 ? 'Highest' : (k === 1 ? '2nd' : '3rd') + ' lowest'; };
+function modeLine(s) {
+  if (s.mode === 'usga') return s.size + '-person scramble: ' + USGA[s.size].join('%, ').replace(/, (\d+)$/, ' and $1') + '% of the Course Handicaps, lowest to highest (USGA Appendix C).';
+  if (s.mode === 'ambrose') return 'Combined handicaps \u00f7 ' + 2 * s.size + ' (\u00f7 4 for 2 players, \u00f7 6 for 3, \u00f7 8 for 4): the traditional Australian Ambrose method.';
+  return 'Your event\u2019s percentages, lowest handicap first. Starts from the USGA ' + s.size + '-person allowance.';
+}
+function render() {
+  var s = st(), hi = s.kind === 'hi', n = s.size;
+  // controls (own view only)
+  if (!VIEW) {
+    [].forEach.call(document.querySelectorAll('input[name=size]'), function (r) { r.checked = +r.value === s.size; });
+    [].forEach.call(document.querySelectorAll('input[name=mode]'), function (r) { r.checked = r.value === s.mode; });
+    [].forEach.call(document.querySelectorAll('input[name=kind]'), function (r) { r.checked = r.value === s.kind; });
+    [].forEach.call(document.querySelectorAll('input[name=round]'), function (r) { r.checked = +r.value === s.round; });
+    $('mode-help').textContent = modeLine(s);
+    $('course-box').hidden = !hi; $('custom-box').hidden = s.mode !== 'custom';
+    for (var i = 0; i < 4; i++) {
+      $('row' + i).hidden = i >= n; $('pctrow' + i).hidden = i >= n;
+      $('phl' + i).textContent = 'Player ' + (i + 1) + (hi ? ' Handicap Index' : ' Course Handicap');
+      var ph = $('ph' + i); ph.placeholder = hi ? '0.0' : '0';
+      if (document.activeElement !== ph && !BAD['ph' + i]) ph.value = fmtH(s.players[i].v, s.kind);
+      var pn = $('pn' + i); if (document.activeElement !== pn) pn.value = s.players[i].n;
+      if (i < n) { var rk = RANK(i, n); $('pctl' + i).textContent = rk + ' handicap'; $('pcl' + i).textContent = rk + ' handicap, % allowance'; }
+      var pc = $('pc' + i); if (document.activeElement !== pc && !BAD['pc' + i]) pc.value = s.custom[i];
+    }
+    ['sl', 'cr', 'par'].forEach(function (k) { var el = $(k); if (document.activeElement !== el && !BAD[k]) el.value = s.course[k] == null ? '' : (k === 'cr' ? s.course.cr.toFixed(1) : s.course[k]); });
+    var errs = Object.keys(BAD).filter(function (k) { return BAD[k]; });
+    $('err').textContent = errs.length ? BAD[errs[0]] : '';
+  }
+  var c = calc(s), hero = $('hero'), r = c.res;
+  var kick = s.mode === 'usga' ? 'USGA ' + n + '-person scramble \u00b7 ' + USGA[n].join('/') + '%' : s.mode === 'ambrose' ? 'Ambrose \u00b7 ' + n + ' players \u00b7 combined \u00f7 ' + 2 * n : 'Custom \u00b7 ' + s.custom.slice(0, n).join('/') + '%';
+  if (!r) {
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared team handicap' : 'Team handicap') + ' \u00b7 ' + esc(kick) + '</p><p class="gc-big">' + esc(c.need) + '</p><p class="sc-sub">Each player\u2019s ' + (hi ? 'Handicap Index, with the Slope, Course Rating and Par of the tees you play.' : 'Course Handicap (in Australia, Daily Handicap) for the tees you play.') + '</p>';
+  } else {
+    var dp = s.round, chs = function (x) { return fmtNum(x, 2); };
+    var rows = r.sorted.map(function (x) {
+      var how = s.mode === 'ambrose' ? chs(x.ch) + ' \u00f7 ' + r.div : chs(x.ch) + ' \u00d7 ' + x.pct + '%';
+      return '<li><span class="sc-n">' + esc(x.name) + '</span><span class="sc-x">' + (hi ? 'CH ' : '') + how + '</span><b>' + fmtNum(x.share, 2) + '</b></li>';
+    }).join('');
+    var formula = s.mode === 'ambrose'
+      ? '(' + r.sorted.map(function (x) { return chs(x.ch); }).join(' + ') + ') \u00f7 ' + r.div + ' = ' + fmtRaw(r.raw, dp)
+      : r.sorted.map(function (x) { return x.pct + '% \u00d7 ' + chs(x.ch); }).join(' + ') + ' = ' + fmtRaw(r.raw, dp);
+    var rule = dp ? 'Rounded once, to one decimal place (the usual way for Ambrose and scramble team handicaps in Golf Australia\u2019s guide, \u00a710(A)).'
+      : 'Rounded once, to the nearest whole number: .5 rounds up, and a plus handicap rounds toward zero (Rules of Handicapping, Rule 6.2a).';
+    var conv = hi ? '<p class="sc-sub">Course Handicaps (CH) = Index \u00d7 ' + s.course.sl + ' \u00f7 113 + (' + s.course.cr.toFixed(1) + ' \u2212 ' + s.course.par + '), unrounded (Rule 6.2a/1).</p>' : '';
+    hero.innerHTML = '<p class="gc-kicker">' + (VIEW ? 'Shared \u00b7 ' : '') + esc(kick) + '</p><p class="gc-big" id="sc-result">Team handicap: <span id="sc-raw">' + fmtRaw(r.raw, dp) + '</span> \u2192 <span id="sc-out">' + fmtTeam(r.team, dp) + '</span></p>' +
+      '<ol class="sc-break" id="sc-break" aria-label="Each player, lowest handicap first">' + rows + '</ol>' +
+      '<p class="sc-sub" id="sc-formula">' + formula + '.</p>' + conv + '<p class="sc-sub" id="sc-rule">' + rule + '</p>';
+    if (!VIEW && !EXAMPLE_ON && !SENT[s.mode]) { SENT[s.mode] = true; track('scramble_calculate', s.mode); }
+    if (!VIEW && window.GCGrow) { if (EXAMPLE_ON) GCGrow.gear('scramble'); else GCGrow.result('scramble'); } // gear after any own result; the email card after a real one
+  }
+  $('actions').hidden = !r;
+  $('btn-example').hidden = !!VIEW || S.players.some(function (p) { return p.v != null || p.n; });
+  LINK = null;
+  if (r && window.GCShare) { var mine = s; GCShare.encode(pack(s, false)).then(function (code) { if (st() === mine) LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=scramble#r=' + code; }); }
+  document.documentElement.classList.add('sc-ready');
+}
+function linkBase() { return /^https:\/\/(www\.)?golfcalculators\.com$/.test(location.origin) ? URL : location.origin + location.pathname; }
+function shareText() {
+  var s = st(), c = calc(s); if (!c.res) return '';
+  var r = c.res, n = s.size, how = s.mode === 'usga' ? 'USGA ' + n + '-person scramble (' + USGA[n].join('/') + '%)' : s.mode === 'ambrose' ? 'Ambrose, combined / ' + 2 * n : 'Custom (' + s.custom.slice(0, n).join('/') + '%)';
+  var t = ['Team handicap: ' + fmtRaw(r.raw, s.round) + ' -> ' + fmtTeam(r.team, s.round), how + ': ' + r.sorted.map(function (x) { return x.name; }).join(', '), 'Work out yours: ' + (LINK || linkBase())].join('\n');
+  return GCShare.gsm(t);
+}
+function whenLink() { return LINK ? Promise.resolve(LINK) : GCShare.encode(pack(st(), false)).then(function (code) { return LINK = linkBase() + '?utm_source=share&utm_medium=link&utm_campaign=scramble#r=' + code; }); }
+function share() {
+  track('result_shared');
+  var go = function () { var text = shareText(); if (navigator.share) return navigator.share({ title: 'Team handicap', text: text }).catch(function () {}); return copyText(text, 'Copied'); };
+  return LINK ? go() : whenLink().then(go);
+}
+function copyText(t, msg) {
+  window._copied = t;
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function () { toast(msg); }, function () { toast('Copy failed'); });
+  toast(msg); return Promise.resolve();
+}
+function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+function edited() { EXAMPLE_ON = false; save(); render(); }
+function readPlayer(i) {
+  var el = $('ph' + i), t = el.value.trim();
+  if (!t) { S.players[i].v = null; BAD['ph' + i] = ''; el.removeAttribute('aria-invalid'); return; }
+  var v = parseH(t, S.kind);
+  if (v == null) { BAD['ph' + i] = 'Player ' + (i + 1) + ': enter ' + (S.kind === 'hi' ? 'a Handicap Index like 12.4 (plus: +1.2), up to 54.0.' : 'a Course Handicap like 14 (plus: +2).'); el.setAttribute('aria-invalid', 'true'); S.players[i].v = null; }
+  else { BAD['ph' + i] = ''; el.removeAttribute('aria-invalid'); S.players[i].v = v; }
+}
+function readCourse(k) {
+  var el = $(k), t = el.value.trim().replace(',', '.'), v = t === '' ? null : +t;
+  var good = t === '' || (k === 'cr' ? /^\d{2}(\.\d)?$/.test(t) && v >= 25 && v <= 85 : /^\d{2,3}$/.test(t) && (k === 'sl' ? v >= 55 && v <= 155 : v >= 25 && v <= 80));
+  BAD[k] = good ? '' : { sl: 'Slope Rating is a whole number from 55 to 155, e.g. 128.', cr: 'Course Rating is like 71.3 (one decimal).', par: 'Par is a whole number, e.g. 72.' }[k];
+  if (good) el.removeAttribute('aria-invalid'); else el.setAttribute('aria-invalid', 'true');
+  S.course[k] = good ? v : null;
+}
+function readPct(i) {
+  var el = $('pc' + i), t = el.value.trim().replace('%', ''), good = /^\d{1,3}$/.test(t) && +t <= 100;
+  BAD['pc' + i] = good ? '' : 'Allowances are whole percentages from 0 to 100.';
+  if (good) { el.removeAttribute('aria-invalid'); S.custom[i] = +t; } else el.setAttribute('aria-invalid', 'true');
+}
+function loadExample() {
+  var E = EXAMPLE; S = blank(); BAD = {};
+  S.size = E.size; S.mode = E.mode; S.kind = E.kind; S.round = E.round; S.course = { sl: E.course.sl, cr: E.course.cr, par: E.course.par };
+  E.players.forEach(function (p, i) { S.players[i] = { n: p[0], v: p[1] }; });
+  EXAMPLE_ON = true; save(); render();
+}
+function leaveView() { VIEW = null; GCShare.clearHash(); document.documentElement.classList.remove('sc-view'); track('start_own_from_viewer'); render(); }
+
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'btn-share') share();
+  else if (t.id === 'btn-copy') { track('result_shared'); whenLink().then(function (l) { copyText(l, 'Link copied'); }); }
+  else if (t.id === 'btn-example') loadExample();
+  else if (t.id === 'sc-own') leaveView();
+  else if (t.dataset.step) { var i = +t.dataset.i, v = S.players[i].v == null ? 0 : S.players[i].v, nv = fixStep(v + +t.dataset.step);
+    if (okH(nv, S.kind)) { S.players[i].v = nv; BAD['ph' + i] = ''; $('ph' + i).removeAttribute('aria-invalid'); $('ph' + i).value = fmtH(nv, S.kind); edited(); } }
+  else if (t.dataset.pstep) { var j = +t.dataset.i, p = Math.max(0, Math.min(100, S.custom[j] + +t.dataset.pstep)); S.custom[j] = p; BAD['pc' + j] = ''; $('pc' + j).removeAttribute('aria-invalid'); $('pc' + j).value = p; edited(); }
+});
+function fixStep(x) { return Math.round(x * 100) / 100; }
+document.addEventListener('change', function (e) {
+  var el = e.target;
+  if (el.name === 'size') { S.size = +el.value; if (S.mode === 'custom') S.custom = USGA[S.size].concat([0, 0, 0]).slice(0, 4); edited(); }
+  else if (el.name === 'mode') { S.mode = el.value; if (el.value === 'custom') S.custom = USGA[S.size].concat([0, 0, 0]).slice(0, 4); edited(); }
+  else if (el.name === 'kind') { var from = S.kind; S.kind = el.value; S.players.forEach(function (p) { if (p.v != null && !okH(p.v, S.kind)) p.v = null; if (p.v != null && S.kind === 'hi') p.v = Math.round(p.v * 10) / 10; }); BAD = {}; if (from !== S.kind) edited(); }
+  else if (el.name === 'round') { S.round = +el.value; edited(); }
+});
+document.addEventListener('input', function (e) {
+  var id = e.target.id, m;
+  if ((m = /^ph(\d)$/.exec(id))) { readPlayer(+m[1]); edited(); }
+  else if ((m = /^pn(\d)$/.exec(id))) { S.players[+m[1]].n = cleanName(e.target.value); edited(); }
+  else if ((m = /^pc(\d)$/.exec(id))) { readPct(+m[1]); edited(); }
+  else if (id === 'sl' || id === 'cr' || id === 'par') { readCourse(id); edited(); }
+});
+document.addEventListener('focusout', function (e) { if (/^(ph\d|pn\d|pc\d|sl|cr|par)$/.test(e.target.id || '')) setTimeout(render, 0); }); // tidy the typed value (e.g. 14.0 -> 14) once you leave the field
+
+var raw = window.GCShare ? GCShare.fromHash(location.hash) : null;
+if (raw != null) {
+  GCShare.decode(raw).then(function (o) {
+    var s = clean(o); if (!s || s.players.slice(0, s.size).some(function (p) { return p.v == null; })) throw { code: 'bad' };
+    VIEW = s; track('shared_link_opened'); render();
+  }).catch(function (e) {
+    var x = GCShare.TEXT[e && e.code === 'browser' ? 'browser' : 'bad'];
+    $('sc-shared-t').textContent = x[0]; $('sc-shared-p').textContent = x[1];
+    document.documentElement.classList.remove('sc-view'); document.documentElement.classList.add('sc-err');
+    render();
+  });
+} else render();
+window.GCScrambleUI = { state: function () { return S; }, view: function () { return VIEW; }, render: render, loadExample: loadExample, share: share, shareText: shareText, link: whenLink, leaveView: leaveView, parseH: parseH, clean: clean, pack: pack };
+})();
+</script>
+<!-- Email signup + gear (v11): verbatim copy of /gc-grow.js. tests/run fails if it drifts. -->
+<script type="application/json" data-src="/affiliates.json">{
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per store (us: amazon.com, tag golfcalc-20; au: amazon.com.au, tag golfcalc-22). A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts. v12: AU visitors (navigator.language en-AU or an Australia/* time zone) get the au url, everyone else the default region (us).",
+ "region": "us",
+ "tag": "golfcalc-20",
+ "tags": {"us": "golfcalc-20", "au": "golfcalc-22"},
+ "disclosure": "We may earn a commission from links on this page.",
+ "items": [
+  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+rangefinder&tag=golfcalc-22"}},
+  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+balls&tag=golfcalc-22"}},
+  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+scorecard+holder&tag=golfcalc-22"}}
+ ],
+ "tools": {
+  "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
+  "stableford": ["scorecard-holder", "rangefinder", "golf-balls"],
+  "daily-handicap": ["rangefinder", "scorecard-holder"],
+  "handicap": ["rangefinder", "golf-balls", "scorecard-holder"],
+  "scramble": ["rangefinder", "golf-balls", "scorecard-holder"]
+ }
+}
+</script>
+<script data-src="/gc-grow.js">/* gc-grow.js: golfcalculators.com email signup + "Gear for this game" (v11, Nov 2026). Inlined verbatim into every page as
+   <script data-src="/gc-grow.js">; tests/run fails if a copy drifts from this file.
+   - Newsletter forms (footer on every page, and the card after a result on the four calculators) post to Netlify Forms
+     ("newsletter", honeypot bot-field) with fetch: inline "You're in", inline errors, no page jump. The address goes only
+     in the POST body to this site; never into a URL, storage or analytics.
+   - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
+     signup (localStorage keeps only a date or a flag).
+   - Gear: built from the inlined affiliates.json, only items with a url for the store; with none it renders nothing.
+     Store (v12): "au" (amazon.com.au, tag golfcalc-22) when navigator.language is en-AU or the Intl time zone is
+     Australia/*, otherwise "us" (amazon.com, tag golfcalc-20); an item without an AU link falls back to its US link.
+     Worked out in the browser each time; nothing is stored. Links open a new tab with rel="sponsored nofollow noopener";
+     a click sends affiliate_click {tool, item id, store} and nothing else. */
+(function () {
+  var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
+  function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
+  function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
+  function track(name, tool, item, store) { if (window.gcTrack) window.gcTrack(name, tool, item, store); }
+  function storeFor(lang, tz) { return /^en-AU$/i.test(String(lang || '')) || /^Australia\//.test(String(tz || '')) ? 'au' : 'us'; }
+  function store() {
+    var tz = ''; try { tz = window.Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    return storeFor(navigator.language, tz);
+  }
+  function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
+  function body(form) {
+    var out = [];
+    for (var i = 0; i < form.elements.length; i++) {
+      var el = form.elements[i];
+      if (!el.name || el.disabled || (el.type === 'checkbox' && !el.checked) || el.type === 'submit') continue;
+      out.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+    }
+    return out.join('&');
+  }
+  function say(form, msg) {
+    var err = form.querySelector('.gc-nl-err'), em = form.querySelector('input[type="email"]');
+    err.textContent = msg;
+    if (msg) em.setAttribute('aria-invalid', 'true'); else em.removeAttribute('aria-invalid');
+  }
+  function done(form) {
+    put('localStorage', DONE, '1');
+    var ok = document.createElement('p');
+    ok.className = 'gc-nl-ok'; ok.setAttribute('role', 'status'); ok.tabIndex = -1;
+    ok.textContent = 'You\u2019re in. Watch for one email a month, at most.';
+    form.hidden = true; form.parentNode.insertBefore(ok, form.nextSibling);
+    try { ok.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function submit(e) {
+    var form = e.target;
+    if (!form.matches || !form.matches('form.gc-nl-form')) return;
+    e.preventDefault();
+    var em = form.querySelector('input[type="email"]'), consent = form.querySelector('input[name="consent"]'), btn = form.querySelector('button[type="submit"]');
+    var v = (em.value || '').trim();
+    if (!/^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(v)) { say(form, 'Enter an email address like name@example.com.'); em.focus(); return; }
+    if (consent && !consent.checked) { say(form, 'Tick the box to say we can email you.'); consent.focus(); return; }
+    say(form, '');
+    var hp = form.querySelector('input[name="bot-field"]');
+    if (hp && hp.value) { done(form); return; } // a bot filled the hidden field: look done, send nothing
+    btn.disabled = true;
+    fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body(form) })
+      .then(function (r) { if (!r.ok) throw new Error('status ' + r.status); done(form); track('email_signup', toolOf(form)); })
+      .catch(function () { btn.disabled = false; say(form, 'That didn\u2019t go through. Check your connection and try again.'); });
+  }
+  document.addEventListener('submit', submit);
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('.gc-nl-x');
+    if (x) {
+      var card = x.closest('.gc-nl-card'); card.hidden = true;
+      put('localStorage', DISMISS, String(Date.now()));
+      track('email_dismiss', toolOf(card.querySelector('form')));
+      return;
+    }
+    var a = e.target.closest && e.target.closest('a[data-aff]');
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'), a.getAttribute('data-store'));
+  });
+  function cardAllowed() {
+    if (get('localStorage', DONE)) return false;
+    var d = +get('localStorage', DISMISS);
+    if (d && Date.now() - d < DAYS30) return false;
+    return shownHere || !get('sessionStorage', SESSION);
+  }
+  function gear(tool) {
+    var box = document.getElementById('gc-gear'), cfg = null, src = document.querySelector('script[data-src="/affiliates.json"]');
+    if (!box || box.childNodes.length) return;
+    try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
+    var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var want = store(), ok = function (u) { return typeof u === 'string' && /^https:\/\//.test(u); };
+    var pick = function (it) { var u = it && it.url || {}; return ok(u[want]) ? want : ok(u[cfg.region]) ? cfg.region : null; }; // AU first for AU visitors, else the default store
+    var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
+      var k = pick(it); return (k === 'au' || k === 'us') && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+    }).slice(0, 3);
+    if (!list.length) return; // nothing to show: no heading, no disclosure, no box
+    var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
+    var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
+    list.forEach(function (it) {
+      var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
+      var k = pick(it);
+      a.href = it.url[k]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool); a.setAttribute('data-store', k);
+      b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
+      a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+    var p = document.createElement('p'); p.className = 'gc-gear-disc'; p.textContent = cfg.disclosure || 'We may earn a commission from links on this page.';
+    box.appendChild(p);
+    box.hidden = false;
+  }
+  window.GCGrow = {
+    // call when a calculator shows the user's own result
+    result: function (tool) {
+      var card = document.getElementById('gc-nl-card');
+      if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
+      gear(tool);
+    },
+    gear: gear, cardAllowed: cardAllowed, store: store, storeFor: storeFor, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+  };
+})();
+</script>
+</body>
+</html>

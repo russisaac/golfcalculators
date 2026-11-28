@@ -7,7 +7,7 @@ const fb=path.join(SITE,'feedback.html');
 if(!fs.existsSync(fb)){console.log('SKIP  no feedback.html on this branch');process.exit(0);}
 const rd=n=>fs.readFileSync(path.join(SITE,n),'utf8');const doc=n=>new JSDOM(rd(n)).window.document;
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html'));
-const KEY={'index.html':'home','skins.html':'skins','stableford.html':'stableford','daily-handicap.html':'daily-handicap','handicap-calculator.html':'handicap-calculator','privacy.html':'privacy'}; // v10 P1: the Handicap Index page
+const KEY={'index.html':'home','skins.html':'skins','stableford.html':'stableford','daily-handicap.html':'daily-handicap','handicap-calculator.html':'handicap-calculator','scramble-handicap-calculator.html':'scramble-handicap-calculator','privacy.html':'privacy'}; // v12: + the scramble page // v10 P1: the Handicap Index page
 for(const n of pages){const d=doc(n),a=d.querySelector('footer a[href^="/feedback"]');
   ok(`${n}: footer has a Feedback link`,!!a&&a.textContent.trim()==='Feedback'&&(KEY[n]?a.getAttribute('href')==='/feedback?from='+KEY[n]:/^\/feedback$/.test(a.getAttribute('href'))),a?a.getAttribute('href'):'none');}
 for(const [n,k] of [['skins.html','skins'],['stableford.html','stableford'],['daily-handicap.html','daily-handicap']]){const d=doc(n),a=d.querySelector('#fb-after a');

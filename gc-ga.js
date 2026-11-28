@@ -8,11 +8,14 @@
      hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
      dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
      email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
-     from affiliates.json (lowercase letters, digits and hyphens only). Anything else is dropped. */
+     from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
+     the link went to. The tool may also be "scramble" (v12).
+     scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
+     "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
-  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click'],
-    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/;
+  var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -31,10 +34,15 @@
     addEventListener('popstate', reset);
     addEventListener('hashchange', reset);
   }
-  window.gcTrack = function (name, tool, item) {
+  window.gcTrack = function (name, tool, item, store) {
+    if (name === 'scramble_calculate') { // v12: {mode} only
+      if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
+      gtag('event', name, { mode: item });
+      return true;
+    }
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
     var p = { tool: tool };
-    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item)) return false; p.item = item; }
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item) || STORES.indexOf(store) < 0) return false; p.item = item; p.store = store; }
     gtag('event', name, p);
     return true;
   };
