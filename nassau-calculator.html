@@ -246,7 +246,7 @@ html{scroll-padding-top:60px}
   .ns-who b{display:block;overflow-wrap:anywhere;line-height:1.25}
   .ns-who small{font-size:var(--fs-sm);color:var(--muted)}
   .ns-score.is-win .ns-who b{color:var(--accent)}
-  .ns-side{margin:var(--s3) 0 0;font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
+  .ns-side{margin:var(--s3) 0 0;font-size:var(--fs-sm);font-weight:700;color:var(--accent);overflow-wrap:anywhere}
   .ns-nav{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
   .ns-final{margin-top:var(--s3)}
   .ns-final .gc-hero .gc-big{font-size:var(--fs-xl)}
@@ -274,7 +274,7 @@ html{scroll-padding-top:60px}
   .ns-check{display:flex;align-items:center;gap:var(--s2);min-height:44px;font-weight:600;color:var(--ink-2)}
   .ns-check input{flex:none;width:24px;height:24px;margin:0}
   .ns-team{margin:var(--s2) 0 var(--s1);font-size:var(--fs-sm);font-weight:700;color:var(--accent)}
-  .ns-strip{position:sticky;top:49px;z-index:4;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s2) var(--s3)}
+  .ns-strip{position:sticky;top:49px;z-index:4;max-height:40vh;overflow-y:auto;overscroll-behavior:contain;background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r);padding:var(--s2) var(--s3)}
   .ns-bets{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:2px var(--s3);font-size:var(--fs-sm);line-height:1.35}
   .ns-bets li{min-width:0;overflow-wrap:anywhere}
   .ns-bets b{color:var(--ink)}
@@ -292,6 +292,8 @@ html{scroll-padding-top:60px}
   .ns-ledger .neg{color:var(--danger)}
   .ns-actions{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin-top:var(--s3)}
   .ns-wide{grid-column:1/-1}
+  .ns-strip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .gc-def{color:var(--muted)}
 </style>
 <!-- seo:jsonld:start -->
 <script type="application/ld+json">
@@ -372,7 +374,7 @@ html{scroll-padding-top:60px}
      "name": "How are handicaps used in a net Nassau?",
      "acceptedAnswer": {
       "@type": "Answer",
-      "text": "Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). You can change it under More options."
+      "text": "Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). In Australia, enter each player's Daily Handicap. You can change the allowance under More options."
      }
     },
     {
@@ -496,14 +498,15 @@ html{scroll-padding-top:60px}
   <div class="ns-row"><span class="gc-label" id="players-l">Players</span>
     <p class="ns-team" id="side0-l">Side 1</p>
     <ol class="ns-players" aria-labelledby="players-l">
-      <li class="ns-player" id="row0"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" type="text" autocomplete="off" maxlength="24" placeholder="Player 1"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="0" aria-label="Player 1: lower handicap">−</button><label class="sr-only" for="ph0">Player 1 Course Handicap</label><input id="ph0" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="0" aria-label="Player 1: raise handicap">+</button></div></li>
-      <li class="ns-player" id="row1" hidden><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="1" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph1">Player 2 Course Handicap</label><input id="ph1" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="1" aria-label="Player 2: raise handicap">+</button></div></li>
+      <li class="ns-player" id="row0"><label class="sr-only" for="pn0">Player 1 name</label><input class="gc-input" id="pn0" type="text" autocomplete="off" maxlength="24" placeholder="Player 1"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="0" aria-label="Player 1: lower handicap">−</button><label class="sr-only" for="ph0">Player 1 handicap</label><input id="ph0" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="0" aria-label="Player 1: raise handicap">+</button></div></li>
+      <li class="ns-player" id="row1" hidden><label class="sr-only" for="pn1">Player 2 name</label><input class="gc-input" id="pn1" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="1" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph1">Player 2 handicap</label><input id="ph1" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="1" aria-label="Player 2: raise handicap">+</button></div></li>
     </ol>
     <p class="ns-team" id="side1-l">Side 2</p>
     <ol class="ns-players" aria-labelledby="players-l" start="3">
-      <li class="ns-player" id="row2"><label class="sr-only" for="pn2">Player 3 name</label><input class="gc-input" id="pn2" type="text" autocomplete="off" maxlength="24" placeholder="Player 3"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="2" aria-label="Player 3: lower handicap">−</button><label class="sr-only" for="ph2">Player 3 Course Handicap</label><input id="ph2" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="2" aria-label="Player 3: raise handicap">+</button></div></li>
-      <li class="ns-player" id="row3" hidden><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" type="text" autocomplete="off" maxlength="24" placeholder="Player 4"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="3" aria-label="Player 4: lower handicap">−</button><label class="sr-only" for="ph3">Player 4 Course Handicap</label><input id="ph3" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="3" aria-label="Player 4: raise handicap">+</button></div></li>
-    </ol></div>
+      <li class="ns-player" id="row2"><label class="sr-only" for="pn2">Player 2 name</label><input class="gc-input" id="pn2" type="text" autocomplete="off" maxlength="24" placeholder="Player 2"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="2" aria-label="Player 2: lower handicap">−</button><label class="sr-only" for="ph2">Player 2 handicap</label><input id="ph2" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="2" aria-label="Player 2: raise handicap">+</button></div></li>
+      <li class="ns-player" id="row3" hidden><label class="sr-only" for="pn3">Player 4 name</label><input class="gc-input" id="pn3" type="text" autocomplete="off" maxlength="24" placeholder="Player 4"><div class="gc-stepper ns-hc" hidden><button type="button" data-step="-1" data-i="3" aria-label="Player 4: lower handicap">−</button><label class="sr-only" for="ph3">Player 4 handicap</label><input id="ph3" type="text" inputmode="decimal" autocomplete="off" placeholder="0"><button type="button" data-step="1" data-i="3" aria-label="Player 4: raise handicap">+</button></div></li>
+    </ol>
+    <p class="ns-help" id="hc-help" hidden>Net: each player's handicap for the tees you play. In Australia, enter your Daily Handicap.</p></div>
   <div class="ns-row ns-two">
     <div><label class="gc-label" for="stake">Stake per bet</label><span class="ns-money">$<input class="gc-input" id="stake" type="text" inputmode="decimal" autocomplete="off" aria-describedby="stake-help"></span></div>
     <div><span class="gc-label" id="net-l">Scores</span>
@@ -523,7 +526,8 @@ html{scroll-padding-top:60px}
       <label><input type="radio" name="ap" value="1" checked><span>On, 2 down</span></label>
       <label><input type="radio" name="ap" value="0"><span>Off</span></label>
     </div>
-    <p class="ns-help" id="ap-help">When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine.</p></div>
+    <p class="ns-help" id="ap-help">When a side goes 2 down in a bet, a new bet at the same stake starts on the next hole and runs to the end of that nine.</p>
+    <p class="ns-help" id="ap-agg" hidden>In aggregate, “2 down” means 2 strokes behind.</p></div>
   <details class="ns-more" id="more"><summary>More options</summary>
     <div class="ns-row" id="allow-row"><div class="ns-pctrow"><span class="gc-label" id="pct-l" style="margin:0">Net allowance</span>
       <div class="gc-stepper"><button type="button" data-pct="-5" aria-label="Lower the allowance">−</button><label class="sr-only" for="pct">Net handicap allowance, %</label><input id="pct" type="text" inputmode="numeric" autocomplete="off" aria-describedby="pct-help"><button type="button" data-pct="5" aria-label="Raise the allowance">+</button></div></div>
@@ -544,7 +548,7 @@ html{scroll-padding-top:60px}
 </section>
 
 <section class="gc-card ns-play" id="play" aria-labelledby="play-h" hidden>
-  <div class="ns-strip" id="ns-strip" role="status" aria-live="polite"><ul class="ns-bets" id="ns-bets"></ul><p class="ns-news" id="ns-news"></p></div>
+  <div class="ns-strip" id="ns-strip" role="status" aria-live="polite" tabindex="0" aria-label="Live bets"><p class="ns-news" id="ns-news"></p><ul class="ns-bets" id="ns-bets"></ul></div>
   <div class="ns-holehead"><h2 class="ns-holeno" id="play-h">Hole 1</h2><span class="gc-muted" id="hole-of">Front nine · 1 of 18</span></div>
   <div class="ns-progress" id="progress" aria-hidden="true"></div>
   <div id="scores"></div>
@@ -605,7 +609,7 @@ html{scroll-padding-top:60px}
   <div class="gc-faq-item"><h3>Is the overall 18 pressed too?</h3><p>Not by default: automatic presses run on the front and back nines only. Switch on “Auto-press the overall 18” under More options if your group presses the overall as well; those presses run to the 18th.</p></div>
   <div class="gc-faq-item"><h3>What is the difference between 1 v 1 and 2 v 2 better ball?</h3><p>In 1 v 1 each player plays their own ball against the other. In 2 v 2 better ball, each side counts the better score of its two partners on every hole. Winnings and losses are split equally between partners and then settled in the fewest payments.</p></div>
   <div class="gc-faq-item"><h3>Match play or aggregate?</h3><p>Match play counts holes won, so a blow-up hole only loses that hole. Aggregate counts total strokes for the nine or the 18, so every shot matters. With aggregate, “2 down” for an automatic press means 2 strokes behind.</p></div>
-  <div class="gc-faq-item"><h3>How are handicaps used in a net Nassau?</h3><p>Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). You can change it under More options.</p></div>
+  <div class="gc-faq-item"><h3>How are handicaps used in a net Nassau?</h3><p>Strokes come off the low player. For 2 v 2 better ball the calculator uses the four-ball match play allowance, 90% of the difference in Course Handicap from the lowest player; for 1 v 1, 100% of the difference (Rules of Handicapping, Appendix C, checked 28 Nov 2026). In Australia, enter each player's Daily Handicap. You can change the allowance under More options.</p></div>
   <div class="gc-faq-item"><h3>Is a Nassau in the Rules of Golf?</h3><p>No. The Rules of Golf and the Rules of Handicapping cover match play and handicap allowances, but the Nassau, its stakes and its presses are a side game played to whatever your group agrees. This calculator follows the common conventions and shows every bet so you can check it.</p></div>
 <!-- seo:content:end --></section>
 </main>
@@ -807,6 +811,8 @@ function fmtH(v) { if (v == null) return ''; var s = String(Math.abs(v)); return
 function blank() { return { fmt: '1v1', names: ['', '', '', ''], hc: [0, 0, 0, 0], stake: 5, net: 0, game: 'match', ap: 1, po: 0, ml: 1, pct: null, si: defSI(), manual: [], scores: {}, hole: 1, screen: 'setup' }; }
 function okSI(si) { var seen = {}; return si.length === 18 && si.every(function (v) { if (v !== Math.round(v) || v < 1 || v > 18 || seen[v]) return false; seen[v] = 1; return true; }); }
 function nP(f) { return f === '2v2' ? 4 : 2; }
+// 1v1 shows the Side 2 player in setup row 2 (ids pn2/ph2) but the game keeps its two players in slots 0 and 1.
+function slot(i) { return (S.fmt === '1v1' && i === 2) ? 1 : i; }
 function clean(o) { // whitelist, field by field (storage and #r= links); null if unusable
   if (!o || typeof o !== 'object') return null;
   var g = function (k) { return Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };
@@ -863,10 +869,10 @@ function standing(s, b, sn) { // "Alex 2 up" / "all square" / "—"
 function stripHtml(s, r) {
   var sn = sideNames(s), order = ['F', 'B', 'O'], main = {}, list = [];
   r.bets.forEach(function (b) { main[b.id] = b; });
-  // Front, its presses, Back, its presses, Overall, its presses
+  // the three main bets first (always on screen), then every press in order, so a tall press chain scrolls inside the strip
+  order.forEach(function (id) { list.push(main[id]); });
   [0, 1, 2].forEach(function (nine) {
-    var m = main[order[nine]]; list.push(m);
-    r.bets.filter(function (b) { return b.nine === nine && b !== m; }).sort(function (a, b) { return a.start - b.start; }).forEach(function (b) { list.push(b); });
+    r.bets.filter(function (b) { return b.nine === nine && b.id.length > 1; }).sort(function (a, b) { return a.start - b.start; }).forEach(function (b) { list.push(b); });
   });
   return list.map(function (b) { var p = b.id.length > 1; return '<li' + (p ? ' class="ns-p"' : '') + '><b>' + esc(betName(b)) + ':</b> ' + esc(standing(s, b, sn)) + '</li>'; }).join('');
 }
@@ -883,13 +889,17 @@ function render() {
     $('side0-l').textContent = two ? 'Side 1 (better ball)' : 'Side 1'; $('side1-l').textContent = two ? 'Side 2 (better ball)' : 'Side 2';
     for (var i = 0; i < 4; i++) {
       $('row' + i).hidden = two ? false : i === 1 || i === 3;
-      var pn = $('pn' + i); if (document.activeElement !== pn) pn.value = s.names[i];
-      var ph = $('ph' + i); if (document.activeElement !== ph && !BAD['ph' + i]) ph.value = fmtH(s.hc[i]);
+      var k = slot(i), pn = $('pn' + i); if (document.activeElement !== pn) pn.value = s.names[k];
+      var ph = $('ph' + i); if (document.activeElement !== ph && !BAD['ph' + i]) ph.value = fmtH(s.hc[k]);
+      var pl = 'Player ' + (k + 1); pn.placeholder = pl;
+      $('row' + i).querySelector('label[for=pn' + i + ']').textContent = pl + ' name';
+      $('row' + i).querySelector('label[for=ph' + i + ']').textContent = pl + ' handicap';
+      [].forEach.call($('row' + i).querySelectorAll('[data-step]'), function (b) { b.setAttribute('aria-label', pl + (+b.dataset.step < 0 ? ': lower handicap' : ': raise handicap')); });
     }
     [].forEach.call(document.querySelectorAll('.ns-hc'), function (x) { x.hidden = !s.net; });
     var stk = $('stake'); if (document.activeElement !== stk && !BAD.stake) stk.value = trimMoney(s.stake);
     var pc = $('pct'); if (document.activeElement !== pc && !BAD.pct) pc.value = pctOf(s) + '%';
-    $('allow-row').hidden = !s.net; $('si-row').hidden = !s.net;
+    $('allow-row').hidden = !s.net; $('si-row').hidden = !s.net; $('hc-help').hidden = !s.net; $('ap-agg').hidden = s.game !== 'agg';
     siGrid(s);
     var errs = Object.keys(BAD).filter(function (k) { return BAD[k]; });
     $('err').textContent = errs.length ? BAD[errs[0]] : (!okSI(s.si) ? 'Stroke index: use each number from 1 to 18 once.' : '');
@@ -927,7 +937,7 @@ function renderPlay(s, r) {
   $('scores').innerHTML = '<h3 class="sr-only">Gross scores, hole ' + h + '</h3>' + sd.map(function (ix, k) {
     return (ix.length > 1 ? '<p class="ns-side">' + esc(sn[k]) + '</p>' : '') + ix.map(function (i) {
       var n0 = esc(nm[i]), sk = per ? per[i][h - 1] : 0, note = !s.net ? 'gross' : sk > 0 ? 'gets ' + (sk === 1 ? 'a stroke' : sk + ' strokes') : sk < 0 ? 'gives a stroke' : 'no stroke';
-      return '<div class="ns-score" id="srow' + i + '"><div class="ns-who"><b>' + n0 + '</b><small>' + note + '</small></div>' +
+      return '<div class="ns-score" id="srow' + i + '"><div class="ns-who"><b>' + n0 + '</b><small>' + note + (def ? '<span class="gc-def"> \u00b7 default 4</span>' : '') + '</small></div>' +
         '<span class="gc-stepper' + (def ? ' is-default' : '') + '"><button type="button" data-sc="-1" data-i="' + i + '" aria-label="One less for ' + n0 + '">\u2212</button>' +
         '<input id="sc' + i + '" data-i="' + i + '" type="text" inputmode="numeric" autocomplete="off" aria-label="' + n0 + ' score, hole ' + h + '" value="' + vals[i] + '">' +
         '<button type="button" data-sc="1" data-i="' + i + '" aria-label="One more for ' + n0 + '">+</button></span></div>'; }).join(''); }).join('');
@@ -1007,9 +1017,9 @@ document.addEventListener('click', function (e) {
   else if (t.id === 'btn-back') { var n2 = thruN(S); S.screen = 'play'; S.hole = Math.min(18, n2 + (n2 >= 18 ? 0 : 1)); edited(); }
   else if (t.id === 'btn-press') { var h = S.hole, k = S.manual.indexOf(h); if (k >= 0) S.manual.splice(k, 1); else S.manual.push(h); edited(); }
   else if (t.id === 'btn-si-reset') { S.si = defSI(); BAD = {}; edited(); }
-  else if (t.dataset.sc) { var i = +t.dataset.i, el = $('sc' + i); el.value = Math.max(1, Math.min(20, (parseInt(el.value, 10) || 4) + +t.dataset.sc)); [].forEach.call(document.querySelectorAll('#scores .gc-stepper'), function (x) { x.classList.remove('is-default'); }); }
+  else if (t.dataset.sc) { var i = +t.dataset.i, el = $('sc' + i); el.value = Math.max(1, Math.min(20, (parseInt(el.value, 10) || 4) + +t.dataset.sc)); [].forEach.call(document.querySelectorAll('#scores .gc-stepper'), function (x) { x.classList.remove('is-default'); }); [].forEach.call(document.querySelectorAll('#scores .gc-def'), function (x) { x.remove(); }); }
   else if (t.dataset.pct) { var p = Math.max(0, Math.min(100, pctOf(S) + +t.dataset.pct)); S.pct = p === (S.fmt === '2v2' ? 90 : 100) ? null : p; BAD.pct = ''; edited(); }
-  else if (t.dataset.step) { var j = +t.dataset.i, nv = Math.round(((S.hc[j] || 0) + +t.dataset.step) * 100) / 100; if (okH(nv)) { S.hc[j] = nv; BAD['ph' + j] = ''; $('ph' + j).removeAttribute('aria-invalid'); edited(); } }
+  else if (t.dataset.step) { var j = +t.dataset.i, k = slot(j), nv = Math.round(((S.hc[k] || 0) + +t.dataset.step) * 100) / 100; if (okH(nv)) { S.hc[k] = nv; BAD['ph' + j] = ''; $('ph' + j).removeAttribute('aria-invalid'); edited(); } }
 });
 document.addEventListener('change', function (e) {
   var el = e.target;
@@ -1022,8 +1032,8 @@ document.addEventListener('change', function (e) {
 });
 document.addEventListener('input', function (e) {
   var id = e.target.id, m, v = e.target.value;
-  if ((m = /^pn(\d)$/.exec(id))) { S.names[+m[1]] = cleanName(v); edited(); }
-  else if ((m = /^ph(\d)$/.exec(id))) { var x = v.trim() === '' ? 0 : parseH(v); BAD[id] = x == null ? 'Player ' + (+m[1] + 1) + ': enter a Course Handicap like 14 (plus: +2).' : ''; if (x != null) { S.hc[+m[1]] = x; e.target.removeAttribute('aria-invalid'); } else e.target.setAttribute('aria-invalid', 'true'); edited(); }
+  if ((m = /^pn(\d)$/.exec(id))) { S.names[slot(+m[1])] = cleanName(v); edited(); }
+  else if ((m = /^ph(\d)$/.exec(id))) { var x = v.trim() === '' ? 0 : parseH(v); BAD[id] = x == null ? 'Player ' + (slot(+m[1]) + 1) + ': enter a handicap like 14 (plus: +2).' : ''; if (x != null) { S.hc[slot(+m[1])] = x; e.target.removeAttribute('aria-invalid'); } else e.target.setAttribute('aria-invalid', 'true'); edited(); }
   else if (id === 'stake') { var t = v.trim().replace(',', '.').replace('$', ''), ok = /^\d{1,5}(\.\d{1,2})?$/.test(t) && +t > 0; BAD.stake = ok ? '' : 'Enter a stake above $0, e.g. 5'; if (ok) { S.stake = +t; e.target.removeAttribute('aria-invalid'); } else e.target.setAttribute('aria-invalid', 'true'); edited(); }
   else if (id === 'pct') { var q = v.trim().replace('%', ''), good = /^\d{1,3}$/.test(q) && +q <= 100; BAD.pct = good ? '' : 'The allowance is a whole percentage from 0 to 100.'; if (good) S.pct = +q === (S.fmt === '2v2' ? 90 : 100) ? null : +q; edited(); }
   else if ((m = /^si(\d{1,2})$/.exec(id))) { var w = v.trim(), g2 = /^\d{1,2}$/.test(w) && +w >= 1 && +w <= 18; BAD[id] = g2 ? '' : 'Stroke index is a whole number from 1 to 18.'; if (g2) S.si[+m[1]] = +w; edited(); }
