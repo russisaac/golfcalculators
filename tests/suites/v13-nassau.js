@@ -147,7 +147,7 @@ for(const [label,obj] of [['bad format',{v:1,f:'3v3',n:['a','b'],st:5,net:0,g:'m
   const st=h.w.GCNassauUI.state();ok('2v2 UI: rows map straight to slots 0–3 (names and handicaps) and the labels read Player 1–4',st.names.join()==='Alex,Ben,Chris,Dana'&&st.hc.join()==='4,12,6,8'&&txt(h.d.querySelector('label[for=pn2]'))==='Player 3 name');
   radio(h,'fmt','1v1');ok('switching back to 1v1: Side 2 row shows slot 1 (Ben), labelled Player 2',h.$('pn2').value==='Ben'&&h.$('ph2').value==='12'&&txt(h.d.querySelector('label[for=pn2]'))==='Player 2 name');}
  {const h=mk();h.set('pn0','A'.repeat(24));h.set('pn2','B'.repeat(24));h.$('btn-start').click();
-  ok('24-character names: the play row shows the full text and .ns-who b / .ns-side wrap (overflow-wrap:anywhere)',txt(h.$('srow1').querySelector('b'))==='B'.repeat(24)&&/\.ns-who b\{[^}]*overflow-wrap:anywhere/.test(src)&&/\.ns-side\{[^}]*overflow-wrap:anywhere/.test(src));}
+  ok('24-character names: the play row shows the full text and .ns-who b / .ns-side wrap (overflow-wrap:anywhere)',txt(h.$('srow1').querySelector('b'))==='B'.repeat(24)&&/\.ns-who b\{[^}]*overflow-wrap:anywhere/.test(src)&&/\.ns-side\{[^}]*overflow-wrap:anywhere/.test(src)&&/\.ns-ledger li\{[^}]*flex-wrap:wrap/.test(src)&&/\.ns-hero \.ns-pay\{flex-wrap:wrap\}/.test(src));}
 }
 // ---- 8. should-fix items ----
 {const h=mk();ok('AU note beside the Net handicap entry: hidden for Gross, shown for Net: "In Australia, enter your Daily Handicap."',h.$('hc-help').hidden===true&&(radio(h,'net','1'),h.$('hc-help').hidden===false&&/In Australia, enter your Daily Handicap\./.test(txt(h.$('hc-help')))));
