@@ -527,17 +527,40 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
         const bad=!(men==='14'&&women==='15');if(bad)fail=1;console.log(`${gate(bad)}  v11 P1 daily-handicap Load example @${sz}: men ${men}, women ${women} (anchors 14/15)`);await p.context().close();}
     }
   }
+  // v12: /scramble-handicap-calculator at 375x812 and 320x568: fresh input, every control open (Handicap Index + Custom %),
+  // the Load example result (hero breakdown), share + email card after a real result, a shared #r= view; axe and fit on
+  // each, every visible control in the calculator >= 44px tall and steppers >= 44px wide, nothing clipped. Plus home.
+  if(pages.some(p=>p[0]==='scramble-handicap-calculator')){const U='/scramble-handicap-calculator';
+    const allOpen=async p=>{await p.click('input[name=kind][value=hi] + span');await p.click('input[name=mode][value=custom] + span');await p.waitForTimeout(100);};
+    const real=async p=>{for(const [i,v] of [[0,'14'],[1,'8'],[2,'22'],[3,'30']])await p.fill('#ph'+i,v);await p.fill('#pn0','Bartholomew-Fitzgerald');await p.waitForTimeout(150);};
+    for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
+      await check('v12 scramble: input (fresh)',w,U,null,`v12-scramble-input-${sz}.png`,hgt);
+      await check('v12 scramble: all controls (Handicap Index + Custom %)',w,U,async p=>{await allOpen(p);await p.evaluate(()=>document.getElementById('course-box').scrollIntoView({block:'start'}));},`v12-scramble-input-all-${sz}.png`,hgt);
+      await check('v12 scramble: Load example result (hero)',w,U,async p=>{await p.click('#btn-example');await p.waitForTimeout(150);await p.evaluate(()=>document.getElementById('hero').scrollIntoView({block:'start'}));},`v12-scramble-result-${sz}.png`,hgt);
+      await check('v12 scramble: share + email card after a real result',w,U,async p=>{await real(p);await p.evaluate(()=>document.getElementById('actions').scrollIntoView({block:'start'}));},`v12-scramble-share-email-${sz}.png`,hgt);
+      await check('v12 scramble: shared #r= view',w,U+'?utm_source=share&utm_medium=link&utm_campaign=scramble#r=1.eyJ2IjoxLCJzIjo0LCJtIjoidXNnYSIsImsiOiJoaSIsInIiOjAsInAiOltbIkFsZXgiLDguNF0sWyJCbGFrZSIsMTIuNl0sWyJDYXNleSIsMjMuNF0sWyJEcmV3IiwzMS4yXV0sImMiOlsxMzUsNzIuMyw3Ml19',null,`v12-scramble-shared-${sz}.png`,hgt);
+      await check('v12 home',w,'/',null,`v12-home-${sz}-full.png`,hgt);
+      {const p=await page(w,hgt);await p.goto(base+U,{waitUntil:'load'});await allOpen(p);await real(p);await p.fill('#sl','113');await p.fill('#cr','72.0');await p.fill('#par','72');await p.waitForTimeout(150);
+        const r=await p.evaluate(()=>{const els=[...document.querySelectorAll('#entry button,#entry input,#entry .gc-seg span,#actions button')].filter(e=>e.getClientRects().length&&!(e.type==='radio'));
+          const small=els.filter(e=>{const b=e.getBoundingClientRect();return b.height<44||(e.closest('.gc-stepper')&&e.tagName==='BUTTON'&&b.width<44);}).map(e=>(e.id||e.textContent.trim()||e.tagName)+' '+Math.round(e.getBoundingClientRect().width)+'x'+Math.round(e.getBoundingClientRect().height));
+          const root=document.querySelector('main'),cut=[];for(const e of root.querySelectorAll('*')){if(!e.getClientRects().length||e.closest('.sr-only')||e.tagName==='INPUT')continue;if(e.clientWidth>0&&e.scrollWidth>e.clientWidth+1)cut.push(e.id||e.className||e.tagName);}
+          return {n:els.length,small,cut,sw:document.documentElement.scrollWidth,vw:innerWidth,out:(document.getElementById('sc-out')||{}).textContent};});
+        const bad=r.small.length>0||r.cut.length>0||r.sw>r.vw||r.out!=='11';if(bad)fail=1;rows.push({name:`v12 scramble targets ${sz}`,width:w,v12:r});
+        console.log(`${gate(bad)}  v12 scramble @${sz}: ${r.n} controls, under 44px ${r.small.length}${r.small.length?' ('+r.small.slice(0,6).join(', ')+')':''}, clipped ${r.cut.length}${r.cut.length?' ('+r.cut.slice(0,5).join(', ')+')':''}, page ${r.sw}/${r.vw}px, custom result ${r.out}`);await p.context().close();}
+    }
+  }
   // v11 P2 monetisation: the email card after a real result and the gear block on each calculator, the footer signup,
   // its error and success states (fetch stubbed: nothing is posted from a test), at 375x812 and 320x568, with axe and fit.
   if(fs.existsSync(path.join(SITE,'gc-grow.js'))){
     const real={skins:"(()=>{const U=GCSkinsUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
       stableford:"(()=>{const U=GCStablefordUI;U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');})()",
-      'daily-handicap':null,'handicap-calculator':null};
+      'daily-handicap':null,'handicap-calculator':null,'scramble-handicap-calculator':null};
     const result=async(p,t)=>{if(real[t])await p.evaluate(real[t]);else if(t==='daily-handicap'){await p.fill('#ga','12.4');await p.fill('#slope','131');await p.fill('#scratch','70.5');await p.fill('#par','72');}
+      else if(t==='scramble-handicap-calculator'){for(const [i,v] of [[0,'14'],[1,'8'],[2,'22'],[3,'30']])await p.fill('#ph'+i,v);}
       else{for(const sc of ['92','95','90']){await p.fill('#score',sc);await p.fill('#cr','71.3');await p.fill('#sl','129');await p.click('#btn-add');}}await p.waitForTimeout(150);};
     const stub=async p=>{await p.evaluate(()=>{window.fetch=()=>Promise.resolve({ok:true,status:200});});};
     for(const [w,hgt] of [[375,812],[320,568]]){const sz=`${w}x${hgt}`;
-      for(const t of ['skins','stableford','daily-handicap','handicap-calculator']){
+      for(const t of ['skins','stableford','daily-handicap','handicap-calculator'].concat(pages.some(p=>p[0]==='scramble-handicap-calculator')?['scramble-handicap-calculator']:[])){
         await check(`v11 P2 ${t}: email card after a real result`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-nl-card').scrollIntoView({block:'center'}));},`v11-p2-${t}-email-card-${sz}.png`,hgt);
         await check(`v11 P2 ${t}: gear for this game`,w,'/'+t,async p=>{await result(p,t);await p.evaluate(()=>document.getElementById('gc-gear').scrollIntoView({block:'center'}));},`v11-p2-${t}-gear-${sz}.png`,hgt);
         const p=await page(w,hgt);await p.goto(base+'/'+t,{waitUntil:'load'});await result(p,t);
@@ -574,8 +597,8 @@ const gate=(bad,msg)=>{if(bad){fail=1;}return bad?'FAIL':'PASS';};
   // the Stableford example as a shared result link (same bytes the page writes; share-link design §3 sample)
   const SHARED='/stableford#r=1z.TY7BSsNQFER_Rc76Cibvzk19uy66EVy5DFk801QLKQ2tSEH899JHEWc1zDCH-eGb3BhfZM47jJHM5lIOyzw9jOW0xTiRaVYYF_KTsZRb4J7knlx_BuO8J6PUdM_v291n67Eq4_Sxx1hmct_zOs1Y0xqSh9wleQp5khis560csNbwqkr3O_1Wvxyx1o0IdQqPCHknSVHr9Yw91vW_bxXBMPxeAQ';
   const SKSHARED='/skins#r=1z.Tc5NbsJADEDhuzyx9CJDbEi9K-0tIhYDDC1ioIj0DyHujiZAhLwZyd88-cwvHoRvnG6LMMIxhCNOaBB2OGuEiIeqEpa9Tzh7hC98_5OzcIjlh2ptqrXa8EDoNqVZh-nLYrX-HOukicv0sUE4ZLxtec3pH6nkVlKrTSdqpXAb5tIyy3GbEL0r07Iq2zuyXr3FLp2QZmhpQU-wV-_H9IeE8dCycuojqaU1v1wB'; // the Skins example link (tests/baseline/skins-share-link-12nov.json)
-  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['handicap-calculator','/handicap-calculator'],['handicap-shared','/handicap-calculator#d=181.208.164.181.216.173.218.236'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
-    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare)&&!(n==='handicap-shared'&&pages.some(p=>p[0]==='handicap-calculator')))continue;
+  if(!noLh){for(const [n,u] of [['home','/'],['skins','/skins'],['skins-shared',SKSHARED],['stableford','/stableford'],['stableford-shared',SHARED],['privacy','/privacy'],['daily-handicap','/daily-handicap'],['handicap-calculator','/handicap-calculator'],['handicap-shared','/handicap-calculator#d=181.208.164.181.216.173.218.236'],['scramble-handicap-calculator','/scramble-handicap-calculator'],['scramble-shared','/scramble-handicap-calculator#r=1.eyJ2IjoxLCJzIjo0LCJtIjoidXNnYSIsImsiOiJoaSIsInIiOjAsInAiOltbIkFsZXgiLDguNF0sWyJCbGFrZSIsMTIuNl0sWyJDYXNleSIsMjMuNF0sWyJEcmV3IiwzMS4yXV0sImMiOlsxMzUsNzIuMyw3Ml19'],['feedback','/feedback'],['feedback-thanks','/feedback-thanks']]){
+    if(!pages.some(p=>p[0]===n)&&!(n==='stableford-shared'&&hasShare)&&!(n==='skins-shared'&&hasSkShare)&&!(n==='handicap-shared'&&pages.some(p=>p[0]==='handicap-calculator'))&&!(n==='scramble-shared'&&pages.some(p=>p[0]==='scramble-handicap-calculator')))continue;
     const runLh=i=>{const out=path.join(OUT,`lh-${n}${i?'-run'+(i+1):''}.json`);const r=JSON.parse(execFileSync(process.execPath,[path.join(__dirname,'lh.js'),base+u,out],{encoding:'utf8'}).trim().split('\n').pop());r.report=out;return r;};
     const budget=x=>x.perf>=95&&x.a11y>=95&&x.lcpMs<=2500&&x.cls<=0.1;
     let runs=[runLh(0)];if(!budget(runs[0]))runs.push(runLh(1),runLh(2));

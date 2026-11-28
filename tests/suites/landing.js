@@ -17,7 +17,7 @@ ok('only one primary button on the page (Skins is the star)',d.querySelectorAll(
 const trust=d.getElementById('lp-trust');const tt=norm(trust&&trust.textContent).toLowerCase();
 ok('trust row says free, no sign-up, works on your phone',/free/.test(tt)&&/no sign-up/.test(tt)&&/works on your phone/.test(tt),tt);
 const cards=[...d.querySelectorAll('.lp-cards a')];
-const wantCards=fs.existsSync(path.join(SITE,'handicap-calculator.html'))?['/stableford','/daily-handicap','/handicap-calculator']:['/stableford','/daily-handicap']; // v10 P1: home links the Handicap Index calculator too
+const wantCards=(fs.existsSync(path.join(SITE,'handicap-calculator.html'))?['/stableford','/daily-handicap','/handicap-calculator']:['/stableford','/daily-handicap']).concat(fs.existsSync(path.join(SITE,'scramble-handicap-calculator.html'))?['/scramble-handicap-calculator']:[]); // v10 P1: home links the Handicap Index calculator too; v12: and the scramble calculator
 ok('secondary cards: Stableford, Daily Handicap (and the v10 Handicap Index calculator), each with a one-line description',cards.length===wantCards.length&&wantCards.every(h=>cards.some(a=>a.getAttribute('href')===h&&norm((a.querySelector('span')||{}).textContent).length>10)));
 ok('nav links all three calculators',['/skins','/stableford','/daily-handicap'].every(h=>d.querySelector(`nav.gc-nav a[href="${h}"]`)));
 ok('shared gc.css inlined byte-identical',(d.querySelector('style[data-src="/gc.css"]')||{}).textContent===fs.readFileSync(path.join(SITE,'gc.css'),'utf8'));

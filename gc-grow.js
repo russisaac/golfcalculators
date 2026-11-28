@@ -5,13 +5,21 @@
      in the POST body to this site; never into a URL, storage or analytics.
    - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
      signup (localStorage keeps only a date or a flag).
-   - Gear: built from the inlined affiliates.json, only items with a url for the region; with none it renders nothing.
-     Links open a new tab with rel="sponsored nofollow noopener"; a click sends affiliate_click {tool, item id}. */
+   - Gear: built from the inlined affiliates.json, only items with a url for the store; with none it renders nothing.
+     Store (v12): "au" (amazon.com.au, tag golfcalc-22) when navigator.language is en-AU or the Intl time zone is
+     Australia/*, otherwise "us" (amazon.com, tag golfcalc-20); an item without an AU link falls back to its US link.
+     Worked out in the browser each time; nothing is stored. Links open a new tab with rel="sponsored nofollow noopener";
+     a click sends affiliate_click {tool, item id, store} and nothing else. */
 (function () {
   var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
   function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
   function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
-  function track(name, tool, item) { if (window.gcTrack) window.gcTrack(name, tool, item); }
+  function track(name, tool, item, store) { if (window.gcTrack) window.gcTrack(name, tool, item, store); }
+  function storeFor(lang, tz) { return /^en-AU$/i.test(String(lang || '')) || /^Australia\//.test(String(tz || '')) ? 'au' : 'us'; }
+  function store() {
+    var tz = ''; try { tz = window.Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    return storeFor(navigator.language, tz);
+  }
   function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
   function body(form) {
     var out = [];
@@ -61,7 +69,7 @@
       return;
     }
     var a = e.target.closest && e.target.closest('a[data-aff]');
-    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'));
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'), a.getAttribute('data-store'));
   });
   function cardAllowed() {
     if (get('localStorage', DONE)) return false;
@@ -74,16 +82,19 @@
     if (!box || box.childNodes.length) return;
     try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
     var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var want = store(), ok = function (u) { return typeof u === 'string' && /^https:\/\//.test(u); };
+    var pick = function (it) { var u = it && it.url || {}; return ok(u[want]) ? want : ok(u[cfg.region]) ? cfg.region : null; }; // AU first for AU visitors, else the default store
     var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
-      var u = it && it.url && it.url[cfg.region]; return u && /^https:\/\//.test(u) && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+      var k = pick(it); return (k === 'au' || k === 'us') && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
     }).slice(0, 3);
     if (!list.length) return; // nothing to show: no heading, no disclosure, no box
     var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
     var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
     list.forEach(function (it) {
       var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
-      a.href = it.url[cfg.region]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
-      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool);
+      var k = pick(it);
+      a.href = it.url[k]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool); a.setAttribute('data-store', k);
       b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
       a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
     });
@@ -99,6 +110,6 @@
       if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
       gear(tool);
     },
-    gear: gear, cardAllowed: cardAllowed, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+    gear: gear, cardAllowed: cardAllowed, store: store, storeFor: storeFor, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
   };
 })();

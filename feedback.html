@@ -200,13 +200,14 @@ html{scroll-padding-top:60px}
      hi_calculate (v10: a Handicap Index was worked out; never the scores, differentials or the index itself),
      dh_calculate (v11: a Daily Handicap was worked out; never the handicap, ratings or result), email_signup and
      email_dismiss (v11: never the email address). affiliate_click (v11) adds one more parameter, item: the gear id
-     from affiliates.json (lowercase letters, digits and hyphens only). The tool may also be "scramble" (v12).
+     from affiliates.json (lowercase letters, digits and hyphens only), and (v12) store: "au" or "us", the Amazon store
+     the link went to. The tool may also be "scramble" (v12).
      scramble_calculate (v12: a scramble or Ambrose team handicap was worked out) carries one parameter only, mode:
      "usga", "ambrose" or "custom"; never the tool, names, handicaps or the team handicap. Anything else is dropped. */
 (function () {
   var ID = 'G-DH32H3GWKE', ON = location.hostname === 'golfcalculators.com' || location.hostname === 'www.golfcalculators.com';
   var EVENTS = ['round_settled', 'result_shared', 'shared_link_opened', 'start_own_from_viewer', 'hi_calculate', 'dh_calculate', 'email_signup', 'email_dismiss', 'affiliate_click', 'scramble_calculate'],
-    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'];
+    TOOLS = ['skins', 'stableford', 'handicap', 'daily-handicap', 'scramble', 'site'], ITEM = /^[a-z][a-z0-9-]{0,31}$/, MODES = ['usga', 'ambrose', 'custom'], STORES = ['au', 'us'];
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
   function pageLocation() {
@@ -225,7 +226,7 @@ html{scroll-padding-top:60px}
     addEventListener('popstate', reset);
     addEventListener('hashchange', reset);
   }
-  window.gcTrack = function (name, tool, item) {
+  window.gcTrack = function (name, tool, item, store) {
     if (name === 'scramble_calculate') { // v12: {mode} only
       if (!ON || tool !== 'scramble' || MODES.indexOf(item) < 0) return false;
       gtag('event', name, { mode: item });
@@ -233,7 +234,7 @@ html{scroll-padding-top:60px}
     }
     if (!ON || EVENTS.indexOf(name) < 0 || TOOLS.indexOf(tool) < 0) return false;
     var p = { tool: tool };
-    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item)) return false; p.item = item; }
+    if (name === 'affiliate_click') { if (typeof item !== 'string' || !ITEM.test(item) || STORES.indexOf(store) < 0) return false; p.item = item; p.store = store; }
     gtag('event', name, p);
     return true;
   };
@@ -261,6 +262,7 @@ html{scroll-padding-top:60px}
       <option value="stableford">Stableford calculator</option>
       <option value="daily-handicap">Daily Handicap calculator</option>
       <option value="handicap-calculator">Handicap Index calculator</option>
+      <option value="scramble-handicap-calculator">Scramble handicap calculator</option>
       <option value="home">Home page</option>
       <option value="privacy">Privacy page</option>
       <option value="other" selected>Something else</option>
@@ -281,11 +283,11 @@ html{scroll-padding-top:60px}
 <footer class="gc-footer">
 <div class="gc-nl-foot"><form class="gc-nl-form" name="newsletter" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field" novalidate aria-labelledby="nl-f-t"><input type="hidden" name="form-name" value="newsletter"><input type="hidden" name="tool" value="site"><p class="gc-nl-hp" hidden><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p><p class="gc-nl-t" id="nl-f-t"><strong>New golf calculators, first.</strong> One email a month, max.</p><label class="gc-label" for="nl-f-email">Email</label><div class="gc-nl-row"><input class="gc-input" type="email" id="nl-f-email" name="email" autocomplete="email" aria-describedby="nl-f-err"><button type="submit" class="gc-btn gc-btn-secondary">Subscribe</button></div><label class="gc-nl-consent"><input type="checkbox" name="consent" value="yes"> <span>Yes, email me new calculators. Unsubscribe any time.</span></label><p class="gc-nl-err" id="nl-f-err" aria-live="polite"></p></form></div>
 <p class="gc-footer-links"><a href="/feedback" aria-current="page">Feedback</a> · <a href="/privacy">Privacy</a> · golfcalculators.com</p>
-<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases.</p>
+<p class="gc-footer-aff">As an Amazon Associate we earn from qualifying purchases (Amazon.com.au and Amazon.com).</p>
 </footer>
 <script>
 (function () { // the page is filled in from ?from= (known pages only); at least one box must have something in it
-  var PAGES = ['skins', 'stableford', 'daily-handicap', 'handicap-calculator', 'home', 'privacy'];
+  var PAGES = ['skins', 'stableford', 'daily-handicap', 'handicap-calculator', 'scramble-handicap-calculator', 'home', 'privacy'];
   var q = new URLSearchParams(location.search).get('from'), sel = document.getElementById('fb-page');
   if (q && PAGES.indexOf(q) >= 0) sel.value = q;
   var form = document.getElementById('fb-form'), err = document.getElementById('fb-err');
@@ -305,13 +307,21 @@ html{scroll-padding-top:60px}
      in the POST body to this site; never into a URL, storage or analytics.
    - The card after a result: shown at most once per browser session, never again for 30 days after the x, never after a
      signup (localStorage keeps only a date or a flag).
-   - Gear: built from the inlined affiliates.json, only items with a url for the region; with none it renders nothing.
-     Links open a new tab with rel="sponsored nofollow noopener"; a click sends affiliate_click {tool, item id}. */
+   - Gear: built from the inlined affiliates.json, only items with a url for the store; with none it renders nothing.
+     Store (v12): "au" (amazon.com.au, tag golfcalc-22) when navigator.language is en-AU or the Intl time zone is
+     Australia/*, otherwise "us" (amazon.com, tag golfcalc-20); an item without an AU link falls back to its US link.
+     Worked out in the browser each time; nothing is stored. Links open a new tab with rel="sponsored nofollow noopener";
+     a click sends affiliate_click {tool, item id, store} and nothing else. */
 (function () {
   var DISMISS = 'gc_nl_dismissed_v1', DONE = 'gc_nl_done_v1', SESSION = 'gc_nl_shown_v1', DAYS30 = 30 * 864e5, shownHere = false;
   function get(st, k) { try { return window[st].getItem(k); } catch (e) { return null; } }
   function put(st, k, v) { try { window[st].setItem(k, v); } catch (e) {} }
-  function track(name, tool, item) { if (window.gcTrack) window.gcTrack(name, tool, item); }
+  function track(name, tool, item, store) { if (window.gcTrack) window.gcTrack(name, tool, item, store); }
+  function storeFor(lang, tz) { return /^en-AU$/i.test(String(lang || '')) || /^Australia\//.test(String(tz || '')) ? 'au' : 'us'; }
+  function store() {
+    var tz = ''; try { tz = window.Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) {}
+    return storeFor(navigator.language, tz);
+  }
   function toolOf(form) { var t = form.querySelector('input[name="tool"]'); return t ? t.value : 'site'; }
   function body(form) {
     var out = [];
@@ -361,7 +371,7 @@ html{scroll-padding-top:60px}
       return;
     }
     var a = e.target.closest && e.target.closest('a[data-aff]');
-    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'));
+    if (a) track('affiliate_click', a.getAttribute('data-tool'), a.getAttribute('data-aff'), a.getAttribute('data-store'));
   });
   function cardAllowed() {
     if (get('localStorage', DONE)) return false;
@@ -374,16 +384,19 @@ html{scroll-padding-top:60px}
     if (!box || box.childNodes.length) return;
     try { cfg = JSON.parse(src.textContent); } catch (e) { return; }
     var byId = {}; (cfg.items || []).forEach(function (it) { byId[it.id] = it; });
+    var want = store(), ok = function (u) { return typeof u === 'string' && /^https:\/\//.test(u); };
+    var pick = function (it) { var u = it && it.url || {}; return ok(u[want]) ? want : ok(u[cfg.region]) ? cfg.region : null; }; // AU first for AU visitors, else the default store
     var list = ((cfg.tools || {})[tool] || []).map(function (id) { return byId[id]; }).filter(function (it) {
-      var u = it && it.url && it.url[cfg.region]; return u && /^https:\/\//.test(u) && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
+      var k = pick(it); return (k === 'au' || k === 'us') && /^[a-z][a-z0-9-]{0,31}$/.test(it.id);
     }).slice(0, 3);
     if (!list.length) return; // nothing to show: no heading, no disclosure, no box
     var h = document.createElement('h2'); h.textContent = 'Gear for this game'; box.appendChild(h);
     var ul = document.createElement('ul'); ul.className = 'gc-gear-list';
     list.forEach(function (it) {
       var li = document.createElement('li'), a = document.createElement('a'), b = document.createElement('strong'), s = document.createElement('span');
-      a.href = it.url[cfg.region]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
-      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool);
+      var k = pick(it);
+      a.href = it.url[k]; a.target = '_blank'; a.rel = 'sponsored nofollow noopener';
+      a.setAttribute('data-aff', it.id); a.setAttribute('data-tool', tool); a.setAttribute('data-store', k);
       b.textContent = it.label + ' \u2197'; s.textContent = it.note || '';
       a.appendChild(b); a.appendChild(s); li.appendChild(a); ul.appendChild(li);
     });
@@ -399,7 +412,7 @@ html{scroll-padding-top:60px}
       if (card && cardAllowed()) { card.hidden = false; shownHere = true; put('sessionStorage', SESSION, '1'); }
       gear(tool);
     },
-    gear: gear, cardAllowed: cardAllowed, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
+    gear: gear, cardAllowed: cardAllowed, store: store, storeFor: storeFor, KEYS: { DISMISS: DISMISS, DONE: DONE, SESSION: SESSION }
   };
 })();
 </script>

@@ -118,5 +118,39 @@ module.exports = {
       ['Where do I find the Slope Rating and Scratch Rating?', 'They are set for each set of tees, usually printed on the scorecard or on the club\'s Daily Handicap chart near the first tee. Use the ratings for the tees you are playing (and for 9 holes, the 9-hole ratings). If in doubt, ask the pro shop.'],
       ['How does rounding work?', 'The result is rounded to the nearest whole number, and .5 rounds up: 10.5 becomes 11. For plus handicaps .5 rounds towards scratch: +0.5 is scratch and +1.5 is +1, but +1.501 is +2 (Golf Australia, §3H).']
     ]
+  },
+  // v12: Scramble / Texas scramble / Ambrose team handicap. Sources checked 28 Nov 2026 (see the page's engine comment).
+  'scramble-handicap-calculator': {
+    name: 'Scramble Handicap Calculator',
+    how: `
+  <h2 id="how-h">How it's calculated</h2>
+  <p>Each player needs a Course Handicap for the tees being played (in Australia, the Daily Handicap). The team handicap takes a share of each and is rounded once:</p>
+  <ul class="gc-learn-list">
+    <li>USGA scramble (Rules of Handicapping, Appendix C): 2 players, 35% of the lower Course Handicap plus 15% of the higher; 3 players, 30%, 20% and 10%; 4 players, 25%, 20%, 15% and 10%, from the lowest Course Handicap to the highest.</li>
+    <li>Ambrose, the traditional Australian club method: add the handicaps and divide by 4 for 2 players, 6 for 3 and 8 for 4.</li>
+    <li>Custom: the percentages your event's terms set, lowest handicap first.</li>
+  </ul>
+  <p>From a Handicap Index, Course Handicap = Index × Slope ÷ 113 + (Course Rating − Par), kept unrounded. The team total is rounded to the nearest whole number with .5 rounding up (Rule 6.2a), or to one decimal place if your event says so.</p>
+  <h3>Worked example</h3>
+  <p>This is the USGA's own 4-player example. The Handicap Indexes are <span data-ex="hi-0">8.4</span>, <span data-ex="hi-1">12.6</span>, <span data-ex="hi-2">23.4</span> and <span data-ex="hi-3">31.2</span>, on tees with a Course Rating of <span data-ex="cr">72.3</span>, a Slope of <span data-ex="sl">135</span> and par <span data-ex="par">72</span>. The lowest Course Handicap is 8.4 × 135 ÷ 113 + 0.3 = <span data-ex="ch-0">10.34</span>; the others are <span data-ex="ch-1">15.35</span>, <span data-ex="ch-2">28.26</span> and <span data-ex="ch-3">37.57</span>.</p>
+  <ul class="gc-learn-list">
+    <li>25% × 10.34 = <span data-ex="share-0">2.58</span></li>
+    <li>20% × 15.35 = <span data-ex="share-1">3.07</span></li>
+    <li>15% × 28.26 = <span data-ex="share-2">4.24</span></li>
+    <li>10% × 37.57 = <span data-ex="share-3">3.76</span></li>
+  </ul>
+  <p class="gc-learn-result">Team handicap: <span data-ex="raw">13.65</span> → <span data-ex="team">14</span></p>
+  <p>Played as Ambrose off whole-number handicaps of 10, 15, 28 and 38, the same team gets (10 + 15 + 28 + 38) ÷ 8 = <span data-ex="amb-raw">11.38</span>, so <span data-ex="amb-team">11</span>. Tap <strong>Load example</strong> at the top to see the USGA version worked.</p>
+  <p class="gc-learn-src" id="rules-source">Rules sources, checked 28 Nov 2026: USGA, <a href="https://www.usga.org/handicapping/roh/Content/rules/Committee%20Content/USGA/LG_R7h5.htm" rel="noopener"><cite>Rules of Handicapping, Appendix C: Scramble</cite></a> (effective 1 January 2024), with Rule 6.1 (Course Handicap) and Rule 6.2a (rounding); ${GA_CITE}, §10(A) handicap allowances. Ambrose ÷ 8 is the traditional Australian club method, as in <a href="https://www.leuragolfclub.com.au/competition-rules-and-etiquette/" rel="noopener">Leura Golf Club's competition rules</a>.</p>
+  <p>Need the handicaps first? <a href="/daily-handicap">Work out each player's Daily Handicap</a>, or <a href="/handicap-calculator">estimate a GA Handicap from recent rounds</a>.</p>`,
+    faq: [
+      ['What are the USGA scramble handicap allowances?', 'The Rules of Handicapping, Appendix C, recommends 35% of the lower Course Handicap plus 15% of the higher for 2 players; 30%, 20% and 10% for 3; and 25%, 20%, 15% and 10% for 4, from the lowest Course Handicap to the highest. Add the shares, then round the total once (USGA, checked 28 Nov 2026).'],
+      ['How do you work out a 4-person scramble handicap?', 'Sort the four Course Handicaps from lowest to highest. Take 25% of the lowest, 20% of the next, 15% of the third and 10% of the highest, add them and round to the nearest whole number. The USGA\'s example team of 10.34, 15.35, 28.26 and 37.57 gets 13.65, so 14.'],
+      ['What is the difference between Ambrose and a Texas scramble?', 'They work the same way: everyone hits, the team picks the best shot and all play from there. Ambrose is the Australian name, often with a minimum number of drives from each player. Its traditional handicap is the combined Daily Handicaps ÷ 4 for pairs, ÷ 6 for threes and ÷ 8 for fours.'],
+      ['Does Golf Australia use ÷ 8 for Ambrose?', 'Golf Australia\'s WHS guide (January 2026, §10(A)) lists the R&A and USGA allowances for “Ambrose or Scramble”: 25/20/15/10% for 4 golfers and 35/15% for 2, with team handicaps usually to one decimal place. Many clubs still use ÷ 8. Use the method your event sheet names.'],
+      ['Should I use Course Handicap or Handicap Index?', 'Course Handicap. The allowances apply to each player\'s Course Handicap for the tees played; in Australia, use the Daily Handicap. If you only know Handicap Indexes, choose Handicap Index and enter the Slope, Course Rating and Par.', {text:'Daily Handicap', href:'/daily-handicap'}],
+      ['Do you round each player or the team total?', 'The team total, once. The USGA applies the percentages to unrounded Course Handicaps, adds them and rounds the total to the nearest whole number, with .5 rounding up (Rule 6.2a). Rounding each player first can put you a stroke out. A plus team handicap rounds toward zero.'],
+      ['Can our event use different percentages?', 'Yes. The Appendix C allowances are recommendations for a normal field, and a committee can set its own in the terms of the competition. Choose Custom % and enter them, lowest handicap first.']
+    ]
   }
 };

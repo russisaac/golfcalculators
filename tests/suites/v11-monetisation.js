@@ -11,6 +11,7 @@ const rd=n=>fs.readFileSync(path.join(SITE,n),'utf8');
 if(!fs.existsSync(path.join(SITE,'gc-grow.js'))){console.log('SKIP  v11 monetisation not on this branch');process.exit(0);}
 const pages=fs.readdirSync(SITE).filter(n=>n.endsWith('.html')).sort();
 const TOOLS={'skins.html':'skins','stableford.html':'stableford','daily-handicap.html':'daily-handicap','handicap-calculator.html':'handicap'};
+if(fs.existsSync(path.join(SITE,'scramble-handicap-calculator.html')))TOOLS['scramble-handicap-calculator.html']='scramble'; // v12
 const grow=rd('gc-grow.js'),affSrc=rd('affiliates.json'),aff=JSON.parse(affSrc);
 const EMAIL='golfer.test+v11@example.com';
 // ---- static markup ----
@@ -24,7 +25,7 @@ function formOk(f,tool){if(!f)return 'missing';
 for(const n of pages){const d=new JSDOM(rd(n)).window.document,t=TOOLS[n]||'site';
   const r=formOk(d.querySelector('footer .gc-nl-foot form.gc-nl-form'),t);
   ok(`${n}: footer signup = Netlify form "newsletter", POST, honeypot, labelled type=email + autocomplete, unticked consent, error wired by aria-describedby`,r==='',r);
-  ok(`${n}: footer says "As an Amazon Associate we earn from qualifying purchases."`,/As an Amazon Associate we earn from qualifying purchases\./.test(d.querySelector('footer').textContent));
+  ok(`${n}: footer says "As an Amazon Associate we earn from qualifying purchases (Amazon.com.au and Amazon.com)." (v12: both stores)`,/As an Amazon Associate we earn from qualifying purchases \(Amazon\.com\.au and Amazon\.com\)\./.test(d.querySelector('footer').textContent));
   const m=rd(n).match(/<script data-src="\/gc-grow\.js">([\s\S]*?)<\/script>/);ok(`${n}: gc-grow.js inlined byte-identical`,!!m&&m[1]===grow);
   ok(`${n}: no form can send the address in a URL (no GET newsletter form)`,[...d.querySelectorAll('form.gc-nl-form')].every(f=>f.getAttribute('method')==='POST'));
   if(TOOLS[n]){const c=d.getElementById('gc-nl-card');
@@ -44,18 +45,20 @@ for(const it of aff.items){const u=it.url[aff.region];const U=new URL(u);
 for(const t of Object.values(TOOLS))ok(`affiliates.json: ${t} lists 2-3 known items`,(aff.tools[t]||[]).length>=2&&aff.tools[t].length<=3&&aff.tools[t].every(i=>ids.includes(i)));
 // ---- behaviour ----
 const dl=h=>[...(h.w.dataLayer||[])].map(a=>[...a]);const evs=h=>dl(h).filter(a=>a[0]==='event');
-function make(n,{session,storage,fetchOk=true,html}={}){const calls=[];let file=path.join(SITE,n);
+function locale(w,lang='en-US',tz='UTC'){Object.defineProperty(w.navigator,'language',{value:lang,configurable:true});const I=w.Intl;w.Intl=Object.assign(Object.create(I),{DateTimeFormat:function(){return {resolvedOptions:()=>({timeZone:tz})};}});}
+function make(n,{session,storage,fetchOk=true,html,lang,tz}={}){const calls=[];let file=path.join(SITE,n);
   if(html){file=path.join(os.tmpdir(),'v11-fixture-'+n);fs.writeFileSync(file,html);}
   const h=boot(file,{url:'https://golfcalculators.com/'+n.replace('.html',''),storage,beforeParse(w){
-    if(session)for(const k in session)w.sessionStorage.setItem(k,session[k]);
+    locale(w,lang,tz);if(session)for(const k in session)w.sessionStorage.setItem(k,session[k]);
     w.fetch=(u,o)=>{calls.push({u,o});return Promise.resolve({ok:fetchOk,status:fetchOk?200:404});};w.CompressionStream=CompressionStream;w.DecompressionStream=DecompressionStream;}});
   h.calls=calls;return h;}
 const tick=()=>new Promise(r=>setTimeout(r,5));
 function realResult(h,n){
   if(n==='skins.html'||n==='stableford.html'){const U=h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'];U.loadExample();const s=U.state();s.scores[1]=s.scores[1].map(v=>v+1);U.show('result');}
   else if(n==='daily-handicap.html'){h.set('ga','12.4');h.set('slope','131');h.set('scratch','70.5');h.set('par','72');}
+  else if(n==='scramble-handicap-calculator.html'){['14','8','22','30'].forEach((v,i)=>h.set('ph'+i,v));}
   else{for(const sc of ['92','95','90']){h.$('score').value=sc;h.$('cr').value='71.3';h.$('sl').value='129';h.$('btn-add').click();}}}
-function example(h,n){if(n==='daily-handicap.html')h.$('dh-example').click();else if(n==='handicap-calculator.html')h.$('btn-example').click();else h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'].loadExample();}
+function example(h,n){if(n==='daily-handicap.html')h.$('dh-example').click();else if(n==='handicap-calculator.html'||n==='scramble-handicap-calculator.html')h.$('btn-example').click();else h.w[n==='skins.html'?'GCSkinsUI':'GCStablefordUI'].loadExample();}
 const visible=e=>!!e&&!e.hidden&&!e.closest('[hidden]');
 (async()=>{
 for(const [n,tool] of Object.entries(TOOLS)){
@@ -70,7 +73,7 @@ for(const [n,tool] of Object.entries(TOOLS)){
    ok(`${n}: gear heading "Gear for this game" and the disclosure line`,/Gear for this game/.test(h.$('gc-gear').textContent)&&/We may earn a commission from links on this page\./.test(h.$('gc-gear').textContent));
    const before=evs(h).length;g[0].addEventListener('click',e=>e.preventDefault());g[0].click();
    const last=evs(h).pop();
-   ok(`${n}: a gear click sends affiliate_click {tool:"${tool}", item:"${aff.tools[tool][0]}"} and nothing else`,evs(h).length===before+1&&JSON.stringify(last)===JSON.stringify(['event','affiliate_click',{tool,item:aff.tools[tool][0]}]),JSON.stringify(last));
+   ok(`${n}: a gear click sends affiliate_click {tool:"${tool}", item:"${aff.tools[tool][0]}", store:"us"} and nothing else (US visitor)`,evs(h).length===before+1&&JSON.stringify(last)===JSON.stringify(['event','affiliate_click',{tool,item:aff.tools[tool][0],store:'us'}]),JSON.stringify(last));
    // submit flows on the card
    const f=c.querySelector('form'),em=f.querySelector('input[type=email]'),cb=f.querySelector('input[name=consent]'),err=h.d.getElementById(em.getAttribute('aria-describedby'));
    em.value='not-an-email';f.dispatchEvent(new h.w.Event('submit',{cancelable:true,bubbles:true}));
@@ -84,7 +87,7 @@ for(const [n,tool] of Object.entries(TOOLS)){
    ok(`${n}: email_signup {tool:"${tool}"} sent once`,evs(h).filter(a=>a[1]==='email_signup').length===1&&JSON.stringify(evs(h).find(a=>a[1]==='email_signup')[2])===JSON.stringify({tool}));
    const store=JSON.stringify({...h.w.localStorage})+JSON.stringify({...h.w.sessionStorage});
    ok(`${n}: the address is nowhere but the POST body: not in GA, the URL, localStorage or sessionStorage`,!JSON.stringify(dl(h)).includes('example.com')&&!h.w.location.href.includes('example')&&!store.includes('example.com')&&!store.includes('golfer'));
-   ok(`${n}: dataLayer events are only known names with {tool} (+item for affiliate_click)`,evs(h).every(a=>a.length===3&&typeof a[2].tool==='string'&&Object.keys(a[2]).every(k=>k==='tool'||(k==='item'&&a[1]==='affiliate_click'))));}
+   ok(`${n}: dataLayer events are only known names with {tool} (+item for affiliate_click; v12 scramble_calculate: {mode} only)`,evs(h).every(a=>a.length===3&&(a[1]==='scramble_calculate'?Object.keys(a[2]).join()==='mode'&&['usga','ambrose','custom'].includes(a[2].mode):typeof a[2].tool==='string'&&Object.keys(a[2]).every(k=>k==='tool'||((k==='item'||k==='store')&&a[1]==='affiliate_click')))));}
   {const h=make(n,{session:{gc_nl_shown_v1:'1'}});realResult(h,n);ok(`${n}: already shown this session: no card`,h.$('gc-nl-card').hidden);}
   {const h=make(n,{storage:{gc_nl_done_v1:'1'}});realResult(h,n);ok(`${n}: already signed up: no card`,h.$('gc-nl-card').hidden);}
   {const h=make(n);realResult(h,n);h.$('gc-nl-card').querySelector('.gc-nl-x').click();
@@ -134,7 +137,7 @@ for(const n of pages){const h=boot(path.join(SITE,n),{url:'https://golfcalculato
 // privacy
 {const pv=new JSDOM(rd('privacy.html')).window.document.querySelector('main').textContent.replace(/\s+/g,' ');
  ok('/privacy: newsletter collects email only, stored by Netlify Forms, how to unsubscribe (reply or email the contact address)',/collect your email address only/.test(pv)&&/Netlify Forms/.test(pv)&&/To unsubscribe, reply to any email from us, or email the address under Contact/.test(pv));
- ok('/privacy: affiliate disclosure, Amazon Associate line',/We may earn a commission from links/.test(pv)&&/As an Amazon Associate we earn from qualifying purchases\./.test(pv));
+ ok('/privacy: affiliate disclosure, Amazon Associate line naming both stores (v12)',/We may earn a commission from links/.test(pv)&&/As an Amazon Associate \(Amazon\.com\.au and Amazon\.com\) we earn from qualifying purchases\./.test(pv));
  const ue=(rd('privacy.html').match(/<p id="usage-events">([^<]*)<\/p>/)||[])[1]||'';
  ok('/privacy event list names the new events (Daily Handicap worked out, email signup/dismiss, gear click) and says never an email address',/Daily Handicap is worked out/.test(ue)&&/signs up for or dismisses the email updates/.test(ue)&&/gear link is clicked/.test(ue)&&/never an email address/.test(ue));}
 process.exitCode=report('v11-monetisation')?1:0;

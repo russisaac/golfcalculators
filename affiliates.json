@@ -1,12 +1,13 @@
 {
- "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per region. A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts.",
+ "note": "v11 Gear for this game. One entry per item: id (lowercase, used as the GA affiliate_click item), label, note, url per store (us: amazon.com, tag golfcalc-20; au: amazon.com.au, tag golfcalc-22). A tool shows its listed items that have a url for the region; with no urls the block renders nothing. Inlined verbatim into the calculator pages (a JSON script tag with data-src /affiliates.json); tests/run fails if a copy drifts. v12: AU visitors (navigator.language en-AU or an Australia/* time zone) get the au url, everyone else the default region (us).",
  "region": "us",
  "tag": "golfcalc-20",
+ "tags": {"us": "golfcalc-20", "au": "golfcalc-22"},
  "disclosure": "We may earn a commission from links on this page.",
  "items": [
-  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20"}},
-  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20"}},
-  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20"}}
+  {"id": "rangefinder", "label": "Golf rangefinder", "note": "Exact yardage to the pin", "url": {"us": "https://www.amazon.com/s?k=golf+rangefinder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+rangefinder&tag=golfcalc-22"}},
+  {"id": "golf-balls", "label": "Golf balls", "note": "Dozen packs for the next round", "url": {"us": "https://www.amazon.com/s?k=golf+balls&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+balls&tag=golfcalc-22"}},
+  {"id": "scorecard-holder", "label": "Scorecard holder", "note": "Keeps the card dry, with a pencil", "url": {"us": "https://www.amazon.com/s?k=golf+scorecard+holder&tag=golfcalc-20", "au": "https://www.amazon.com.au/s?k=golf+scorecard+holder&tag=golfcalc-22"}}
  ],
  "tools": {
   "skins": ["scorecard-holder", "golf-balls", "rangefinder"],
